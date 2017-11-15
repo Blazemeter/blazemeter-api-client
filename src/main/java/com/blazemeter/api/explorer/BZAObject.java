@@ -9,7 +9,6 @@ import com.blazemeter.api.utils.BlazeMeterUtils;
  */
 public class BZAObject {
 
-
     protected String id;
     protected String name;
     protected BlazeMeterUtils utils;
