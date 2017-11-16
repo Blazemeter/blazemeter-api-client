@@ -1,1 +1,1 @@
-# blazemeter-api-client
+[![Build Status](https://travis-ci.org/Blazemeter/blazemeter-api-client.svg?branch=master)](https://travis-ci.org/Blazemeter/blazemeter-api-client)
