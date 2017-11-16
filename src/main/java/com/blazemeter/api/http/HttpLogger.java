@@ -12,10 +12,21 @@
  * limitations under the License.
  */
 
-package com.blazemeter.api.logging;
+package com.blazemeter.api.http;
 
-public interface UserNotifier {
+import com.blazemeter.api.logging.Logger;
+import okhttp3.logging.HttpLoggingInterceptor;
 
-    void notifyAbout(String info);
+public class HttpLogger implements HttpLoggingInterceptor.Logger {
 
+    private final Logger logger;
+
+    public HttpLogger(Logger logger) {
+        this.logger = logger;
+    }
+
+    @Override
+    public void log(String message) {
+        logger.debug(message);
+    }
 }
