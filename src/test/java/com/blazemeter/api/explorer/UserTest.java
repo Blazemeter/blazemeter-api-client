@@ -24,6 +24,8 @@ import net.sf.json.JSONObject;
 
 import java.util.List;
 
+import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
+import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 
 public class UserTest {
@@ -33,7 +35,7 @@ public class UserTest {
         Logger logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
-        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul("test_address", "test_data_address", notifier, logger);
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         User user = new User(emul);
 
@@ -45,7 +47,7 @@ public class UserTest {
         result.add(acc);
         JSONObject response = new JSONObject();
         response.put("result", result);
-        emul.addEmul(response);
+        emul.addEmul(response.toString());
 
         List<Account> accounts = user.getAccounts();
         assertEquals(2, accounts.size());
