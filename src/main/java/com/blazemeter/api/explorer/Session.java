@@ -1,12 +1,9 @@
 package com.blazemeter.api.explorer;
 
 
+import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
-import net.sf.json.JSON;
-import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import net.sf.json.JsonConfig;
 
 import java.io.IOException;
 
@@ -34,7 +31,7 @@ public class Session extends BZAObject {
         uri += "&pq=0&target=labels_bulk&update=1"; //TODO: % self.kpi_target
         String dataStr = data.toString();
         logger.debug("Sending active test data: " + dataStr);
-        JSONObject response = utils.queryObject(utils.createPost(uri, dataStr), 200);
+        JSONObject response = utils.execute(utils.createPost(uri, dataStr));
         return response.getJSONObject("result").getJSONObject("session");
     }
 
@@ -43,7 +40,7 @@ public class Session extends BZAObject {
      */
     public void stop() throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/stop", getId());
-        utils.query(utils.createPost(uri, ""), 202);
+        utils.executeRequest(utils.createPost(uri, ""));
     }
 
     /**
@@ -55,7 +52,7 @@ public class Session extends BZAObject {
         data.put("signature", signature);
         data.put("testId", testId);
         data.put("sessionId", getId());
-        utils.query(utils.createPost(uri, data.toString()), 200);
+        utils.executeRequest(utils.createPost(uri, data.toString()));
     }
 
     public String getUserId() {

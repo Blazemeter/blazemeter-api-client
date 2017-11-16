@@ -1,5 +1,6 @@
 package com.blazemeter.api.explorer;
 
+import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
@@ -19,7 +20,7 @@ public class Master extends BZAObject {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/public-token", getId());
         JSONObject obj = new JSONObject();
         obj.put("publicToken", "None");
-        JSONObject response = utils.queryObject(utils.createPost(uri, obj.toString()), 201);
+        JSONObject response = utils.execute(utils.createPost(uri, obj.toString()));
 
         return utils.getAddress() + String.format("/app/?public-token=%s#/masters/%s/summary",
                 extractPublicToken(response.getJSONObject("result")), getId());

@@ -15,10 +15,10 @@
 package com.blazemeter.api.http;
 
 import com.blazemeter.api.logging.Logger;
-import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -46,6 +46,7 @@ public class HttpUtils {
     protected static final String CONTENT_TYPE = "Content-type";
     protected static final String APP_JSON_UTF_8 = "application/json; charset=UTF-8";
     protected static final String AUTHORIZATION = "Authorization";
+    protected static final MediaType JSON_CONTENT = MediaType.parse("application/json; charset=utf-8");
 
     protected final static int TIMEOUT = 5;
 
@@ -62,71 +63,63 @@ public class HttpUtils {
         this.httpClient = createHTTPClient();
     }
 
-    private JSONObject executeGetRequest(String url) throws IOException {
-        return execute(createRequestBuilder(url).get().build());
-    }
-
-    private JSONObject executePostRequest(String url, RequestBody requestBody) throws IOException {
-        return execute(createRequestBuilder(url).post(requestBody).build());
-    }
-
-    private JSONObject execute(Request request) throws IOException {
-        return JSONObject.fromObject(executeRequest(request));
-    }
-
-    private Request.Builder createRequestBuilder(String url) {
-        final Request.Builder builder = new Request.Builder().url(url).
-                addHeader(ACCEPT, APP_JSON).
-                addHeader(CONTENT_TYPE, APP_JSON_UTF_8);
-        return addRequiredHeader(builder);
-    }
-
-
-    private String executeRequest(Request request) throws IOException {
-        String response = httpClient.newCall(request).execute().body().string();
-        logger.debug("Received response: " + response);
-        return response;
-    }
     /**
      * Create Get Request
      */
-    public Object createGet(String uri) {
-        return null;
+    public Request createGet(String url) {
+        return createRequestBuilder(url).get().build();
     }
 
     /**
      * Create Post Request with json body
      */
-    public Object createPost(String uri, String data) {
-        return null;
+    public Request createPost(String url, RequestBody data) {
+        return createRequestBuilder(url).post(data).build();
+    }
+
+    /**
+     * Create Post Request with json body
+     */
+    public Request createPost(String url, String data) {
+        return createRequestBuilder(url).post(RequestBody.create(JSON_CONTENT, data)).build();
     }
 
     /**
      * Create Patch Request
      */
-    public Object createPatch(String url, JSON data) {
-        return null;
+    public Request createPatch(String url, String data) {
+        return createRequestBuilder(url).patch(RequestBody.create(JSON_CONTENT, data)).build();
     }
 
     /**
-     * Execute Http request and verify response
+     * Create Patch Request
+     */
+    public Request createPatch(String url, RequestBody data) {
+        return createRequestBuilder(url).patch(data).build();
+    }
+
+
+    /**
+     * Execute Http request
      * @param request - HTTP Request
-     * @param expectedCode - expected response code
      * @return - response in JSONObject
      */
-    public JSONObject queryObject(Object request, int expectedCode) throws IOException {
-        return null;
+    public JSONObject execute(Request request) throws IOException {
+        return JSONObject.fromObject(executeRequest(request));
     }
 
     /**
-     * Execute Http request and response code
+     * Execute Http request
      * @param request - HTTP Request
-     * @param expectedCode - expected response code
-     * @return - response in JSONObject
+     * @return - response in String
      */
-    public JSON query(Object request, int expectedCode) throws IOException {
-        return null;
+    public String executeRequest(Request request) throws IOException {
+        String response = httpClient.newCall(request).execute().body().string();
+        // TODO: is it log write into HttpLogger?
+        logger.debug("Received response: " + response);
+        return response;
     }
+
 
     protected String extractErrorMessage(String response) {
         return response;
@@ -135,6 +128,13 @@ public class HttpUtils {
     protected Request.Builder addRequiredHeader(Request.Builder requestBuilder) {
         // NOOP
         return requestBuilder;
+    }
+
+    private Request.Builder createRequestBuilder(String url) {
+        final Request.Builder builder = new Request.Builder().url(url).
+                addHeader(ACCEPT, APP_JSON).
+                addHeader(CONTENT_TYPE, APP_JSON_UTF_8);
+        return addRequiredHeader(builder);
     }
 
     public Logger getLogger() {

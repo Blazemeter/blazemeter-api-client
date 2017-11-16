@@ -2,6 +2,7 @@ package com.blazemeter.api.explorer;
 
 
 
+import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
@@ -28,7 +29,7 @@ public class Test extends BZAObject {
      * Start External test for user token
      */
     public void startExternal() throws IOException {
-        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start-external", getId()), 202);
+        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start-external", getId()));
         fillFields(result);
     }
 
@@ -37,15 +38,15 @@ public class Test extends BZAObject {
      * @return public link to the report
      */
     public String startAnonymousExternal() throws IOException {
-        JSONObject result = sendStartTest(utils.getAddress() + "/api/v4/sessions", 201);
+        JSONObject result = sendStartTest(utils.getAddress() + "/api/v4/sessions");
         setTestFields(result.getJSONObject("test"));
         reportURL = result.getString("publicTokenUrl");
         fillFields(result);
         return reportURL;
     }
 
-    private JSONObject sendStartTest(String uri, int expectedRC) throws IOException {
-        JSONObject response = utils.queryObject(utils.createPost(uri, ""), expectedRC);
+    private JSONObject sendStartTest(String uri) throws IOException {
+        JSONObject response = utils.execute(utils.createPost(uri, ""));
         return response.getJSONObject("result");
     }
 

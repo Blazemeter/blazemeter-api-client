@@ -1,5 +1,6 @@
 package com.blazemeter.api.explorer;
 
+import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtils;

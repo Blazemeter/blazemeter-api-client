@@ -1,5 +1,6 @@
 package com.blazemeter.api.explorer;
 
+import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;

@@ -1,5 +1,6 @@
 package com.blazemeter.api.explorer;
 
+import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -23,7 +24,7 @@ public class Account extends BZAObject {
         JSONObject data = new JSONObject();
         data.put("name", name);
         data.put("accountId", Long.parseLong(getId()));
-        JSONObject response = utils.queryObject(utils.createPost(uri, data.toString()), 201);
+        JSONObject response = utils.execute(utils.createPost(uri, data.toString()));
         return Workspace.fromJSON(utils, response.getJSONObject("result"));
     }
 
@@ -32,7 +33,7 @@ public class Account extends BZAObject {
      */
     public List<Workspace> getWorkspaces() throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/workspaces?accountId=%s&enabled=true&limit=100", getId());
-        JSONObject response = utils.queryObject(utils.createGet(uri), 200);
+        JSONObject response = utils.execute(utils.createGet(uri));
         return extractWorkspaces(response.getJSONArray("result"));
     }
 

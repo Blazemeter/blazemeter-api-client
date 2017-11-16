@@ -1,4 +1,4 @@
-package com.blazemeter.api.explorer;
+package com.blazemeter.api.explorer.base;
 
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
