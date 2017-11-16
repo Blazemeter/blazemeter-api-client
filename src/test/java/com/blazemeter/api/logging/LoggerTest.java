@@ -15,41 +15,45 @@ public class LoggerTest implements Logger {
 
     @Override
     public void debug(String message) {
-
+        logs.append(message).append("\r\n");
     }
 
     @Override
     public void debug(String message, Throwable throwable) {
-
+        logs.append(message).append("\r\n");
+        logs.append(throwable.getMessage()).append("\r\n");
     }
 
     @Override
     public void info(String message) {
-
+        logs.append(message).append("\r\n");
     }
 
     @Override
     public void info(String message, Throwable throwable) {
-
+        logs.append(message).append("\r\n");
+        logs.append(throwable.getMessage()).append("\r\n");
     }
 
     @Override
     public void warn(String message) {
-
+        logs.append(message).append("\r\n");
     }
 
     @Override
     public void warn(String message, Throwable throwable) {
-
+        logs.append(message).append("\r\n");
+        logs.append(throwable.getMessage()).append("\r\n");
     }
 
     @Override
     public void error(String message) {
-
+        logs.append(message).append("\r\n");
     }
 
     @Override
     public void error(String message, Throwable throwable) {
-
+        logs.append(message).append("\r\n");
+        logs.append(throwable.getMessage()).append("\r\n");
     }
 }

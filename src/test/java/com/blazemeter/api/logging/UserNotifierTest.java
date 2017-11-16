@@ -15,6 +15,6 @@ public class UserNotifierTest implements UserNotifier {
 
     @Override
     public void notifyAbout(String info) {
-
+        logs.append(info).append("\r\n");
     }
 }
