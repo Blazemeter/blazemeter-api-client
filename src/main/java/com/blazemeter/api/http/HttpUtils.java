@@ -24,6 +24,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
@@ -161,8 +162,12 @@ public class HttpUtils {
                 auth = createAuthenticator();
             }
 
+            HttpLoggingInterceptor httpLog = new HttpLoggingInterceptor(new HttpLogger(logger));
+            httpLog.setLevel(HttpLoggingInterceptor.Level.BODY);
+
             return new OkHttpClient.Builder()
                     .addInterceptor(new RetryInterceptor(logger))
+                    .addInterceptor(httpLog)
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .readTimeout(60, TimeUnit.SECONDS)
                     .proxy(proxy)
