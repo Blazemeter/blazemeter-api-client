@@ -16,6 +16,7 @@ package com.blazemeter.api.http;
 
 import com.blazemeter.api.logging.Logger;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.apache.commons.lang.StringUtils;
 
 public class HttpLogger implements HttpLoggingInterceptor.Logger {
 
@@ -27,6 +28,15 @@ public class HttpLogger implements HttpLoggingInterceptor.Logger {
 
     @Override
     public void log(String message) {
-        logger.debug(message);
+        logger.debug(format(message));
+    }
+
+    protected String format(String logEntry) {
+        int authorization = logEntry.lastIndexOf(HttpUtils.AUTHORIZATION) + 1;
+        if (authorization > 0) {
+            String keyToReplace = logEntry.substring(authorization + 13, logEntry.length() - 10);
+            return StringUtils.replace(logEntry, keyToReplace, "...");
+        }
+        return logEntry;
     }
 }

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.blazemeter.api.explorer;
+package com.blazemeter.api.explorer.base;
 
 import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.logging.LoggerTest;
