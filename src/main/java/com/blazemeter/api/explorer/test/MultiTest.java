@@ -35,4 +35,8 @@ public class MultiTest extends AbstractTest implements ITest {
     public void startExternal() throws IOException {
         throw new UnsupportedOperationException("StartExternal is not supported for this test type");
     }
+
+    public static MultiTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {
+        return new MultiTest(utils, obj.getString("id"), obj.getString("name"));
+    }
 }

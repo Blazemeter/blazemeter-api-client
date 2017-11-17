@@ -21,8 +21,8 @@ import java.io.IOException;
 
 public class AnonymousTest extends AbstractTest implements ITest {
 
-    public AnonymousTest(BlazeMeterUtils utils, String id, String name) {
-        super(utils, id, name);
+    public AnonymousTest(BlazeMeterUtils utils) {
+        super(utils, "", "");
     }
 
     @Override
@@ -34,7 +34,6 @@ public class AnonymousTest extends AbstractTest implements ITest {
     public void startExternal() throws IOException {
         JSONObject result = sendStartTest(utils.getAddress() + "/api/v4/sessions");
         setTestFields(result.getJSONObject("test"));
-        reportURL = result.getString("publicTokenUrl");
         fillFields(result);
     }
 
