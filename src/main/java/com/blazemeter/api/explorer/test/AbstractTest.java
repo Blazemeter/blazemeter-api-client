@@ -28,7 +28,6 @@ public abstract class AbstractTest extends BZAObject implements ITest {
     protected Session session;
     protected String signature;
     protected String reportURL;
-    protected String error;
 
     public AbstractTest(BlazeMeterUtils utils, String id, String name) {
         super(utils, id, name);
@@ -39,7 +38,6 @@ public abstract class AbstractTest extends BZAObject implements ITest {
         return response.getJSONObject("result");
     }
 
-    // TODO: change result to response...and fill error field
     protected void fillFields(JSONObject result) {
         this.signature = result.getString("signature");
         this.session = Session.fromJSON(utils, getId(), signature, result.getJSONObject("session"));
@@ -60,9 +58,5 @@ public abstract class AbstractTest extends BZAObject implements ITest {
 
     public String getReportURL() {
         return reportURL;
-    }
-
-    public String getError() {
-        return error;
     }
 }
