@@ -22,6 +22,7 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
+@Deprecated
 public class Test extends BZAObject {
 
     public static final String DEFAULT_TEST = "Default test";
