@@ -30,7 +30,7 @@ public class Master extends BZAObject {
      * Makes a private user report public
      * @return public link to the report
      */
-    public String makeReportPublic() throws IOException {
+    public String publicreport() throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/public-token", getId());
         JSONObject obj = new JSONObject();
         obj.put("publicToken", "None");

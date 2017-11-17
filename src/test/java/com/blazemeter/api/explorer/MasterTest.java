@@ -44,7 +44,26 @@ public class MasterTest {
         JSONObject cs = master.cistatus();
         assertTrue(cs.has("masterId"));
         assertTrue(cs.getString("masterId").equals("id"));
+        emul.clean();
 
+    }
+
+    @org.junit.Test
+    public void publictoken() throws Exception {
+        Logger logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        JSONObject result = new JSONObject();
+        JSONObject pt = new JSONObject();
+        String t = "Mp4jkdOaFomK0jAFgrKOYGCx8BfLBjlG1fpPiVPidZibMgg5Ob";
+        pt.put("publicToken",t);
+        result.put("result",pt);
+        emul.addEmul(result.toString());
+        Master master = new Master(emul,"id","name");
+        String pr = emul.getAddress()+ String.format("/app/?public-token=%s#/masters/%s/summary",t,master.getId());
+        assertEquals(master.publicreport(),pr);
+        emul.clean();
 
     }
 }
