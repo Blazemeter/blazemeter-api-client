@@ -49,6 +49,15 @@ public class Master extends BZAObject {
         return utils.executeRequest(utils.createGet(uri));
     }
 
+    /**
+     * Gets ci-status
+     * @return ci-status as JSONObject
+     */
+    public JSONObject cistatus() throws IOException {
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/ci-status", getId());
+        return utils.execute(utils.createGet(uri)).getJSONObject("result");
+    }
+
 
 
     private String extractPublicToken(JSONObject result) {
