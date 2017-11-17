@@ -19,7 +19,7 @@ Supported calls:
 |get ci status   |GET   |/api/v4/masters/{id}/ci-status   |   
 |retrieve junit report   |GET   |/api/v4/masters/{id}/reports/thresholds?format=junit   |   
 |retrieve jtl report   |GET   |/api/v4/sessions/{id}/reports/logs   |   
-|generate public token   |POST   |/api/v4/masters/{id}/publicToken   |   
+|generate public token   |POST   |/api/v4/masters/{id}/public-token   |   
 |master info   |GET,PATCH   |/api/v4/masters/{id}   |   
 |properties   |POST   |/api/v4/sessions/{id}/properties?target=all   |   
 |collection config   |GET   |/api/v4/collections/{id}   |   
