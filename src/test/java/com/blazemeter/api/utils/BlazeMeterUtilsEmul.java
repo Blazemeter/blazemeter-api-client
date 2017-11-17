@@ -60,7 +60,7 @@ public class BlazeMeterUtilsEmul extends BlazeMeterUtils {
 
     @Override
     public String executeRequest(Request request) throws IOException {
-        return super.executeRequest(request);
+        return getResponse(request);
     }
 
     public void extractBody(Request request) throws IOException {

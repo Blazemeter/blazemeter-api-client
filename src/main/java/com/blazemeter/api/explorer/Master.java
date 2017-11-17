@@ -40,6 +40,17 @@ public class Master extends BZAObject {
                 extractPublicToken(response.getJSONObject("result")), getId());
     }
 
+    /**
+     * Makes get junit report
+     * @return junit report as a string
+     */
+    public String junitReport() throws IOException {
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/thresholds?format=junit", getId());
+        return utils.executeRequest(utils.createGet(uri));
+    }
+
+
+
     private String extractPublicToken(JSONObject result) {
         return result.getString("publicToken");
     }
