@@ -7,6 +7,7 @@ import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.Assert;
 
 import java.util.List;
 
@@ -89,6 +90,29 @@ public class MasterTest {
         List<String> sl = master.sessionIds();
         assertTrue(sl.size()==1);
         assertEquals(sl.get(0),"r-v3-585114ca535ed");
+        emul.clean();
+
+    }
+
+    @org.junit.Test
+    public void stop() throws Exception {
+        Logger logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        JSONObject result = new JSONObject();
+
+        JSONArray stoparray = new JSONArray();
+        JSONObject stopobject = new JSONObject();
+        stopobject.put("session_id","r-v3-559f984a467e3");
+        stopobject.put("result","shutdown command sent\n");
+        stoparray.add(stopobject);
+        result.put("result",stoparray);
+        emul.addEmul(result.toString());
+        Master master = new Master(emul,"id","name");
+        JSONObject stop= master.stop();
+        Assert.assertTrue(stop.has("result"));
+        Assert.assertTrue(stop.getJSONArray("result").size()==1);
         emul.clean();
 
     }

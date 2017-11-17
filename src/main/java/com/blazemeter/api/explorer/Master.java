@@ -18,6 +18,7 @@ import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import okhttp3.RequestBody;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,6 +68,16 @@ public class Master extends BZAObject {
             sessionIds.add(sessions.getJSONObject(i).getString("id"));
         }
         return sessionIds;
+    }
+
+    /**
+     * Stops master
+     * @return JSONObject
+     */
+    public JSONObject stop() throws IOException {
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/stop", getId());
+        RequestBody emptyBody = RequestBody.create(null, new byte[0]);
+        return utils.execute(utils.createPost(uri,emptyBody));
     }
 
     /**
