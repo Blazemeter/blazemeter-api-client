@@ -25,9 +25,7 @@ import java.io.IOException;
 public abstract class AbstractTest extends BZAObject implements ITest {
 
     protected Master master;
-    protected Session session;
     protected String signature;
-    protected String reportURL;
 
     public AbstractTest(BlazeMeterUtils utils, String id, String name) {
         super(utils, id, name);
@@ -40,12 +38,7 @@ public abstract class AbstractTest extends BZAObject implements ITest {
 
     protected void fillFields(JSONObject result) {
         this.signature = result.getString("signature");
-        this.session = Session.fromJSON(utils, getId(), signature, result.getJSONObject("session"));
         this.master = Master.fromJSON(utils, result.getJSONObject("master"));
-    }
-
-    public Session getSession() {
-        return session;
     }
 
     public Master getMaster() {
@@ -54,9 +47,5 @@ public abstract class AbstractTest extends BZAObject implements ITest {
 
     public String getSignature() {
         return signature;
-    }
-
-    public String getReportURL() {
-        return reportURL;
     }
 }

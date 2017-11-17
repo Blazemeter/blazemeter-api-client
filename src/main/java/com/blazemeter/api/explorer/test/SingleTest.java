@@ -36,4 +36,8 @@ public class SingleTest extends AbstractTest implements ITest {
         JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start-external", getId()));
         fillFields(result);
     }
+
+    public static SingleTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {
+        return new SingleTest(utils, obj.getString("id"), obj.getString("name"));
+    }
 }

@@ -15,6 +15,8 @@
 package com.blazemeter.api.explorer;
 
 import com.blazemeter.api.explorer.base.BZAObject;
+import com.blazemeter.api.explorer.test.MultiTest;
+import com.blazemeter.api.explorer.test.SingleTest;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -35,7 +37,7 @@ public class Project extends BZAObject {
      * Create Test in current Project
      * @param name - title of the new Test
      */
-    public Test createTest(String name) throws IOException {
+    public SingleTest createSingleTest(String name) throws IOException {
         String uri = utils.getAddress() + "/api/v4/tests";
         JSONObject data = new JSONObject();
         data.put("projectId", Long.parseLong(getId()));
@@ -44,23 +46,43 @@ public class Project extends BZAObject {
         data.put("configuration", configuration);
         data.put("name", name);
         JSONObject response = utils.execute(utils.createPost(uri, data.toString()));
-        return Test.fromJSON(utils, response.getJSONObject("result"));
+        return SingleTest.fromJSON(utils, response.getJSONObject("result"));
     }
 
     /**
      * @return list of Tests in current Project
      */
-    public List<Test> getTests() throws IOException {
+    public List<SingleTest> getSingleTests() throws IOException {
         String uri = utils.getAddress() + "/api/v4/tests?projectId=" + getId();
         JSONObject response = utils.execute(utils.createGet(uri));
-        return extractTests(response.getJSONArray("result"));
+        return extractSingleTests(response.getJSONArray("result"));
     }
 
-    private List<Test> extractTests(JSONArray result) {
-        List<Test> accounts = new ArrayList<>();
+    /**
+     * @return list of Multi-Tests in current Project
+     */
+    public List<MultiTest> getMultiTests() throws IOException {
+        String uri = utils.getAddress() + "/api/v4/tests?projectId=" + getId();
+        JSONObject response = utils.execute(utils.createGet(uri));
+        return extractMultiTests(response.getJSONArray("result"));
+    }
+
+
+    private List<SingleTest> extractSingleTests(JSONArray result) {
+        List<SingleTest> accounts = new ArrayList<>();
 
         for (Object obj : result) {
-            accounts.add(Test.fromJSON(utils, (JSONObject) obj));
+            accounts.add(SingleTest.fromJSON(utils, (JSONObject) obj));
+        }
+
+        return accounts;
+    }
+
+    private List<MultiTest> extractMultiTests(JSONArray result) {
+        List<MultiTest> accounts = new ArrayList<>();
+
+        for (Object obj : result) {
+            accounts.add(MultiTest.fromJSON(utils, (JSONObject) obj));
         }
 
         return accounts;
