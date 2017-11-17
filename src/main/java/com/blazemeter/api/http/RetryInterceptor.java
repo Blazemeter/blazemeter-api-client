@@ -39,7 +39,7 @@ public class RetryInterceptor implements Interceptor {
             try {
                 Thread.sleep(1000 * retry);
             } catch (InterruptedException e) {
-                throw new IOException("Retry bzmLog was interrupted on sleep at retry # " + retry);
+                throw new IOException("Retry was interrupted on sleep at retry # " + retry);
             }
             response = chain.proceed(request);
             logger.info("Child request: code = " + response.code() + " -> " + retry + " retry");

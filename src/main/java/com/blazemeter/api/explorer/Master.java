@@ -16,9 +16,12 @@ package com.blazemeter.api.explorer;
 
 import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Master extends BZAObject {
 
@@ -47,6 +50,23 @@ public class Master extends BZAObject {
     public String junitReport() throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/thresholds?format=junit", getId());
         return utils.executeRequest(utils.createGet(uri));
+    }
+
+    /**
+     * Gets list of sessions
+     * @return junit report as a string
+     */
+    public List<String> sessionIds() throws IOException {
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/sessions", getId());
+        List<String> sessionIds = new ArrayList<>();
+        JSONObject response = utils.execute(utils.createGet(uri));
+        JSONObject result = response.getJSONObject("result");
+        JSONArray sessions = result.getJSONArray("sessions");
+        int sessionsLength = sessions.size();
+        for (int i = 0; i < sessionsLength; i++) {
+            sessionIds.add(sessions.getJSONObject(i).getString("id"));
+        }
+        return sessionIds;
     }
 
     /**
