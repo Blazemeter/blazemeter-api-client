@@ -10,6 +10,7 @@ Supported calls:
 |get master status code |GET   |/api/v4/masters/{id}/status?events=false   |
 |get tests|GET   |/api/v4/tests?limit=10000&workspaceId=<workspaceId>   |   
 |start test   |GET   |/api/v4/tests/{id}/start   |   
+|start external test   |GET   |/api/v4/tests/{id}/start-external   |   
 |start collection   |POST   |/api/v4/collections/{id}/start   |   
 |stop master   |POST   |/api/v4/masters/{id}/stop   |   
 |terminate master   |POST   |/api/v4/masters/{id}/terminate   |   
@@ -27,5 +28,9 @@ Supported calls:
 |active tests   |GET   |/api/v4/masters?workspaceId={workspaceId}&active=true   |   
 |workspaces   |GET   |/api/v4/workspaces?limit=1000&enabled=true   |   
 |accounts   |GET   |/api/v4/accounts   |   
+|create workspace   |POST   |/api/v4/workspaces   |   
+|start external test   |POST   |/api/v4/sessions   |   
+|create test   |POST   |/api/v4/tests   |   
+|get projects   | GET   |/api/v4/projects?workspaceId={id}&limit=99999   |   
 
 	
