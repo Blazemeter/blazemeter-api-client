@@ -138,6 +138,13 @@ public class HttpUtils {
         return addRequiredHeader(builder);
     }
 
+    /**
+     * Override this method if you want add some require additional params to your URL
+     */
+    protected String modifyRequestUrl(String url) {
+        return url;
+    }
+
     public Logger getLogger() {
         return logger;
     }
