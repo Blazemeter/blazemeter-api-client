@@ -119,10 +119,7 @@ public class HttpUtils {
      * @return - response in String
      */
     public String executeRequest(Request request) throws IOException {
-        String response = httpClient.newCall(request).execute().body().string();
-        // TODO: is it log write into HttpLogger?
-        logger.debug("Received response: " + response);
-        return response;
+        return httpClient.newCall(request).execute().body().string();
     }
 
 
