@@ -106,7 +106,11 @@ public class HttpUtils {
      * @return - response in JSONObject
      */
     public JSONObject execute(Request request) throws IOException {
-        return JSONObject.fromObject(executeRequest(request));
+        return processResponse(executeRequest(request));
+    }
+
+    protected JSONObject processResponse(String response) {
+        return JSONObject.fromObject(response);
     }
 
     /**
