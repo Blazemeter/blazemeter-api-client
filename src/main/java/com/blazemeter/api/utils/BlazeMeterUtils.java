@@ -70,24 +70,9 @@ public class BlazeMeterUtils extends HttpUtils {
         String error = extractErrorMessage(response);
         if (error != null) {
             logger.error("Receive response with the following error message: " + error);
-            if (!hasResult(response)) {
-                throw new UnexpectedResponseException("Receive response with the following error message: " + error);
-            }
+            throw new UnexpectedResponseException("Receive response with the following error message: " + error);
         }
         return JSONObject.fromObject(response);
-    }
-
-    protected boolean hasResult(String response) {
-        if (response != null && !response.isEmpty()) {
-            try {
-                JSONObject jsonResponse = JSONObject.fromObject(response);
-                JSONObject result = jsonResponse.getJSONObject("result");
-                return !result.isNullObject();
-            } catch (JSONException ex) {
-                logger.debug("Cannot parse response: " + response);
-            }
-        }
-        return false;
     }
 
     @Override
@@ -100,7 +85,7 @@ public class BlazeMeterUtils extends HttpUtils {
                     return errorObj.getString("message");
                 }
             } catch (JSONException ex) {
-                logger.debug("Cannot parse response: " + response);
+                logger.debug("Cannot parse response: " + response, ex);
             }
         }
         return null;
