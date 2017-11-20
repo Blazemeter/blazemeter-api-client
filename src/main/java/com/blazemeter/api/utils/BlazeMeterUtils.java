@@ -14,6 +14,7 @@
 
 package com.blazemeter.api.utils;
 
+import com.blazemeter.api.explorer.exception.UnexpectedResponseException;
 import com.blazemeter.api.http.HttpUtils;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
@@ -65,21 +66,43 @@ public class BlazeMeterUtils extends HttpUtils {
     }
 
     @Override
+    protected JSONObject processResponse(String response) {
+        String error = extractErrorMessage(response);
+        if (error != null) {
+            logger.error("Receive response with the following error message: " + error);
+            if (!hasResult(response)) {
+                throw new UnexpectedResponseException("Receive response with the following error message: " + error);
+            }
+        }
+        return JSONObject.fromObject(response);
+    }
+
+    protected boolean hasResult(String response) {
+        if (response != null && !response.isEmpty()) {
+            try {
+                JSONObject jsonResponse = JSONObject.fromObject(response);
+                JSONObject result = jsonResponse.getJSONObject("result");
+                return !result.isNullObject();
+            } catch (JSONException ex) {
+                logger.debug("Cannot parse response: " + response);
+            }
+        }
+        return false;
+    }
+
+    @Override
     protected String extractErrorMessage(String response) {
         if (response != null && !response.isEmpty()) {
             try {
-                JSON jsonResponse = JSONSerializer.toJSON(response, new JsonConfig());
-                if (jsonResponse instanceof JSONObject) {
-                    JSONObject object = (JSONObject) jsonResponse;
-                    JSONObject errorObj = object.getJSONObject("error");
-                    if (errorObj.containsKey("message")) {
-                        return errorObj.getString("message");
-                    }
+                JSONObject jsonResponse = JSONObject.fromObject(response);
+                JSONObject errorObj = jsonResponse.getJSONObject("error");
+                if (errorObj.containsKey("message")) {
+                    return errorObj.getString("message");
                 }
             } catch (JSONException ex) {
-                logger.debug("Cannot parse JSON error response: " + response);
+                logger.debug("Cannot parse response: " + response);
             }
         }
-        return response;
+        return null;
     }
 }
