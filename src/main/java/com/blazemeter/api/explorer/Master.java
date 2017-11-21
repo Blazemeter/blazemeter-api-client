@@ -28,7 +28,8 @@ import java.util.List;
 
 public class Master extends BZAObject {
 
-    private String MASTER_ID="/api/v4/masters/{id}";
+    private String MASTER_ID = "/api/v4/masters/{id}";
+
     public Master(BlazeMeterUtils utils, String id, String name) {
         super(utils, id, name);
     }
@@ -76,7 +77,7 @@ public class Master extends BZAObject {
     public JSONArray stop() throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/stop", getId());
         RequestBody emptyBody = RequestBody.create(null, new byte[0]);
-        return utils.execute(utils.createPost(uri,emptyBody)).getJSONArray("result");
+        return utils.execute(utils.createPost(uri, emptyBody)).getJSONArray("result");
     }
 
     /**
@@ -85,7 +86,7 @@ public class Master extends BZAObject {
     public JSONArray terminate() throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/terminate", getId());
         RequestBody emptyBody = RequestBody.create(null, new byte[0]);
-        return utils.execute(utils.createPost(uri,emptyBody)).getJSONArray("result");
+        return utils.execute(utils.createPost(uri, emptyBody)).getJSONArray("result");
     }
 
     /**
@@ -104,17 +105,7 @@ public class Master extends BZAObject {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/main/summary", getId());
         JSONObject r = utils.execute(utils.createGet(uri)).getJSONObject("result");
         JSONObject sumserv = r.getJSONArray("summary").getJSONObject(0);
-        JSONObject summary = new JSONObject();
-        summary.put("avg",Math.round(sumserv.getDouble("avg")*100.0)/100.0);
-        summary.put("min",sumserv.getInt("min"));
-        summary.put("max",sumserv.getInt("max"));
-        summary.put("tp90",sumserv.getInt("tp90"));
-        summary.put("errorPercentage",Math.round((sumserv.getDouble("failed") / sumserv.getDouble("hits") * 100)*100)/100);
-        int hits = sumserv.getInt("hits");
-        double last = sumserv.getDouble("last");
-        double first = sumserv.getDouble("first");
-        summary.put("hits",sumserv.getInt("hits"));
-        summary.put("avgthrpt",Math.round(hits/(last-first)*100.0)/100.0);
+        JSONObject summary = extractSummary(sumserv);
         return summary;
     }
 
@@ -124,7 +115,7 @@ public class Master extends BZAObject {
     public JSONObject funcReport() throws IOException {
         String uri = utils.getAddress() + String.format(MASTER_ID, getId());
         JSONObject r = utils.execute(utils.createGet(uri)).getJSONObject("result");
-        return r.has("functionalSummary")?r.getJSONObject("functionalSummary"):new JSONObject();
+        return r.has("functionalSummary") ? r.getJSONObject("functionalSummary") : new JSONObject();
     }
 
     /**
@@ -149,11 +140,24 @@ public class Master extends BZAObject {
     }
 
 
-
     private String extractPublicToken(JSONObject result) {
         return result.getString("publicToken");
     }
 
+    private JSONObject extractSummary(JSONObject sumserv){
+        JSONObject summary = new JSONObject();
+        summary.put("avg", Math.round(sumserv.getDouble("avg") * 100.0) / 100.0);
+        summary.put("min", sumserv.getInt("min"));
+        summary.put("max", sumserv.getInt("max"));
+        summary.put("tp90", sumserv.getInt("tp90"));
+        summary.put("errorPercentage", Math.round((sumserv.getDouble("failed") / sumserv.getDouble("hits") * 100) * 100) / 100);
+        int hits = sumserv.getInt("hits");
+        double last = sumserv.getDouble("last");
+        double first = sumserv.getDouble("first");
+        summary.put("hits", sumserv.getInt("hits"));
+        summary.put("avgthrpt", Math.round(hits / (last - first) * 100.0) / 100.0);
+        return summary;
+    }
     public static Master fromJSON(BlazeMeterUtils utils, JSONObject obj) {
         return new Master(utils, obj.getString("id"), obj.getString("name"));
     }
