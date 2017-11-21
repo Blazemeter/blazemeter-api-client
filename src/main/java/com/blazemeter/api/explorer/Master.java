@@ -125,7 +125,6 @@ public class Master extends BZAObject {
     public String note(String note) throws IOException {
         String uri = utils.getAddress() + String.format(MASTER_ID, getId());
         String noteEsc = StringEscapeUtils.escapeJson("{'note':'" + note + "'}");
-        JSONObject noteJson = JSONObject.fromObject(noteEsc);
         RequestBody body = RequestBody.create(MediaType.parse("text/plain; charset=ISO-8859-1"), noteEsc);
 
         JSONObject r = utils.execute(utils.createPatch(uri, body)).getJSONObject("result");
@@ -145,7 +144,7 @@ public class Master extends BZAObject {
         return result.getString("publicToken");
     }
 
-    private JSONObject extractSummary(JSONObject sumserv){
+    private JSONObject extractSummary(JSONObject sumserv) {
         JSONObject summary = new JSONObject();
         summary.put("avg", Math.round(sumserv.getDouble("avg") * 100.0) / 100.0);
         summary.put("min", sumserv.getInt("min"));
@@ -159,6 +158,7 @@ public class Master extends BZAObject {
         summary.put("avgthrpt", Math.round(hits / (last - first) * 100.0) / 100.0);
         return summary;
     }
+
     public static Master fromJSON(BlazeMeterUtils utils, JSONObject obj) {
         return new Master(utils, obj.getString("id"), obj.getString("name"));
     }
