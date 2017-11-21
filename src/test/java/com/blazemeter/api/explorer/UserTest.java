@@ -57,7 +57,7 @@ public class UserTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}", emul.getRequests().get(0));
         assertEquals("Get list of accounts\r\n" +
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}\r\n" +
-                        "Response: {\"result\":{\"id\":\"accountId\",\"name\":\"accountName\"}}\r\n",
+                        "Response: {\"result\":[{\"id\":\"accountId\",\"name\":\"accountName\"},{\"id\":\"accountId\",\"name\":\"accountName\"}]}\r\n",
                 logger.getLogs().toString());
     }
 }
