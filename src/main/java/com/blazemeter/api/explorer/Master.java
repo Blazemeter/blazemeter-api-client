@@ -85,7 +85,7 @@ public class Master extends BZAObject {
      * @return JSONObject
      */
     public JSONArray terminate() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/terminate", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/terminate", encode(getId()));
         RequestBody emptyBody = RequestBody.create(null, new byte[0]);
         return utils.execute(utils.createPost(uri, emptyBody)).getJSONArray("result");
     }
@@ -94,7 +94,7 @@ public class Master extends BZAObject {
      * @return master status code
      */
     public int status() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/status?events=false", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/status?events=false", encode(getId()));
         JSONObject r = utils.execute(utils.createGet(uri)).getJSONObject("result");
         return r.getInt("progress");
     }
@@ -103,7 +103,7 @@ public class Master extends BZAObject {
      * @return summary as JSON object
      */
     public JSONObject summary() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/main/summary", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/main/summary", encode(getId()));
         JSONObject r = utils.execute(utils.createGet(uri)).getJSONObject("result");
         JSONObject sumserv = r.getJSONArray("summary").getJSONObject(0);
         JSONObject summary = extractSummary(sumserv);
@@ -114,7 +114,7 @@ public class Master extends BZAObject {
      * @return functional report as JSON object
      */
     public JSONObject funcReport() throws IOException {
-        String uri = utils.getAddress() + String.format(MASTER_ID, getId());
+        String uri = utils.getAddress() + String.format(MASTER_ID, encode(getId()));
         JSONObject r = utils.execute(utils.createGet(uri)).getJSONObject("result");
         return r.has("functionalSummary") ? r.getJSONObject("functionalSummary") : new JSONObject();
     }
@@ -123,7 +123,7 @@ public class Master extends BZAObject {
      * @return note which was applied to master if request was successful
      */
     public String note(String note) throws IOException {
-        String uri = utils.getAddress() + String.format(MASTER_ID, getId());
+        String uri = utils.getAddress() + String.format(MASTER_ID, encode(getId()));
         String noteEsc = StringEscapeUtils.escapeJson("{'note':'" + note + "'}");
         RequestBody body = RequestBody.create(MediaType.parse("text/plain; charset=ISO-8859-1"), noteEsc);
 

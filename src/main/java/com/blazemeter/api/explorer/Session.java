@@ -17,7 +17,10 @@ package com.blazemeter.api.explorer;
 
 import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 import java.io.IOException;
 
@@ -36,6 +39,7 @@ public class Session extends BZAObject {
 
     /**
      * Send test json data for the report
+     *
      * @return session in JSONObject
      */
     public JSONObject sendData(JSONObject data) throws IOException {
@@ -49,12 +53,17 @@ public class Session extends BZAObject {
         return response.getJSONObject("result").getJSONObject("session");
     }
 
+
     /**
-     * Stop session for user token
+     * Send properties to test session
+     *
+     * @return if properties were send correctly(server's response contains the same properties)
      */
-    public void stop() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/stop", encode(getId()));
-        utils.executeRequest(utils.createPost(uri, ""));
+    public void properties(JSONArray properties) throws IOException {
+        String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/properties?target=all", encode(getId()));
+        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"),
+                properties.toString());
+        utils.execute(utils.createPost(uri, body));
     }
 
     /**
