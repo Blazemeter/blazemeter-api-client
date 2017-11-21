@@ -38,7 +38,7 @@ public class Master extends BZAObject {
      * @return public link to the report
      */
     public String publicreport() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/public-token", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/public-token", encode(getId()));
         JSONObject obj = new JSONObject();
         obj.put("publicToken", "None");
         JSONObject response = utils.execute(utils.createPost(uri, obj.toString()));
@@ -51,7 +51,7 @@ public class Master extends BZAObject {
      * @return junit report as a string
      */
     public String junitReport() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/thresholds?format=junit", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/thresholds?format=junit", encode(getId()));
         return utils.executeRequest(utils.createGet(uri));
     }
 
@@ -59,7 +59,7 @@ public class Master extends BZAObject {
      * @return junit report as a string
      */
     public List<String> sessionIds() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/sessions", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/sessions", encode(getId()));
         List<String> sessionIds = new ArrayList<>();
         JSONObject response = utils.execute(utils.createGet(uri));
         JSONObject result = response.getJSONObject("result");
@@ -74,8 +74,9 @@ public class Master extends BZAObject {
     /**
      * @return JSONObject
      */
-    public JSONArray stop() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/stop", getId());
+
+    public JSONObject stop() throws IOException {
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/stop", encode(getId()));
         RequestBody emptyBody = RequestBody.create(null, new byte[0]);
         return utils.execute(utils.createPost(uri, emptyBody)).getJSONArray("result");
     }
@@ -135,7 +136,7 @@ public class Master extends BZAObject {
      * @return ci-status as JSONObject
      */
     public JSONObject cistatus() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/ci-status", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/ci-status", encode(getId()));
         return utils.execute(utils.createGet(uri)).getJSONObject("result");
     }
 

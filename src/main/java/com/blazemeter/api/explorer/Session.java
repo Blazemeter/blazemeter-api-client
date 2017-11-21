@@ -53,7 +53,7 @@ public class Session extends BZAObject {
      * Stop session for user token
      */
     public void stop() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/stop", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/stop", encode(getId()));
         utils.executeRequest(utils.createPost(uri, ""));
     }
 
@@ -61,7 +61,7 @@ public class Session extends BZAObject {
      * Stop anonymous session
      */
     public void stopAnonymous() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/terminate-external", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/terminate-external", encode(getId()));
         JSONObject data = new JSONObject();
         data.put("signature", signature);
         data.put("testId", testId);

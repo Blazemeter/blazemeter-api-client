@@ -53,7 +53,7 @@ public class Project extends BZAObject {
      * @return list of Tests in current Project
      */
     public List<SingleTest> getSingleTests() throws IOException {
-        String uri = utils.getAddress() + "/api/v4/tests?projectId=" + getId();
+        String uri = utils.getAddress() + "/api/v4/tests?projectId=" + encode(getId());
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractSingleTests(response.getJSONArray("result"));
     }
@@ -62,7 +62,7 @@ public class Project extends BZAObject {
      * @return list of Multi-Tests in current Project
      */
     public List<MultiTest> getMultiTests() throws IOException {
-        String uri = utils.getAddress() + "/api/v4/tests?projectId=" + getId();
+        String uri = utils.getAddress() + "/api/v4/tests?projectId=" + encode(getId());
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractMultiTests(response.getJSONArray("result"));
     }

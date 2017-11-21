@@ -49,8 +49,6 @@ public class HttpUtils {
     protected static final String AUTHORIZATION = "Authorization";
     protected static final MediaType JSON_CONTENT = MediaType.parse("application/json; charset=utf-8");
 
-    protected final static int TIMEOUT = 5;
-
     protected final Logger logger;
 
     protected final String address;
@@ -99,14 +97,17 @@ public class HttpUtils {
         return createRequestBuilder(url).patch(data).build();
     }
 
-
     /**
      * Execute Http request
      * @param request - HTTP Request
      * @return - response in JSONObject
      */
     public JSONObject execute(Request request) throws IOException {
-        return JSONObject.fromObject(executeRequest(request));
+        return processResponse(executeRequest(request));
+    }
+
+    protected JSONObject processResponse(String response) {
+        return JSONObject.fromObject(response);
     }
 
     /**
@@ -115,12 +116,8 @@ public class HttpUtils {
      * @return - response in String
      */
     public String executeRequest(Request request) throws IOException {
-        String response = httpClient.newCall(request).execute().body().string();
-        // TODO: is it log write into HttpLogger?
-        logger.debug("Received response: " + response);
-        return response;
+        return httpClient.newCall(request).execute().body().string();
     }
-
 
     protected String extractErrorMessage(String response) {
         return response;
@@ -136,6 +133,13 @@ public class HttpUtils {
                 addHeader(ACCEPT, APP_JSON).
                 addHeader(CONTENT_TYPE, APP_JSON_UTF_8);
         return addRequiredHeader(builder);
+    }
+
+    /**
+     * Override this method if you want add some require additional params to your URL
+     */
+    protected String modifyRequestUrl(String url) {
+        return url;
     }
 
     public Logger getLogger() {
@@ -173,8 +177,8 @@ public class HttpUtils {
                     .proxy(proxy)
                     .proxyAuthenticator(auth).build();
         } catch (Exception ex) {
-            logger.warn("ERROR Instantiating HTTPClient. Exception received: ", ex);
-            throw new RuntimeException("ERROR Instantiating HTTPClient. Exception received: ", ex);
+            logger.warn("ERROR Instantiating HTTPClient. Exception received: " + ex.getMessage(), ex);
+            throw new RuntimeException("ERROR Instantiating HTTPClient. Exception received: " + ex.getMessage(), ex);
         }
     }
 

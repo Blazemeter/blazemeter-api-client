@@ -14,11 +14,14 @@
 
 package com.blazemeter.api.explorer.base;
 
-import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.logging.LoggerTest;
+import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import org.junit.Test;
 
+import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
+import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.*;
 
 public class BZAObjectTest {
@@ -38,4 +41,17 @@ public class BZAObjectTest {
         assertEquals("name1", entity.getName());
     }
 
+    @Test
+    public void testEncoding() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+
+        BlazeMeterUtils utils = new BlazeMeterUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        BZAObject obj = new BZAObject(utils, "id", "name");
+
+        assertEquals("123", obj.encode("123"));
+        assertEquals("123", obj.encode("123", "Wrong encoding"));
+        assertEquals("Cannot encode 123 to 'Wrong encoding' encoding\r\n" +
+                "Wrong encoding\r\n", logger.getLogs().toString());
+    }
 }
