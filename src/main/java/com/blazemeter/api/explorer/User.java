@@ -35,6 +35,7 @@ public class User extends BZAObject {
      * @return list of Account for user token
      */
     public List<Account> getAccounts() throws IOException {
+        logger.info("Get list of accounts");
         String uri = utils.getAddress()+ "/api/v4/accounts";
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractAccounts(response.getJSONArray("result"));

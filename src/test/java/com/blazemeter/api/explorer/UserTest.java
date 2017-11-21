@@ -14,7 +14,6 @@
 
 package com.blazemeter.api.explorer;
 
-import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -32,7 +31,7 @@ public class UserTest {
 
     @org.junit.Test
     public void testFlow() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -55,6 +54,10 @@ public class UserTest {
             assertEquals("accountId", account.getId());
             assertEquals("accountName", account.getName());
         }
-        // TODO: add logger & notifier test
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of accounts\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}\r\n" +
+                        "Response: {\"result\":{\"id\":\"accountId\",\"name\":\"accountName\"}}\r\n",
+                logger.getLogs().toString());
     }
 }
