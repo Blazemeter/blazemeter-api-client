@@ -17,12 +17,16 @@ package com.blazemeter.api.explorer.base;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 
 /**
  * Base entity for BlazeMeter explorer classes
  */
 public class BZAObject {
 
+    public static final String UTF_8 = "UTF-8";
     protected String id;
     protected String name;
     protected BlazeMeterUtils utils;
@@ -57,5 +61,14 @@ public class BZAObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String encode(String text, String encoding) {
+        try {
+            return URLEncoder.encode(text, encoding);
+        } catch (UnsupportedEncodingException e) {
+            logger.warn("Cannot encode " + text + " to '" + encoding + "' encoding", e);
+            return text;
+        }
     }
 }
