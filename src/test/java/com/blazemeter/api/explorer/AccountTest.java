@@ -14,7 +14,6 @@
 
 package com.blazemeter.api.explorer;
 
-import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -30,10 +29,9 @@ import static org.junit.Assert.*;
 
 public class AccountTest {
 
-
     @org.junit.Test
     public void testFlow() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -48,7 +46,15 @@ public class AccountTest {
         Workspace workspace = account.createWorkspace("NEW_WORKSPACE");
         assertEquals("100", workspace.getId());
         assertEquals("NEW_WORKSPACE", workspace.getName());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/workspaces, tag=null}", emul.getRequests().get(0));
+        assertEquals("Create workspace with name=NEW_WORKSPACE\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/workspaces, tag=null}\r\n" +
+                        "Response: {\"result\":{\"id\":\"100\",\"name\":\"NEW_WORKSPACE\"}}\r\n",
+                logger.getLogs().toString());
 
+
+        emul.clean();
+        logger.reset();
         response.clear();
         JSONArray results = new JSONArray();
         results.add(result);
@@ -58,15 +64,20 @@ public class AccountTest {
 
         List<Workspace> workspaces = account.getWorkspaces();
         assertEquals(2, workspaces.size());
-        for (Workspace wsp :workspaces) {
+        for (Workspace wsp : workspaces) {
             assertEquals("100", wsp.getId());
             assertEquals("NEW_WORKSPACE", wsp.getName());
         }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/workspaces?accountId=777&enabled=true&limit=100, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of workspaces for account id=777\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/workspaces?accountId=777&enabled=true&limit=100, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_WORKSPACE\"},{\"id\":\"100\",\"name\":\"NEW_WORKSPACE\"}]}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
     public void testFromJSON() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);

@@ -27,13 +27,15 @@ public class MultiTest extends AbstractTest implements ITest {
 
     @Override
     public void start() throws IOException {
+        logger.info("Start multi test id=" + getId());
         JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/collections/%s/start", encode(getId())));
         fillFields(result);
     }
 
     @Override
     public void startExternal() throws IOException {
-        throw new UnsupportedOperationException("StartExternal is not supported for this test type");
+        logger.error("Start external is not supported for multi test type id=" + getId());
+        throw new UnsupportedOperationException("Start external is not supported for multi test type id=" + getId());
     }
 
     public static MultiTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {

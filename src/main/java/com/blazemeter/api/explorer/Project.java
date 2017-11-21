@@ -38,21 +38,27 @@ public class Project extends BZAObject {
      * @param name - title of the new Test
      */
     public SingleTest createSingleTest(String name) throws IOException {
+        logger.info("Create single test with name=" + name);
         String uri = utils.getAddress() + "/api/v4/tests";
+        JSONObject response = utils.execute(utils.createPost(uri, generateRequestBody(name).toString()));
+        return SingleTest.fromJSON(utils, response.getJSONObject("result"));
+    }
+
+    private JSONObject generateRequestBody(String name) {
         JSONObject data = new JSONObject();
         data.put("projectId", Long.parseLong(getId()));
         JSONObject configuration = new JSONObject();
         configuration.put("type", "external");
         data.put("configuration", configuration);
         data.put("name", name);
-        JSONObject response = utils.execute(utils.createPost(uri, data.toString()));
-        return SingleTest.fromJSON(utils, response.getJSONObject("result"));
+        return data;
     }
 
     /**
      * @return list of Tests in current Project
      */
     public List<SingleTest> getSingleTests() throws IOException {
+        logger.info("Get list of single tests for project id=" + getId());
         String uri = utils.getAddress() + "/api/v4/tests?projectId=" + encode(getId());
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractSingleTests(response.getJSONArray("result"));
@@ -62,6 +68,7 @@ public class Project extends BZAObject {
      * @return list of Multi-Tests in current Project
      */
     public List<MultiTest> getMultiTests() throws IOException {
+        logger.info("Get list of multi tests for project id=" + getId());
         String uri = utils.getAddress() + "/api/v4/tests?projectId=" + encode(getId());
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractMultiTests(response.getJSONArray("result"));

@@ -1,6 +1,7 @@
 package com.blazemeter.api.exception;
 
 public class UnexpectedResponseException extends RuntimeException {
+
     public UnexpectedResponseException() {
     }
 

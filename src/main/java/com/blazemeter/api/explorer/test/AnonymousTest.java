@@ -27,11 +27,13 @@ public class AnonymousTest extends AbstractTest implements ITest {
 
     @Override
     public void start() throws IOException {
-        throw new UnsupportedOperationException("Start is not supported for this test type");
+        logger.error("Start is not supported for anonymous test type");
+        throw new UnsupportedOperationException("Start is not supported for anonymous test type");
     }
 
     @Override
     public void startExternal() throws IOException {
+        logger.info("Start external anonymous test");
         JSONObject result = sendStartTest(utils.getAddress() + "/api/v4/sessions");
         setTestFields(result.getJSONObject("test"));
         fillFields(result);

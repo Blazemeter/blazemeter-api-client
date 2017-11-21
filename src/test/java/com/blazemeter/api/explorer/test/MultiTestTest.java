@@ -15,7 +15,6 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
-import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -27,9 +26,10 @@ import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.*;
 
 public class MultiTestTest {
+
     @org.junit.Test
     public void testFlow() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -44,12 +44,18 @@ public class MultiTestTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/collections/testId/start, tag=null}", emul.getRequests().get(0));
         checkTest(test);
+        assertEquals("Start multi test id=testId\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/collections/testId/start, tag=null}\r\n" +
+                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
+                logger.getLogs().toString());
+        logger.reset();
 
         try {
             test.startExternal();
             fail("Cannot start external this test type");
         } catch (UnsupportedOperationException ex) {
-            assertEquals("StartExternal is not supported for this test type", ex.getMessage());
+            assertEquals("Start external is not supported for multi test type id=testId", ex.getMessage());
+            assertEquals("Start external is not supported for multi test type id=testId\r\n", logger.getLogs().toString());
         }
     }
 
@@ -80,7 +86,7 @@ public class MultiTestTest {
 
     @org.junit.Test
     public void testFromJSON() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
