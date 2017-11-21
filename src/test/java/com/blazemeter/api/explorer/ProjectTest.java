@@ -16,7 +16,6 @@ package com.blazemeter.api.explorer;
 
 import com.blazemeter.api.explorer.test.MultiTest;
 import com.blazemeter.api.explorer.test.SingleTest;
-import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -34,7 +33,7 @@ public class ProjectTest {
 
     @org.junit.Test
     public void testFlow() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -47,10 +46,17 @@ public class ProjectTest {
 
         Project project = new Project(emul, "10", "projectName");
         emul.addEmul(response.toString());
-        SingleTest test = project.createSingleTest("NEW_WORKSPACE");
+        SingleTest test = project.createSingleTest("NEW_TEST");
         assertEquals("100", test.getId());
         assertEquals("NEW_TEST", test.getName());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests, tag=null}", emul.getRequests().get(0));
+        assertEquals("Create single test with name=NEW_TEST\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests, tag=null}\r\n" +
+                        "Response: {\"result\":{\"id\":\"100\",\"name\":\"NEW_TEST\"}}\r\n",
+                logger.getLogs().toString());
 
+        emul.clean();
+        logger.reset();
         response.clear();
         JSONArray results = new JSONArray();
         results.add(result);
@@ -64,7 +70,14 @@ public class ProjectTest {
             assertEquals("100", t.getId());
             assertEquals("NEW_TEST", t.getName());
         }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of single tests for project id=10\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_TEST\"},{\"id\":\"100\",\"name\":\"NEW_TEST\"}]}\r\n",
+                logger.getLogs().toString());
 
+        emul.clean();
+        logger.reset();
         emul.addEmul(response.toString());
         List<MultiTest> multiTests = project.getMultiTests();
         assertEquals(2, multiTests.size());
@@ -72,11 +85,16 @@ public class ProjectTest {
             assertEquals("100", t.getId());
             assertEquals("NEW_TEST", t.getName());
         }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of multi tests for project id=10\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_TEST\"},{\"id\":\"100\",\"name\":\"NEW_TEST\"}]}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
     public void testFromJSON() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
