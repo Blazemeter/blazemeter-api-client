@@ -14,15 +14,12 @@
 
 package com.blazemeter.api.utils;
 
-import com.blazemeter.api.explorer.exception.UnexpectedResponseException;
+import com.blazemeter.api.exception.UnexpectedResponseException;
 import com.blazemeter.api.http.HttpUtils;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
-import net.sf.json.JSON;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import net.sf.json.JsonConfig;
 import okhttp3.Credentials;
 import okhttp3.Request;
 import org.apache.commons.lang.StringUtils;

@@ -46,7 +46,7 @@ public class Account extends BZAObject {
      * @return list of Workspace in current Account
      */
     public List<Workspace> getWorkspaces() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/workspaces?accountId=%s&enabled=true&limit=100", getId());
+        String uri = utils.getAddress() + String.format("/api/v4/workspaces?accountId=%s&enabled=true&limit=100", encode(getId()));
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractWorkspaces(response.getJSONArray("result"));
     }

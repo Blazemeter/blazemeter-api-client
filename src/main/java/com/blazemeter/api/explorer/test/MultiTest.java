@@ -27,7 +27,7 @@ public class MultiTest extends AbstractTest implements ITest {
 
     @Override
     public void start() throws IOException {
-        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/collections/%s/start", getId()));
+        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/collections/%s/start", encode(getId())));
         fillFields(result);
     }
 

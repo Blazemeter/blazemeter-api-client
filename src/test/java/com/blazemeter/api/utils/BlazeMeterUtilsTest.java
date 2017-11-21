@@ -1,6 +1,6 @@
 package com.blazemeter.api.utils;
 
-import com.blazemeter.api.explorer.exception.UnexpectedResponseException;
+import com.blazemeter.api.exception.UnexpectedResponseException;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
