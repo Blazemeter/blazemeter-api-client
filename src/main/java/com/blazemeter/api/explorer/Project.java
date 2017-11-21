@@ -76,23 +76,23 @@ public class Project extends BZAObject {
 
 
     private List<SingleTest> extractSingleTests(JSONArray result) {
-        List<SingleTest> accounts = new ArrayList<>();
+        List<SingleTest> tests = new ArrayList<>();
 
         for (Object obj : result) {
-            accounts.add(SingleTest.fromJSON(utils, (JSONObject) obj));
+            tests.add(SingleTest.fromJSON(utils, (JSONObject) obj));
         }
 
-        return accounts;
+        return tests;
     }
 
     private List<MultiTest> extractMultiTests(JSONArray result) {
-        List<MultiTest> accounts = new ArrayList<>();
+        List<MultiTest> tests = new ArrayList<>();
 
         for (Object obj : result) {
-            accounts.add(MultiTest.fromJSON(utils, (JSONObject) obj));
+            tests.add(MultiTest.fromJSON(utils, (JSONObject) obj));
         }
 
-        return accounts;
+        return tests;
     }
 
     public static Project fromJSON(BlazeMeterUtils utils, JSONObject obj) {
