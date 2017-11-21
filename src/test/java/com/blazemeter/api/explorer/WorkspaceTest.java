@@ -14,7 +14,8 @@
 
 package com.blazemeter.api.explorer;
 
-import com.blazemeter.api.logging.Logger;
+import com.blazemeter.api.explorer.test.MultiTest;
+import com.blazemeter.api.explorer.test.SingleTest;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -32,7 +33,7 @@ public class WorkspaceTest {
 
     @org.junit.Test
     public void testFlow() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -48,7 +49,14 @@ public class WorkspaceTest {
         Project project = workspace.createProject("NEW_PROJECT");
         assertEquals("999", project.getId());
         assertEquals("NEW_PROJECT", project.getName());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/projects, tag=null}", emul.getRequests().get(0));
+        assertEquals("Create project with name=NEW_PROJECT\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/projects, tag=null}\r\n" +
+                        "Response: {\"result\":{\"id\":\"999\",\"name\":\"NEW_PROJECT\"}}\r\n",
+                logger.getLogs().toString());
 
+        emul.clean();
+        logger.reset();
         response.clear();
         JSONArray results = new JSONArray();
         results.add(result);
@@ -62,11 +70,53 @@ public class WorkspaceTest {
             assertEquals("999", p.getId());
             assertEquals("NEW_PROJECT", p.getName());
         }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/projects?workspaceId=888&limit=99999, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of projects for workspace id=888\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/projects?workspaceId=888&limit=99999, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"NEW_PROJECT\"},{\"id\":\"999\",\"name\":\"NEW_PROJECT\"}]}\r\n",
+                logger.getLogs().toString());
+
+        emul.clean();
+        logger.reset();
+        emul.clean();
+        logger.reset();
+        response.clear();
+        JSONArray res = new JSONArray();
+        res.add(result);
+        res.add(result);
+        response.put("result", res);
+        emul.addEmul(response.toString());
+        List<SingleTest> tests = workspace.getSingleTests();
+        assertEquals(2, tests.size());
+        for (SingleTest t :tests) {
+            assertEquals("999", t.getId());
+            assertEquals("NEW_PROJECT", t.getName());
+        }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of single tests for workspace id=888\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"NEW_PROJECT\"},{\"id\":\"999\",\"name\":\"NEW_PROJECT\"}]}\r\n",
+                logger.getLogs().toString());
+
+        emul.clean();
+        logger.reset();
+        emul.addEmul(response.toString());
+        List<MultiTest> multiTests = workspace.getMultiTests();
+        assertEquals(2, multiTests.size());
+        for (MultiTest t :multiTests) {
+            assertEquals("999", t.getId());
+            assertEquals("NEW_PROJECT", t.getName());
+        }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of multi tests for workspace id=888\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"NEW_PROJECT\"},{\"id\":\"999\",\"name\":\"NEW_PROJECT\"}]}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
     public void testFromJSON() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
