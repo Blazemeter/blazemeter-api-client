@@ -15,7 +15,6 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
-import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -30,7 +29,7 @@ public class SingleTestTest {
 
     @org.junit.Test
     public void testFlow() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -44,7 +43,12 @@ public class SingleTestTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start-external, tag=null}", emul.getRequests().get(0));
         checkTest(test);
+        assertEquals("Start external single test id=testId\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start-external, tag=null}\r\n" +
+                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
+                logger.getLogs().toString());
         emul.clean();
+        logger.reset();
 
         test = new SingleTest(emul, "testId", "testName");
         emul.addEmul(response.toString());
@@ -52,6 +56,11 @@ public class SingleTestTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(0));
         checkTest(test);
+        assertEquals("Start single test id=testId\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}\r\n" +
+                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
+                logger.getLogs().toString());
+
     }
 
     private JSONObject generateResponse() {
@@ -81,7 +90,7 @@ public class SingleTestTest {
 
     @org.junit.Test
     public void testFromJSON() throws Exception {
-        Logger logger = new LoggerTest();
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);

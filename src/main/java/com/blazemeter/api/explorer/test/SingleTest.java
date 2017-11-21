@@ -27,7 +27,7 @@ public class SingleTest extends AbstractTest implements ITest {
 
     @Override
     public void start() throws IOException {
-        logger.info("Start signal test id=" + getId());
+        logger.info("Start single test id=" + getId());
         JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start", encode(getId())));
         fillFields(result);
     }
