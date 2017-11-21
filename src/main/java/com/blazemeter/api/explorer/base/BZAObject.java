@@ -63,6 +63,10 @@ public class BZAObject {
         this.name = name;
     }
 
+    public String encode(String text) {
+        return encode(text, UTF_8);
+    }
+
     public String encode(String text, String encoding) {
         try {
             return URLEncoder.encode(text, encoding);
