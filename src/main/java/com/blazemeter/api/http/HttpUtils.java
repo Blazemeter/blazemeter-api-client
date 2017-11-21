@@ -49,8 +49,6 @@ public class HttpUtils {
     protected static final String AUTHORIZATION = "Authorization";
     protected static final MediaType JSON_CONTENT = MediaType.parse("application/json; charset=utf-8");
 
-    protected final static int TIMEOUT = 5;
-
     protected final Logger logger;
 
     protected final String address;
@@ -99,7 +97,6 @@ public class HttpUtils {
         return createRequestBuilder(url).patch(data).build();
     }
 
-
     /**
      * Execute Http request
      * @param request - HTTP Request
@@ -121,7 +118,6 @@ public class HttpUtils {
     public String executeRequest(Request request) throws IOException {
         return httpClient.newCall(request).execute().body().string();
     }
-
 
     protected String extractErrorMessage(String response) {
         return response;
@@ -181,8 +177,8 @@ public class HttpUtils {
                     .proxy(proxy)
                     .proxyAuthenticator(auth).build();
         } catch (Exception ex) {
-            logger.warn("ERROR Instantiating HTTPClient. Exception received: ", ex);
-            throw new RuntimeException("ERROR Instantiating HTTPClient. Exception received: ", ex);
+            logger.warn("ERROR Instantiating HTTPClient. Exception received: " + ex.getMessage(), ex);
+            throw new RuntimeException("ERROR Instantiating HTTPClient. Exception received: " + ex.getMessage(), ex);
         }
     }
 
