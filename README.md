@@ -1,7 +1,12 @@
+# BlazeMeter Java SDK
+
+We, at BlazeMeter, aim to bring you tools for quicker, and easier development.
+
+As part of this ambition, we are proud to present our Java SDK!
+
 [![Build Status](https://travis-ci.org/Blazemeter/blazemeter-api-client.svg?branch=master)](https://travis-ci.org/Blazemeter/blazemeter-api-client)
 [![codecov](https://codecov.io/gh/Blazemeter/blazemeter-api-client/branch/master/graph/badge.svg)](https://codecov.io/gh/Blazemeter/blazemeter-api-client)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e86b726f20e046a2b89fc13c86ca6f87)](https://www.codacy.com/app/dzmitrykashlach/blazemeter-api-client?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Blazemeter/blazemeter-api-client&amp;utm_campaign=Badge_Grade)  
-`blazeMeter-api-client` can work with BlazeMeter REST API.
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e86b726f20e046a2b89fc13c86ca6f87)](https://www.codacy.com/app/dzmitrykashlach/blazemeter-api-client?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Blazemeter/blazemeter-api-client&amp;utm_campaign=Badge_Grade)
 
 Supported calls:  
 
@@ -9,8 +14,8 @@ Supported calls:
 |:---|:---|:---|
 |get master status code |GET   |/api/v4/masters/{id}/status?events=false   |
 |get tests|GET   |/api/v4/tests?limit=10000&workspaceId=<workspaceId>   |   
-|start test   |GET   |/api/v4/tests/{id}/start   |   
-|start external test   |GET   |/api/v4/tests/{id}/start-external   |   
+|start test   |POST   |/api/v4/tests/{id}/start   |   
+|start external test   |POST   |/api/v4/tests/{id}/start-external   |   
 |start collection   |POST   |/api/v4/collections/{id}/start   |   
 |stop master   |POST   |/api/v4/masters/{id}/stop   |   
 |terminate master   |POST   |/api/v4/masters/{id}/terminate   |   
@@ -19,7 +24,7 @@ Supported calls:
 |get ci status   |GET   |/api/v4/masters/{id}/ci-status   |   
 |retrieve junit report   |GET   |/api/v4/masters/{id}/reports/thresholds?format=junit   |   
 |retrieve jtl report   |GET   |/api/v4/sessions/{id}/reports/logs   |   
-|generate public token   |POST   |/api/v4/masters/{id}/publicToken   |   
+|generate public token   |POST   |/api/v4/masters/{id}/public-token   |   
 |master info   |GET,PATCH   |/api/v4/masters/{id}   |   
 |properties   |POST   |/api/v4/sessions/{id}/properties?target=all   |   
 |collection config   |GET   |/api/v4/collections/{id}   |   

@@ -27,13 +27,13 @@ public class SingleTest extends AbstractTest implements ITest {
 
     @Override
     public void start() throws IOException {
-        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start", getId()));
+        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start", encode(getId())));
         fillFields(result);
     }
 
     @Override
     public void startExternal() throws IOException {
-        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start-external", getId()));
+        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start-external", encode(getId())));
         fillFields(result);
     }
 
