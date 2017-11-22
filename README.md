@@ -30,7 +30,6 @@ Supported calls:
 |collection config   |GET   |/api/v4/collections/{id}   |   
 |test config   |GET   |/api/v4/tests/{id}   |   
 |list of test sessions   |GET   |/api/v4/masters/{id}/sessions   |   
-|active tests   |GET   |/api/v4/masters?workspaceId={workspaceId}&active=true   |   
 |workspaces   |GET   |/api/v4/workspaces?limit=1000&enabled=true   |   
 |accounts   |GET   |/api/v4/accounts   |   
 |create workspace   |POST   |/api/v4/workspaces   |   
