@@ -20,6 +20,7 @@ import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -29,21 +30,23 @@ import static org.junit.Assert.*;
 
 public class AccountTest {
 
-    @org.junit.Test
-    public void testFlow() throws Exception {
+    @Test
+    public void testCreateWorkspace() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
         JSONObject result = new JSONObject();
         result.put("id", "100");
         result.put("name", "NEW_WORKSPACE");
+
         JSONObject response = new JSONObject();
         response.put("result", result);
+        emul.addEmul(response.toString());
 
         Account account = new Account(emul, "777", "account_name");
-        emul.addEmul(response.toString());
         Workspace workspace = account.createWorkspace("NEW_WORKSPACE");
+
         assertEquals("100", workspace.getId());
         assertEquals("NEW_WORKSPACE", workspace.getName());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/workspaces, tag=null}", emul.getRequests().get(0));
@@ -51,18 +54,29 @@ public class AccountTest {
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/workspaces, tag=null}\r\n" +
                         "Response: {\"result\":{\"id\":\"100\",\"name\":\"NEW_WORKSPACE\"}}\r\n",
                 logger.getLogs().toString());
+    }
 
+    @Test
+    public void testGetWorkspaces() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        emul.clean();
-        logger.reset();
-        response.clear();
+        JSONObject result = new JSONObject();
+        result.put("id", "100");
+        result.put("name", "NEW_WORKSPACE");
+
         JSONArray results = new JSONArray();
         results.add(result);
         results.add(result);
+
+        JSONObject response = new JSONObject();
         response.put("result", results);
         emul.addEmul(response.toString());
 
+        Account account = new Account(emul, "777", "account_name");
         List<Workspace> workspaces = account.getWorkspaces();
+
         assertEquals(2, workspaces.size());
         for (Workspace wsp : workspaces) {
             assertEquals("100", wsp.getId());
@@ -75,16 +89,16 @@ public class AccountTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject object = new JSONObject();
         object.put("id", "accountId");
         object.put("name", "accountName");
+
         Account account = Account.fromJSON(emul, object);
         assertEquals("accountId", account.getId());
         assertEquals("accountName", account.getName());
