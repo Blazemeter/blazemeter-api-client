@@ -15,11 +15,13 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
+import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -27,11 +29,27 @@ import static org.junit.Assert.*;
 
 public class AnonymousTestTest {
 
-    @org.junit.Test
-    public void testFlow() throws Exception {
+    @Test
+    public void testStart() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+        AnonymousTest test = new AnonymousTest(emul);
+        try {
+            test.start();
+            fail("Cannot start this test type");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("Start is not supported for anonymous test type", ex.getMessage());
+            assertEquals("Start is not supported for anonymous test type\r\n", logger.getLogs().toString());
+        }
+
+    }
+
+    @Test
+    public void testStartExternal() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject response = new JSONObject();
@@ -48,15 +66,8 @@ public class AnonymousTestTest {
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions, tag=null}\r\n" +
                         "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"},\"session\":{\"id\":\"responseSessionId\",\"name\":\"responseSessionName\",\"userId\":\"responseUserId\"}}}\r\n",
                 logger.getLogs().toString());
-        logger.reset();
-
-        try {
-            test.start();
-            fail("Cannot start this test type");
-        } catch (UnsupportedOperationException ex) {
-            assertEquals("Start is not supported for anonymous test type", ex.getMessage());
-            assertEquals("Start is not supported for anonymous test type\r\n", logger.getLogs().toString());
-        }
+        Session session = test.getSession();
+        assertEquals("responseSessionId", session.getId());
     }
 
     private JSONObject generateResponse() {
