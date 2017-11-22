@@ -41,7 +41,7 @@ public class CiPostProcess {
         this.workspaceDir = workspaceDir;
     }
 
-    /*
+    /**
     Executes post-process after test was finished on server
     */
     public BuildResult execute() {
@@ -55,21 +55,21 @@ public class CiPostProcess {
         return null;
     }
 
-    /*
+    /**
     Saves junit report to hdd;
     */
     public void saveJunit() {
 
     }
 
-    /*
+    /**
     Saves jtl report to hdd;
     */
     public void saveJtl() {
 
     }
 
-    /*
+    /**
     Prints summary to browser;
     */
     public void printSummary(){

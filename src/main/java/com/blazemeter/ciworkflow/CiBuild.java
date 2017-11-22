@@ -15,8 +15,6 @@
 package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.test.AbstractTest;
-import com.blazemeter.api.explorer.test.MultiTest;
-import com.blazemeter.api.explorer.test.SingleTest;
 
 import java.io.IOException;
 
@@ -35,6 +33,9 @@ public class CiBuild {
         this.notes = notes;
     }
 
+    /**
+     * Executes ci build
+     */
     public void execute() {
 
         try {
@@ -43,6 +44,9 @@ public class CiBuild {
         }
     }
 
+    /**
+     * Cancels ci build
+     */
     public void cancel() {
 
     }
