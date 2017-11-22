@@ -79,7 +79,7 @@ public class Session extends BZAObject {
     /**
      * Stop anonymous session
      */
-    public void stopAnonymous() throws IOException {
+    public void terminateExternal() throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/terminate-external", encode(getId()));
         JSONObject data = new JSONObject();
         data.put("signature", signature);
