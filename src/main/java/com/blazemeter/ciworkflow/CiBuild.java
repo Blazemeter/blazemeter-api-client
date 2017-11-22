@@ -14,9 +14,12 @@
 
 package com.blazemeter.ciworkflow;
 
+import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
+import com.blazemeter.api.logging.Logger;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 public class CiBuild {
 
@@ -26,28 +29,81 @@ public class CiBuild {
 
     public final String notes;
 
+    public final Logger logger;
 
-    public CiBuild(AbstractTest test, String properties, String notes) {
+    public final CiPostProcess ciPostProcess;
+
+    public String pr;
+
+    public CiBuild(AbstractTest test, String properties,
+                   String notes,
+                   boolean isDownloadJtl,
+                   boolean isDownloadJunit, String junitPath,
+                   String jtlPath, String workspaceDir,
+                   Logger logger) {
         this.test = test;
         this.properties = properties;
         this.notes = notes;
+        this.logger = logger;
+        this.ciPostProcess = new CiPostProcess(isDownloadJtl, isDownloadJunit,
+                junitPath, jtlPath, workspaceDir, logger);
     }
 
     /**
      * Executes ci build
+     * @return BuildResult
      */
-    public void execute() {
-
+    public BuildResult execute() {
+        BuildResult r = BuildResult.SUCCESS;
+        Master master = null;
         try {
             this.test.start();
-        } catch (IOException e) {
+            master = this.test.getMaster();
+            pr = master.getPublicReport();
+            master.postNotes(this.notes);
+            /*TODO
+            List<String->Session> sessions = master.getSessions();
+            for (String s : sessions) {
+            push properties;
+            }
+            */
+            waitForFinish(master);
+            this.ciPostProcess.execute(master);
+        } catch (InterruptedException ie) {
+            this.ciPostProcess.execute(master);
+            r = BuildResult.ABORTED;
+        } catch (IOException ioe) {
+            r = BuildResult.FAILED;
+        } catch (Exception e) {
+            r = BuildResult.FAILED;
+        } finally {
+            return r;
         }
     }
 
     /**
-     * Cancels ci build
+     * Waits until test will be over on server
+     *
+     * @throws InterruptedException IOException
      */
-    public void cancel() {
-
+    public void waitForFinish(Master master) throws InterruptedException, IOException {
+        long lastPrint = 0;
+        while (true) {
+            Thread.sleep(15000);
+            if (master.getStatus() == 140) {
+                return;
+            }
+            long start = Calendar.getInstance().getTime().getTime();
+            long now = Calendar.getInstance().getTime().getTime();
+            long diffInSec = (now - start) / 1000;
+            if (now - lastPrint > 60000) {
+                logger.info("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
+                lastPrint = now;
+            }
+            if (Thread.interrupted()) {
+                logger.info("Job was stopped by user");
+                throw new InterruptedException("Job was stopped by user");
+            }
+        }
     }
 }
