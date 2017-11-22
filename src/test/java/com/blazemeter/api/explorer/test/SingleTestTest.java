@@ -20,6 +20,7 @@ import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
+import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -27,11 +28,31 @@ import static org.junit.Assert.*;
 
 public class SingleTestTest {
 
-    @org.junit.Test
-    public void testFlow() throws Exception {
+    @Test
+    public void testStart() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+        JSONObject response = new JSONObject();
+        response.put("result", generateResponse());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName");
+        emul.addEmul(response.toString());
+        test.start();
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(0));
+        checkTest(test);
+        assertEquals("Start single test id=testId\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}\r\n" +
+                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
+                logger.getLogs().toString());
+    }
+
+    @Test
+    public void testStartExternal() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject response = new JSONObject();
@@ -47,20 +68,6 @@ public class SingleTestTest {
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start-external, tag=null}\r\n" +
                         "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
                 logger.getLogs().toString());
-        emul.clean();
-        logger.reset();
-
-        test = new SingleTest(emul, "testId", "testName");
-        emul.addEmul(response.toString());
-        test.start();
-        assertEquals(1, emul.getRequests().size());
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(0));
-        checkTest(test);
-        assertEquals("Start single test id=testId\r\n" +
-                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}\r\n" +
-                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
-                logger.getLogs().toString());
-
     }
 
     private JSONObject generateResponse() {
@@ -79,7 +86,6 @@ public class SingleTestTest {
         return result;
     }
 
-
     private void checkTest(SingleTest test) {
         Master master = test.getMaster();
         assertEquals("responseMasterId", master.getId());
@@ -88,7 +94,7 @@ public class SingleTestTest {
         assertEquals("responseSignature", test.getSignature());
     }
 
-    @org.junit.Test
+    @Test
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
