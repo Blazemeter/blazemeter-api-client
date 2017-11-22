@@ -66,10 +66,20 @@ public class Session extends BZAObject {
         utils.execute(utils.createPost(uri, body));
     }
 
+
+    /**
+     * @return url for downloading jtl report
+     */
+    public String jtl() throws IOException {
+        String uri = utils.getAddress() + String.format("/api/v4/sessions/{id}/reports/logs", encode(getId()));
+        JSONObject o = utils.execute(utils.createGet(uri));
+        return extractDataUrl(o);
+    }
+
     /**
      * Stop anonymous session
      */
-    public void stopAnonymous() throws IOException {
+    public void terminateExternal() throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/terminate-external", encode(getId()));
         JSONObject data = new JSONObject();
         data.put("signature", signature);
@@ -88,6 +98,20 @@ public class Session extends BZAObject {
 
     public String getSignature() {
         return signature;
+    }
+
+    private String extractDataUrl(JSONObject o) {
+        String url = null;
+        JSONObject result = o.getJSONObject("result");
+        JSONArray data = result.getJSONArray("data");
+        for (int i = 0; i < data.size(); i++) {
+            String title = data.getJSONObject(i).getString("title");
+            if ("Zip".equals(title)) {
+                url = data.getJSONObject(i).getString("dataUrl");
+                break;
+            }
+        }
+        return url;
     }
 
     public static Session fromJSON(BlazeMeterUtils utils, String testId, String signature, JSONObject session) {

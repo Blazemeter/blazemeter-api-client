@@ -37,4 +37,26 @@ public class SessionTest {
         emul.clean();
     }
 
+    @org.junit.Test
+    public void jtl() throws Exception {
+        Logger logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        JSONArray data = new JSONArray();
+        JSONObject dataUrl = new JSONObject();
+        dataUrl.put("dataUrl","dataUrl");
+        dataUrl.put("title","Zip");
+        data.add(dataUrl);
+        JSONObject result = new JSONObject();
+        result.put("data",data);
+        JSONObject o = new JSONObject();
+        o.put("result",result);
+        emul.addEmul(o.toString());
+        Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
+        String url=session.jtl();
+        assertEquals("dataUrl",url);
+        emul.clean();
+    }
+
 }
