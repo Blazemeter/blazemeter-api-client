@@ -112,18 +112,18 @@ public class SessionTest {
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
         JSONObject object = new JSONObject();
         object.put("id", "sessionId");
         object.put("name", "sessionName");
         object.put("userId", "userId");
+
         Session session = Session.fromJSON(emul, "testId", "signature", object);
         assertEquals("sessionId", session.getId());
         assertEquals("sessionName", session.getName());
         assertEquals("userId", session.getUserId());
         assertEquals("testId", session.getTestId());
         assertEquals("signature", session.getSignature());
-
     }
 }

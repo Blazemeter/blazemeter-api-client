@@ -20,6 +20,7 @@ import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -29,25 +30,25 @@ import static org.junit.Assert.assertEquals;
 
 public class UserTest {
 
-    @org.junit.Test
-    public void testFlow() throws Exception {
+    @Test
+    public void testGetAccounts() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-
-        User user = new User(emul);
 
         JSONObject acc = new JSONObject();
         acc.put("id", "accountId");
         acc.put("name", "accountName");
+
         JSONArray result = new JSONArray();
         result.add(acc);
         result.add(acc);
+
         JSONObject response = new JSONObject();
         response.put("result", result);
         emul.addEmul(response.toString());
 
+        User user = new User(emul);
         List<Account> accounts = user.getAccounts();
         assertEquals(2, accounts.size());
         for (Account account : accounts) {

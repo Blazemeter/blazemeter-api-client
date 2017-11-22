@@ -30,12 +30,15 @@ public class BZAObjectTest {
     public void test() throws Exception {
         BlazeMeterUtils utils = new BlazeMeterUtils("", "", new UserNotifierTest(), new LoggerTest());
         BZAObject entity = new BZAObject(utils, "id", "name");
+
         assertEquals(utils, entity.getUtils());
         assertEquals("id", entity.getId());
         assertEquals("name", entity.getName());
+
         entity.setUtils(null);
         entity.setId("id1");
         entity.setName("name1");
+
         assertNull(entity.getUtils());
         assertEquals("id1", entity.getId());
         assertEquals("name1", entity.getName());
@@ -45,8 +48,8 @@ public class BZAObjectTest {
     public void testEncoding() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtils utils = new BlazeMeterUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
         BZAObject obj = new BZAObject(utils, "id", "name");
 
         assertEquals("123", obj.encode("123"));
