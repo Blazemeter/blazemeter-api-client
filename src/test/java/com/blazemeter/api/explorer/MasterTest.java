@@ -6,6 +6,7 @@ import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class MasterTest {
 
     public static final double DELTA = 0.001;
 
-    @org.junit.Test
+    @Test
     public void testGetJUnitReport() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
@@ -35,11 +36,10 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testGetCIStatus() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject status = new JSONObject();
@@ -61,11 +61,10 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testGetPublicToken() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         String token = "x1x1x1x1x1x1x1x11x1x1x1";
@@ -87,11 +86,10 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testGetSessions() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject sessionId = new JSONObject();
@@ -119,13 +117,11 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testStop() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        JSONObject result = new JSONObject();
 
         JSONObject stopObject = new JSONObject();
         stopObject.put("session_id", "r-v3-1234567890qwerty");
@@ -133,13 +129,15 @@ public class MasterTest {
 
         JSONArray stopArray = new JSONArray();
         stopArray.add(stopObject);
+
+        JSONObject result = new JSONObject();
         result.put("result", stopArray);
         emul.addEmul(result.toString());
 
         Master master = new Master(emul, "id", "name");
 
         JSONArray stop = master.stop();
-        assertTrue(stop.size() == 1);
+        assertEquals(1, stop.size());
 
         JSONObject sr = stop.getJSONObject(0);
         assertTrue(sr.has("session_id"));
@@ -153,11 +151,10 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testTerminate() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject terminateObject = new JSONObject();
@@ -187,11 +184,10 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testGetStatus() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject result = new JSONObject();
@@ -210,11 +206,10 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testGetSummary() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject summaryEmul = new JSONObject();
@@ -257,11 +252,10 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testGetFunctionalReport() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject funcReportEmul = new JSONObject();
@@ -302,11 +296,10 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testPostNote() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject result = new JSONObject();
@@ -327,16 +320,16 @@ public class MasterTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject object = new JSONObject();
         object.put("id", "masterId");
         object.put("name", "masterName");
+
         Master master = Master.fromJSON(emul, object);
         assertEquals("masterId", master.getId());
         assertEquals("masterName", master.getName());
