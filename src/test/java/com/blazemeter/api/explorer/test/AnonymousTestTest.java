@@ -97,7 +97,6 @@ public class AnonymousTestTest {
         Master master = test.getMaster();
         assertEquals("responseMasterId", master.getId());
         assertEquals("responseMasterName", master.getName());
-
         assertEquals("responseSignature", test.getSignature());
     }
 

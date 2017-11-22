@@ -37,7 +37,6 @@ public class MultiTestTest {
         JSONObject response = new JSONObject();
         response.put("result", generateResponse());
 
-
         MultiTest test = new MultiTest(emul, "testId", "testName");
         emul.addEmul(response.toString());
         test.start();
@@ -88,7 +87,6 @@ public class MultiTestTest {
         Master master = test.getMaster();
         assertEquals("responseMasterId", master.getId());
         assertEquals("responseMasterName", master.getName());
-
         assertEquals("responseSignature", test.getSignature());
     }
 
@@ -96,11 +94,12 @@ public class MultiTestTest {
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
         JSONObject object = new JSONObject();
         object.put("id", "testId");
         object.put("name", "testName");
+
         MultiTest test = MultiTest.fromJSON(emul, object);
         assertEquals("testId", test.getId());
         assertEquals("testName", test.getName());
