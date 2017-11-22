@@ -60,7 +60,7 @@ public class Session extends BZAObject {
      * if properties were send correctly(server's response contains the same properties)
      */
     public void postProperties(JSONArray properties) throws IOException {
-        logger.info("Post properties for session id=" + getId());
+        logger.info("Post properties to session id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/properties?target=all", encode(getId()));
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"),
                 properties.toString());
