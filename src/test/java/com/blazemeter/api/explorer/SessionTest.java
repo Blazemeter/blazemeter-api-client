@@ -125,6 +125,5 @@ public class SessionTest {
         assertEquals("userId", session.getUserId());
         assertEquals("testId", session.getTestId());
         assertEquals("signature", session.getSignature());
-
     }
 }
