@@ -141,7 +141,7 @@ public class MasterTest {
         assertTrue(tr.has("session_id"));
         assertTrue(tr.has("result"));
         assertTrue(tr.get("session_id").equals("r-v3-559f97d178870"));
-        assertTrue(tr.getBoolean("result") == true);
+        assertTrue(tr.getBoolean("result"));
         emul.clean();
 
 

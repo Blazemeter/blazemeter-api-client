@@ -106,7 +106,7 @@ public class Session extends BZAObject {
         JSONArray data = result.getJSONArray("data");
         for (int i = 0; i < data.size(); i++) {
             String title = data.getJSONObject(i).getString("title");
-            if (title.equals("Zip")) {
+            if ("Zip".equals(title)) {
                 url = data.getJSONObject(i).getString("dataUrl");
                 break;
             }
