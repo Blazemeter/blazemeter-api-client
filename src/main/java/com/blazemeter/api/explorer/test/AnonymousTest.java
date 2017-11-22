@@ -40,6 +40,7 @@ public class AnonymousTest extends AbstractTest {
         JSONObject result = sendStartTest(utils.getAddress() + "/api/v4/sessions");
         setTestFields(result.getJSONObject("test"));
         fillFields(result);
+        this.session = Session.fromJSON(utils, getId(), signature, result.getJSONObject("session"));
     }
 
     private void setTestFields(JSONObject obj) {
