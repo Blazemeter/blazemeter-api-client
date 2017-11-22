@@ -38,9 +38,9 @@ public class Master extends BZAObject {
     public String getPublicReport() throws IOException {
         logger.info("Get link to public report for master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/public-token", encode(getId()));
-        JSONObject obj = new JSONObject();
-        obj.put("publicToken", "None");
-        JSONObject response = utils.execute(utils.createPost(uri, obj.toString()));
+        JSONObject request = new JSONObject();
+        request.put("publicToken", "None");
+        JSONObject response = utils.execute(utils.createPost(uri, request.toString()));
         return utils.getAddress() + String.format("/app/?public-token=%s#/masters/%s/summary",
                 extractPublicToken(response.getJSONObject("result")), getId());
     }
@@ -121,8 +121,9 @@ public class Master extends BZAObject {
     public String postNotes(String note) throws IOException {
         logger.info("Post notes to master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s", encode(getId()));
-        String noteEsc = StringEscapeUtils.escapeJson("{'note':'" + note + "'}");
-        RequestBody body = RequestBody.create(MediaType.parse("text/plain; charset=ISO-8859-1"), noteEsc);
+        // Hack to escape '\r\n' chars..
+        String noteEscape = StringEscapeUtils.escapeJson("{'note':'" + note + "'}");
+        RequestBody body = RequestBody.create(MediaType.parse("text/plain; charset=ISO-8859-1"), noteEscape);
         JSONObject result = utils.execute(utils.createPatch(uri, body)).getJSONObject("result");
         return result.getString("note");
     }
@@ -135,7 +136,6 @@ public class Master extends BZAObject {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/ci-status", encode(getId()));
         return utils.execute(utils.createGet(uri)).getJSONObject("result");
     }
-
 
     private String extractPublicToken(JSONObject result) {
         return result.getString("publicToken");
