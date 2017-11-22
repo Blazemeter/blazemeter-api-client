@@ -46,7 +46,7 @@ public class AnonymousTestTest {
         checkTest(test);
         assertEquals("Start external anonymous test\r\n" +
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions, tag=null}\r\n" +
-                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
+                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"},\"session\":{\"id\":\"responseSessionId\",\"name\":\"responseSessionName\",\"userId\":\"responseUserId\"}}}\r\n",
                 logger.getLogs().toString());
         logger.reset();
 
@@ -68,10 +68,16 @@ public class AnonymousTestTest {
         masterResponse.put("id", "responseMasterId");
         masterResponse.put("name", "responseMasterName");
 
+        JSONObject sessionResponse = new JSONObject();
+        sessionResponse.put("id", "responseSessionId");
+        sessionResponse.put("name", "responseSessionName");
+        sessionResponse.put("userId", "responseUserId");
+
         JSONObject result = new JSONObject();
         result.put("test", testResponse);
         result.put("signature", "responseSignature");
         result.put("master", masterResponse);
+        result.put("session", sessionResponse);
         return result;
     }
 
