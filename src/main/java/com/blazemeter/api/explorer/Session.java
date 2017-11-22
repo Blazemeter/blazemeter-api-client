@@ -104,17 +104,15 @@ public class Session extends BZAObject {
     }
 
     private String extractDataUrl(JSONObject o) {
-        String url = null;
         JSONObject result = o.getJSONObject("result");
         JSONArray data = result.getJSONArray("data");
         for (int i = 0; i < data.size(); i++) {
             String title = data.getJSONObject(i).getString("title");
             if ("Zip".equals(title)) {
-                url = data.getJSONObject(i).getString("dataUrl");
-                break;
+                return data.getJSONObject(i).getString("dataUrl");
             }
         }
-        return url;
+        return null;
     }
 
     public static Session fromJSON(BlazeMeterUtils utils, String testId, String signature, JSONObject session) {
