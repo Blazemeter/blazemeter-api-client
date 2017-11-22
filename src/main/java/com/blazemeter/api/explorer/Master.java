@@ -64,8 +64,7 @@ public class Master extends BZAObject {
         JSONObject response = utils.execute(utils.createGet(uri));
         JSONObject result = response.getJSONObject("result");
         JSONArray sessions = result.getJSONArray("sessions");
-        int sessionsLength = sessions.size();
-        for (int i = 0; i < sessionsLength; i++) {
+        for (int i = 0; i < sessions.size(); i++) {
             sessionIds.add(sessions.getJSONObject(i).getString("id"));
         }
         return sessionIds;
@@ -91,8 +90,8 @@ public class Master extends BZAObject {
     public int getStatus() throws IOException {
         logger.info("Get master status id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/status?events=false", encode(getId()));
-        JSONObject r = utils.execute(utils.createGet(uri)).getJSONObject("result");
-        return r.getInt("progress");
+        JSONObject result = utils.execute(utils.createGet(uri)).getJSONObject("result");
+        return result.getInt("progress");
     }
 
     /**
@@ -101,9 +100,9 @@ public class Master extends BZAObject {
     public JSONObject getSummary() throws IOException {
         logger.info("Get summary for master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/main/summary", encode(getId()));
-        JSONObject r = utils.execute(utils.createGet(uri)).getJSONObject("result");
-        JSONObject sumserv = r.getJSONArray("summary").getJSONObject(0);
-        return extractSummary(sumserv);
+        JSONObject result = utils.execute(utils.createGet(uri)).getJSONObject("result");
+        JSONObject summary = result.getJSONArray("summary").getJSONObject(0);
+        return extractSummary(summary);
     }
 
     /**
@@ -112,8 +111,8 @@ public class Master extends BZAObject {
     public JSONObject getFunctionalReport() throws IOException {
         logger.info("Get functional report for master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s", encode(getId()));
-        JSONObject r = utils.execute(utils.createGet(uri)).getJSONObject("result");
-        return r.has("functionalSummary") ? r.getJSONObject("functionalSummary") : new JSONObject();
+        JSONObject result = utils.execute(utils.createGet(uri)).getJSONObject("result");
+        return result.has("functionalSummary") ? result.getJSONObject("functionalSummary") : new JSONObject();
     }
 
     /**
@@ -124,8 +123,8 @@ public class Master extends BZAObject {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s", encode(getId()));
         String noteEsc = StringEscapeUtils.escapeJson("{'note':'" + note + "'}");
         RequestBody body = RequestBody.create(MediaType.parse("text/plain; charset=ISO-8859-1"), noteEsc);
-        JSONObject r = utils.execute(utils.createPatch(uri, body)).getJSONObject("result");
-        return r.getString("note");
+        JSONObject result = utils.execute(utils.createPatch(uri, body)).getJSONObject("result");
+        return result.getString("note");
     }
 
     /**

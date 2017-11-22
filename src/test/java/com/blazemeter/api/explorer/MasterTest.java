@@ -28,6 +28,11 @@ public class MasterTest {
         Master master = new Master(emul, "id", "name");
 
         assertEquals("junit", master.getJUnitReport());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/reports/thresholds?format=junit, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get JUnit report for master id=id\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/reports/thresholds?format=junit, tag=null}\r\n" +
+                        "Response: junit\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -49,6 +54,11 @@ public class MasterTest {
         JSONObject ciStatus = master.getCIStatus();
         assertTrue(ciStatus.has("masterId"));
         assertEquals("id", ciStatus.getString("masterId"));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/ci-status, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get CI status for master id=id\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/ci-status, tag=null}\r\n" +
+                        "Response: {\"result\":{\"masterId\":\"id\"}}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -70,6 +80,11 @@ public class MasterTest {
 
         String expectedUrl = emul.getAddress() + String.format("/app/?public-token=%s#/masters/%s/summary", token, master.getId());
         assertEquals(expectedUrl, master.getPublicReport());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/id/public-token, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get link to public report for master id=id\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/id/public-token, tag=null}\r\n" +
+                        "Response: {\"result\":{\"publicToken\":\"x1x1x1x1x1x1x1x11x1x1x1\"}}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -97,6 +112,11 @@ public class MasterTest {
         List<String> sessionsList = master.getSessions();
         assertEquals(1, sessionsList.size());
         assertEquals("r-v3-1234567890qwerty", sessionsList.get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of sessions for master id=id\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}\r\n" +
+                        "Response: {\"result\":{\"sessions\":[{\"id\":\"r-v3-1234567890qwerty\"}]}}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -126,6 +146,11 @@ public class MasterTest {
         assertTrue(sr.has("result"));
         assertEquals("r-v3-1234567890qwerty", sr.get("session_id"));
         assertEquals("shutdown command sent\n", sr.get("result"));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/id/stop, tag=null}", emul.getRequests().get(0));
+        assertEquals("Stop master id=id\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/id/stop, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"session_id\":\"r-v3-1234567890qwerty\",\"result\":\"shutdown command sent\\n\"}]}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -155,6 +180,11 @@ public class MasterTest {
         assertTrue(terminate.has("result"));
         assertEquals("r-v3-1234567899qwerty", terminate.get("session_id"));
         assertTrue(terminate.getBoolean("result"));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/id/terminate, tag=null}", emul.getRequests().get(0));
+        assertEquals("Terminate master id=id\r\n" +
+                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/id/terminate, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"session_id\":\"r-v3-1234567899qwerty\",\"result\":true}]}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -173,7 +203,11 @@ public class MasterTest {
 
         Master master = new Master(emul, "id", "name");
         assertEquals(100, master.getStatus());
-        emul.clean();
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get master status id=id\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}\r\n" +
+                        "Response: {\"result\":{\"progress\":100}}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -215,6 +249,12 @@ public class MasterTest {
         assertEquals(49, summary.getInt("errorPercentage"));
         assertEquals(2482, summary.getInt("hits"));
         assertEquals(8.25, summary.getDouble("avgthrpt"), DELTA);
+
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/reports/main/summary, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get summary for master id=id\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/reports/main/summary, tag=null}\r\n" +
+                        "Response: {\"result\":{\"summary\":[{\"first\":1437397105,\"last\":1437397406,\"min\":0,\"max\":177,\"tp90\":2,\"failed\":1236,\"hits\":2482,\"avg\":1.47}]}}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -246,6 +286,7 @@ public class MasterTest {
         JSONObject funcReport = master.getFunctionalReport();
         assertEquals(8, funcReport.size());
         emul.clean();
+        logger.reset();
 
         result.remove("functionalSummary");
         response.put("result", result);
@@ -254,6 +295,11 @@ public class MasterTest {
 
         funcReport = master.getFunctionalReport();
         assertEquals(0, funcReport.size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get functional report for master id=id\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id, tag=null}\r\n" +
+                        "Response: {\"result\":{}}\r\n",
+                logger.getLogs().toString());
     }
 
     @org.junit.Test
@@ -274,6 +320,25 @@ public class MasterTest {
 
         String note = master.postNotes("valid");
         assertEquals(note, "valid");
+        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/id, tag=null}", emul.getRequests().get(0));
+        assertEquals("Post notes to master id=id\r\n" +
+                        "Simulating request: Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/id, tag=null}\r\n" +
+                        "Response: {\"result\":{\"note\":\"valid\"}}\r\n",
+                logger.getLogs().toString());
     }
 
+    @org.junit.Test
+    public void testFromJSON() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject object = new JSONObject();
+        object.put("id", "masterId");
+        object.put("name", "masterName");
+        Master master = Master.fromJSON(emul, object);
+        assertEquals("masterId", master.getId());
+        assertEquals("masterName", master.getName());
+    }
 }
