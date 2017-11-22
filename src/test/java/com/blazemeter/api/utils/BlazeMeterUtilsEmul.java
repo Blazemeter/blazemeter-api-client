@@ -16,7 +16,6 @@ package com.blazemeter.api.utils;
 
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
-import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import okhttp3.Request;
 

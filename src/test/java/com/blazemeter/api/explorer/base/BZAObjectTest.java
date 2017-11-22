@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 
 public class BZAObjectTest {
 
-    @org.junit.Test
+    @Test
     public void test() throws Exception {
         BlazeMeterUtils utils = new BlazeMeterUtils("", "", new UserNotifierTest(), new LoggerTest());
         BZAObject entity = new BZAObject(utils, "id", "name");

@@ -15,7 +15,6 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
-import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
