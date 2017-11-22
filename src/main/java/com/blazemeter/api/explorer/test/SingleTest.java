@@ -19,7 +19,7 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
-public class SingleTest extends AbstractTest implements ITest {
+public class SingleTest extends AbstractTest {
 
     public SingleTest(BlazeMeterUtils utils, String id, String name) {
         super(utils, id, name);
