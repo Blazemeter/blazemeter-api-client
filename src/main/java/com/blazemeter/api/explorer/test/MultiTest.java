@@ -19,7 +19,7 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
-public class MultiTest extends AbstractTest implements ITest {
+public class MultiTest extends AbstractTest {
 
     public MultiTest(BlazeMeterUtils utils, String id, String name) {
         super(utils, id, name);

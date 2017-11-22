@@ -14,12 +14,15 @@
 
 package com.blazemeter.api.explorer.test;
 
+import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
-public class AnonymousTest extends AbstractTest implements ITest {
+public class AnonymousTest extends AbstractTest {
+
+    private Session session;
 
     public AnonymousTest(BlazeMeterUtils utils) {
         super(utils, "", "");
@@ -37,10 +40,15 @@ public class AnonymousTest extends AbstractTest implements ITest {
         JSONObject result = sendStartTest(utils.getAddress() + "/api/v4/sessions");
         setTestFields(result.getJSONObject("test"));
         fillFields(result);
+        this.session = Session.fromJSON(utils, getId(), signature, result.getJSONObject("session"));
     }
 
     private void setTestFields(JSONObject obj) {
         setId(obj.getString("id"));
         setName(obj.getString("name"));
+    }
+
+    public Session getSession() {
+        return session;
     }
 }

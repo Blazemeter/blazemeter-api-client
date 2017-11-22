@@ -43,6 +43,7 @@ public class Session extends BZAObject {
      * @return session in JSONObject
      */
     public JSONObject sendData(JSONObject data) throws IOException {
+        logger.info("Send data to session id=" + getId());
         String uri = utils.getDataAddress() +
                 String.format("/submit.php?session_id=%s&signature=%s&test_id=%s&user_id=%s",
                         getId(), signature, testId, userId);
@@ -56,10 +57,10 @@ public class Session extends BZAObject {
 
     /**
      * Send properties to test session
-     *
-     * @return if properties were send correctly(server's response contains the same properties)
+     * if properties were send correctly(server's response contains the same properties)
      */
-    public void properties(JSONArray properties) throws IOException {
+    public void postProperties(JSONArray properties) throws IOException {
+        logger.info("Post properties to session id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/properties?target=all", encode(getId()));
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"),
                 properties.toString());
@@ -70,8 +71,9 @@ public class Session extends BZAObject {
     /**
      * @return url for downloading jtl report
      */
-    public String jtl() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/sessions/{id}/reports/logs", encode(getId()));
+    public String getJTLReport() throws IOException {
+        logger.info("Get JTL report for session id=" + getId());
+        String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/reports/logs", encode(getId()));
         JSONObject o = utils.execute(utils.createGet(uri));
         return extractDataUrl(o);
     }
@@ -80,6 +82,7 @@ public class Session extends BZAObject {
      * Stop anonymous session
      */
     public void terminateExternal() throws IOException {
+        logger.info("Terminate external session id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/terminate-external", encode(getId()));
         JSONObject data = new JSONObject();
         data.put("signature", signature);
@@ -101,17 +104,15 @@ public class Session extends BZAObject {
     }
 
     private String extractDataUrl(JSONObject o) {
-        String url = null;
         JSONObject result = o.getJSONObject("result");
         JSONArray data = result.getJSONArray("data");
         for (int i = 0; i < data.size(); i++) {
             String title = data.getJSONObject(i).getString("title");
             if ("Zip".equals(title)) {
-                url = data.getJSONObject(i).getString("dataUrl");
-                break;
+                return data.getJSONObject(i).getString("dataUrl");
             }
         }
-        return url;
+        return null;
     }
 
     public static Session fromJSON(BlazeMeterUtils utils, String testId, String signature, JSONObject session) {
