@@ -56,10 +56,9 @@ public class Session extends BZAObject {
 
     /**
      * Send properties to test session
-     *
-     * @return if properties were send correctly(server's response contains the same properties)
+     * if properties were send correctly(server's response contains the same properties)
      */
-    public void properties(JSONArray properties) throws IOException {
+    public void postProperties(JSONArray properties) throws IOException {
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/properties?target=all", encode(getId()));
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"),
                 properties.toString());
@@ -70,8 +69,8 @@ public class Session extends BZAObject {
     /**
      * @return url for downloading jtl report
      */
-    public String jtl() throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/sessions/{id}/reports/logs", encode(getId()));
+    public String getJTLReport() throws IOException {
+        String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/reports/logs", encode(getId()));
         JSONObject o = utils.execute(utils.createGet(uri));
         return extractDataUrl(o);
     }
@@ -80,6 +79,7 @@ public class Session extends BZAObject {
      * Stop anonymous session
      */
     public void terminateExternal() throws IOException {
+
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/terminate-external", encode(getId()));
         JSONObject data = new JSONObject();
         data.put("signature", signature);

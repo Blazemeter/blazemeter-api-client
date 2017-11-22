@@ -15,48 +15,53 @@ import static org.junit.Assert.*;
 public class SessionTest {
 
     @org.junit.Test
-    public void properties() throws Exception {
+    public void testPostProperties() throws Exception {
         Logger logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        JSONArray properties = new JSONArray();
+
         JSONObject property = new JSONObject();
         property.put("key", "url");
         property.put("value", "google.com");
+
+        JSONArray properties = new JSONArray();
         properties.add(property);
+
         JSONObject result = new JSONObject();
         result.put("result", property);
         emul.addEmul(result.toString());
+
         Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
         try {
-            session.properties(properties);
+            session.postProperties(properties);
         } catch (Exception e) {
             fail("Got an exception while submitting properties");
         }
-        emul.clean();
     }
 
     @org.junit.Test
-    public void jtl() throws Exception {
+    public void testGetJTLReport() throws Exception {
         Logger logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        JSONArray data = new JSONArray();
+
         JSONObject dataUrl = new JSONObject();
         dataUrl.put("dataUrl","dataUrl");
         dataUrl.put("title","Zip");
+
+        JSONArray data = new JSONArray();
         data.add(dataUrl);
+
         JSONObject result = new JSONObject();
         result.put("data",data);
-        JSONObject o = new JSONObject();
-        o.put("result",result);
-        emul.addEmul(o.toString());
+
+        JSONObject response = new JSONObject();
+        response.put("result",result);
+        emul.addEmul(response.toString());
+
         Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
-        String url=session.jtl();
+        String url=session.getJTLReport();
         assertEquals("dataUrl",url);
-        emul.clean();
     }
 
 }
