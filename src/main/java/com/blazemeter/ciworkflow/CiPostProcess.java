@@ -20,9 +20,9 @@ public class CiPostProcess {
 
     public final Master master;
 
-    public final boolean jtl;
+    public final boolean isDownloadJtl;
 
-    public final boolean junit;
+    public final boolean isDownloadJunit;
 
     public final String junitPath;
 
@@ -34,8 +34,8 @@ public class CiPostProcess {
                          boolean junit, String junitPath,
                          String jtlPath, String workspaceDir) {
         this.master = master;
-        this.jtl = jtl;
-        this.junit = junit;
+        this.isDownloadJtl = jtl;
+        this.isDownloadJunit = junit;
         this.junitPath = junitPath;
         this.jtlPath = jtlPath;
         this.workspaceDir = workspaceDir;
@@ -45,10 +45,10 @@ public class CiPostProcess {
     Executes post-process after test was finished on server
     */
     public BuildResult execute() {
-        if (this.junit) {
+        if (this.isDownloadJunit) {
             saveJunit();
         }
-        if (this.jtl) {
+        if (this.isDownloadJtl) {
             saveJtl();
         }
         printSummary();
