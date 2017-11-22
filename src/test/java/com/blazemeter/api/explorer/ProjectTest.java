@@ -22,6 +22,7 @@ import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -31,22 +32,23 @@ import static org.junit.Assert.*;
 
 public class ProjectTest {
 
-    @org.junit.Test
-    public void testFlow() throws Exception {
+    @Test
+    public void testCreateSingleTest() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject result = new JSONObject();
         result.put("id", "100");
         result.put("name", "NEW_TEST");
+
         JSONObject response = new JSONObject();
         response.put("result", result);
+        emul.addEmul(response.toString());
 
         Project project = new Project(emul, "10", "projectName");
-        emul.addEmul(response.toString());
         SingleTest test = project.createSingleTest("NEW_TEST");
+
         assertEquals("100", test.getId());
         assertEquals("NEW_TEST", test.getName());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests, tag=null}", emul.getRequests().get(0));
@@ -54,16 +56,27 @@ public class ProjectTest {
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests, tag=null}\r\n" +
                         "Response: {\"result\":{\"id\":\"100\",\"name\":\"NEW_TEST\"}}\r\n",
                 logger.getLogs().toString());
+    }
 
-        emul.clean();
-        logger.reset();
-        response.clear();
+    @Test
+    public void testGetSingleTests() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        result.put("id", "100");
+        result.put("name", "NEW_TEST");
+
         JSONArray results = new JSONArray();
         results.add(result);
         results.add(result);
+
+        JSONObject response = new JSONObject();
         response.put("result", results);
         emul.addEmul(response.toString());
 
+        Project project = new Project(emul, "10", "projectName");
         List<SingleTest> tests = project.getSingleTests();
         assertEquals(2, tests.size());
         for (SingleTest t :tests) {
@@ -75,10 +88,27 @@ public class ProjectTest {
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}\r\n" +
                         "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_TEST\"},{\"id\":\"100\",\"name\":\"NEW_TEST\"}]}\r\n",
                 logger.getLogs().toString());
+    }
 
-        emul.clean();
-        logger.reset();
+    @Test
+    public void testGetMultiTests() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        result.put("id", "100");
+        result.put("name", "NEW_TEST");
+
+        JSONArray results = new JSONArray();
+        results.add(result);
+        results.add(result);
+
+        JSONObject response = new JSONObject();
+        response.put("result", results);
         emul.addEmul(response.toString());
+
+        Project project = new Project(emul, "10", "projectName");
         List<MultiTest> multiTests = project.getMultiTests();
         assertEquals(2, multiTests.size());
         for (MultiTest t :multiTests) {
@@ -92,15 +122,16 @@ public class ProjectTest {
                 logger.getLogs().toString());
     }
 
-    @org.junit.Test
+    @Test
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
         JSONObject object = new JSONObject();
         object.put("id", "projectId");
         object.put("name", "projectName");
+
         Project project = Project.fromJSON(emul, object);
         assertEquals("projectId", project.getId());
         assertEquals("projectName", project.getName());
