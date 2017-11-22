@@ -20,6 +20,7 @@ import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
+import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -27,11 +28,10 @@ import static org.junit.Assert.*;
 
 public class MultiTestTest {
 
-    @org.junit.Test
-    public void testFlow() throws Exception {
+    @Test
+    public void testStart() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject response = new JSONObject();
@@ -48,8 +48,15 @@ public class MultiTestTest {
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/collections/testId/start, tag=null}\r\n" +
                         "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
                 logger.getLogs().toString());
-        logger.reset();
+    }
 
+    @Test
+    public void testStartExternal() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        MultiTest test = new MultiTest(emul, "testId", "testName");
         try {
             test.startExternal();
             fail("Cannot start external this test type");
@@ -57,6 +64,7 @@ public class MultiTestTest {
             assertEquals("Start external is not supported for multi test type id=testId", ex.getMessage());
             assertEquals("Start external is not supported for multi test type id=testId\r\n", logger.getLogs().toString());
         }
+
     }
 
     private JSONObject generateResponse() {
@@ -84,7 +92,7 @@ public class MultiTestTest {
         assertEquals("responseSignature", test.getSignature());
     }
 
-    @org.junit.Test
+    @Test
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
