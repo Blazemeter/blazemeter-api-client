@@ -46,9 +46,9 @@ public class MasterTest {
 
         Master master = new Master(emul, "id", "name");
 
-        JSONObject cs = master.getCIStatus();
-        assertTrue(cs.has("masterId"));
-        assertEquals("id", cs.getString("masterId"));
+        JSONObject ciStatus = master.getCIStatus();
+        assertTrue(ciStatus.has("masterId"));
+        assertEquals("id", ciStatus.getString("masterId"));
     }
 
     @org.junit.Test
@@ -58,18 +58,18 @@ public class MasterTest {
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        String t = "x1x1x1x1x1x1x1x11x1x1x1";
-        JSONObject pt = new JSONObject();
-        pt.put("publicToken", t);
+        String token = "x1x1x1x1x1x1x1x11x1x1x1";
+        JSONObject publicToken = new JSONObject();
+        publicToken.put("publicToken", token);
 
         JSONObject result = new JSONObject();
-        result.put("result", pt);
+        result.put("result", publicToken);
         emul.addEmul(result.toString());
 
         Master master = new Master(emul, "id", "name");
 
-        String pr = emul.getAddress() + String.format("/app/?public-token=%s#/masters/%s/summary", t, master.getId());
-        assertEquals(pr, master.getPublicReport());
+        String expectedUrl = emul.getAddress() + String.format("/app/?public-token=%s#/masters/%s/summary", token, master.getId());
+        assertEquals(expectedUrl, master.getPublicReport());
     }
 
     @org.junit.Test
@@ -79,11 +79,11 @@ public class MasterTest {
 
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject s = new JSONObject();
-        s.put("id", "r-v3-1234567890qwerty");
+        JSONObject sessionId = new JSONObject();
+        sessionId.put("id", "r-v3-1234567890qwerty");
 
         JSONArray ids = new JSONArray();
-        ids.add(s);
+        ids.add(sessionId);
 
         JSONObject sessions = new JSONObject();
         sessions.put("sessions", ids);
@@ -94,9 +94,9 @@ public class MasterTest {
 
         Master master = new Master(emul, "id", "name");
 
-        List<String> sl = master.getSessions();
-        assertEquals(1, sl.size());
-        assertEquals("r-v3-1234567890qwerty", sl.get(0));
+        List<String> sessionsList = master.getSessions();
+        assertEquals(1, sessionsList.size());
+        assertEquals("r-v3-1234567890qwerty", sessionsList.get(0));
     }
 
     @org.junit.Test
@@ -120,6 +120,7 @@ public class MasterTest {
 
         JSONArray stop = master.stop();
         assertTrue(stop.size() == 1);
+
         JSONObject sr = stop.getJSONObject(0);
         assertTrue(sr.has("session_id"));
         assertTrue(sr.has("result"));
@@ -146,14 +147,14 @@ public class MasterTest {
         emul.addEmul(result.toString());
         Master master = new Master(emul, "id", "name");
 
-        JSONArray terminate = master.terminate();
-        assertEquals(1, terminate.size());
+        JSONArray terminateResponse = master.terminate();
+        assertEquals(1, terminateResponse.size());
 
-        JSONObject tr = terminate.getJSONObject(0);
-        assertTrue(tr.has("session_id"));
-        assertTrue(tr.has("result"));
-        assertEquals("r-v3-1234567899qwerty", tr.get("session_id"));
-        assertTrue(tr.getBoolean("result"));
+        JSONObject terminate = terminateResponse.getJSONObject(0);
+        assertTrue(terminate.has("session_id"));
+        assertTrue(terminate.has("result"));
+        assertEquals("r-v3-1234567899qwerty", terminate.get("session_id"));
+        assertTrue(terminate.getBoolean("result"));
     }
 
     @org.junit.Test
