@@ -90,7 +90,7 @@ public class CiPostProcess {
         return result;
     }
 
-    private boolean errorsFailed(JSONArray errors) {
+    public boolean errorsFailed(JSONArray errors) {
         int l = errors.size();
         for (int i = 0; i < l; i++) {
             try {
@@ -118,31 +118,36 @@ public class CiPostProcess {
     }
 
     /**
-     * Prints summary to browser;
+     * Downloads summary.
+     * It will be either functional or aggregate depending on server settings;
      */
     public JSONObject downloadSummary(Master master) throws InterruptedException {
         JSONObject summary = null;
         int retries = 1;
-        try {
-            while (retries < 5 && summary == null) {
-                this.logger.info("Trying to get  test report from server, attempt# " + retries);
+        while (retries < 5) {
+            try {
+                this.logger.info("Trying to get  functional summary from server, attempt# " + retries);
                 summary = master.getFunctionalReport();
-                if (summary != null) {
-                    this.logger.info("Got functional report from server");
-                    break;
-                } else {
-                    summary = master.getSummary();
-                    if (summary != null) {
-                        this.logger.info("Got aggregated report from server");
-                        break;
-                    }
-                }
-                Thread.sleep(5000);
-                retries++;
+            } catch (IOException e) {
+                this.logger.error("Failed to get functional summary for master ", e);
             }
-
-        } catch (IOException e) {
-            this.logger.error("Failed to get summary for master ", e);
+            if (summary.size() > 0) {
+                this.logger.info("Got functional report from server");
+                return summary;
+            } else {
+                try {
+                    this.logger.info("Trying to get  aggregate summary from server, attempt# " + retries);
+                    summary = master.getSummary();
+                } catch (Exception e) {
+                    this.logger.error("Failed to get aggregate summary for master ", e);
+                }
+                if (summary.size() > 0) {
+                    this.logger.info("Got aggregated report from server");
+                    return summary;
+                }
+            }
+            Thread.sleep(5000);
+            retries++;
         }
         return summary;
     }
