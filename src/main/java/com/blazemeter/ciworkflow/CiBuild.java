@@ -57,8 +57,7 @@ public class CiBuild {
     public BuildResult execute() {
         Master master = null;
         try {
-            this.test.start();
-            master = this.test.getMaster();
+            master = this.test.start();
             pr = master.getPublicReport();
             master.postNotes(this.notes);
             /*TODO
@@ -75,8 +74,6 @@ public class CiBuild {
             } catch (InterruptedException e) {
                 return BuildResult.ABORTED;
             }
-        } catch (IOException ioe) {
-            return BuildResult.FAILED;
         } catch (Exception e) {
             return BuildResult.FAILED;
         }
