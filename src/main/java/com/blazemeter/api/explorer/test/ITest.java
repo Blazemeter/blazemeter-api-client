@@ -14,18 +14,22 @@
 
 package com.blazemeter.api.explorer.test;
 
+import com.blazemeter.api.explorer.Master;
+
 import java.io.IOException;
 
 public interface ITest {
 
     /**
      * Start BlazeMeter test
+     * @return Master of started test
      */
-    void start() throws IOException;
+    Master start() throws IOException;
 
     /**
      * Create empty BlazeMeter report, without starting JMeter or other testing tools.
+     * @return Master of started test
      */
-    void startExternal() throws IOException;
+    Master startExternal() throws IOException;
 
 }

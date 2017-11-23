@@ -37,9 +37,11 @@ public class MultiTestTest {
         JSONObject response = new JSONObject();
         response.put("result", generateResponse());
 
-        MultiTest test = new MultiTest(emul, "testId", "testName");
         emul.addEmul(response.toString());
-        test.start();
+
+        MultiTest test = new MultiTest(emul, "testId", "testName");
+        Master master =test.start();
+
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/collections/testId/start, tag=null}", emul.getRequests().get(0));
         checkTest(test);
@@ -47,6 +49,7 @@ public class MultiTestTest {
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/collections/testId/start, tag=null}\r\n" +
                         "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
                 logger.getLogs().toString());
+        assertEquals("responseMasterId", master.getId());
     }
 
     @Test

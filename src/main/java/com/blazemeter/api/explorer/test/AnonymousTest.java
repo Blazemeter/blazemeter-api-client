@@ -14,6 +14,7 @@
 
 package com.blazemeter.api.explorer.test;
 
+import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
@@ -29,18 +30,19 @@ public class AnonymousTest extends AbstractTest {
     }
 
     @Override
-    public void start() throws IOException {
+    public Master start() throws IOException {
         logger.error("Start is not supported for anonymous test type");
         throw new UnsupportedOperationException("Start is not supported for anonymous test type");
     }
 
     @Override
-    public void startExternal() throws IOException {
+    public Master startExternal() throws IOException {
         logger.info("Start external anonymous test");
         JSONObject result = sendStartTest(utils.getAddress() + "/api/v4/sessions");
         setTestFields(result.getJSONObject("test"));
         fillFields(result);
         this.session = Session.fromJSON(utils, getId(), signature, result.getJSONObject("session"));
+        return master;
     }
 
     private void setTestFields(JSONObject obj) {
