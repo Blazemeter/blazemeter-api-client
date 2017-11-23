@@ -25,9 +25,11 @@ public abstract class AbstractTest extends BZAObject implements ITest {
 
     protected Master master;
     protected String signature;
+    protected String testType;
 
-    public AbstractTest(BlazeMeterUtils utils, String id, String name) {
+    public AbstractTest(BlazeMeterUtils utils, String id, String name, String testType) {
         super(utils, id, name);
+        this.testType = testType;
     }
 
     protected JSONObject sendStartTest(String uri) throws IOException {
