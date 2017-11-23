@@ -15,17 +15,21 @@
 package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.logging.Logger;
+import net.sf.json.JSONArray;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class CiBuild {
 
     public final AbstractTest test;
 
-    public final String properties;
+    public final JSONArray properties;
 
     public final String notes;
 
@@ -35,7 +39,7 @@ public class CiBuild {
 
     public String pr;
 
-    public CiBuild(AbstractTest test, String properties,
+    public CiBuild(AbstractTest test, JSONArray properties,
                    String notes,
                    boolean isDownloadJtl,
                    boolean isDownloadJunit, String junitPath,
@@ -60,12 +64,13 @@ public class CiBuild {
             master = this.test.start();
             pr = master.getPublicReport();
             master.postNotes(this.notes);
-            /*TODO
-            List<String->Session> sessions = master.getSessions();
-            for (String s : sessions) {
-            push properties;
+            List<Session> sessions = new ArrayList<>();
+            try {
+                sessions = master.getSessions();
+            } catch (IOException ioe) {
+                logger.error("Failed to get sessions for master = " + master.getId(), ioe);
             }
-            */
+            master.postProperties(this.properties);
             waitForFinish(master);
             return this.ciPostProcess.execute(master);
         } catch (InterruptedException ie) {

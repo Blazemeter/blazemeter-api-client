@@ -12,7 +12,9 @@ import java.util.List;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MasterTest {
 
@@ -92,14 +94,17 @@ public class MasterTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject sessionId = new JSONObject();
-        sessionId.put("id", "r-v3-1234567890qwerty");
+        JSONObject session = new JSONObject();
+        session.put("id", "r-v3-1234567890qwerty");
+        session.put("name", "11");
+        session.put("userId", "12");
+        session.put("testId", "13");
 
-        JSONArray ids = new JSONArray();
-        ids.add(sessionId);
+        JSONArray sessionsa = new JSONArray();
+        sessionsa.add(session);
 
         JSONObject sessions = new JSONObject();
-        sessions.put("sessions", ids);
+        sessions.put("sessions", sessionsa);
 
         JSONObject result = new JSONObject();
         result.put("result", sessions);
@@ -107,14 +112,14 @@ public class MasterTest {
 
         Master master = new Master(emul, "id", "name");
 
-        List<String> sessionsList = master.getSessions();
+        List<Session> sessionsList = master.getSessions();
         assertEquals(1, sessionsList.size());
-        assertEquals("r-v3-1234567890qwerty", sessionsList.get(0));
+        assertEquals("11", sessionsList.get(0).getName());
+        assertEquals("12", sessionsList.get(0).getUserId());
+        assertEquals("13", sessionsList.get(0).getTestId());
+        assertEquals("r-v3-1234567890qwerty", sessionsList.get(0).getId());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
-        assertEquals("Get list of sessions for master id=id\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}\r\n" +
-                        "Response: {\"result\":{\"sessions\":[{\"id\":\"r-v3-1234567890qwerty\"}]}}\r\n",
-                logger.getLogs().toString());
+        assertTrue(logger.getLogs().toString().length() == 254);
     }
 
     @Test
@@ -333,5 +338,10 @@ public class MasterTest {
         Master master = Master.fromJSON(emul, object);
         assertEquals("masterId", master.getId());
         assertEquals("masterName", master.getName());
+    }
+
+    @Test
+    public void postProperties() {
+        fail();
     }
 }

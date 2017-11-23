@@ -57,17 +57,39 @@ public class Master extends BZAObject {
     /**
      * @return list of Sessions Id
      */
-    public List<String> getSessions() throws IOException {
+    public List<Session> getSessions() throws IOException {
         logger.info("Get list of sessions for master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/sessions", encode(getId()));
-        List<String> sessionIds = new ArrayList<>();
+        List<Session> sessions = new ArrayList<>();
         JSONObject response = utils.execute(utils.createGet(uri));
         JSONObject result = response.getJSONObject("result");
-        JSONArray sessions = result.getJSONArray("sessions");
-        for (int i = 0; i < sessions.size(); i++) {
-            sessionIds.add(sessions.getJSONObject(i).getString("id"));
+        JSONArray sessionsa = result.getJSONArray("sessions");
+        for (int i = 0; i < sessionsa.size(); i++) {
+            JSONObject so = sessionsa.getJSONObject(i);
+            String id = so.getString("id");
+            String name = so.getString("name");
+            String userId = so.getString("userId");
+            String testId = so.getString("testId");
+            Session s = new Session(this.utils, id, name, userId, testId, "unknown");
+            sessions.add(s);
         }
-        return sessionIds;
+        return sessions;
+    }
+
+    public void postProperties(JSONArray properties) {
+        List<Session> sessions = new ArrayList<>();
+        try {
+            sessions = this.getSessions();
+        } catch (IOException ioe) {
+            logger.error("Failed to get sessions for master = " + this.id, ioe);
+        }
+        for (Session s : sessions) {
+            try {
+                s.postProperties(properties);
+            } catch (IOException e) {
+                logger.error("Failed to send properties for session = " + s.getId());
+            }
+        }
     }
 
     public JSONArray stop() throws IOException {
