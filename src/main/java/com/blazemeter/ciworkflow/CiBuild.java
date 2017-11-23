@@ -17,6 +17,7 @@ package com.blazemeter.ciworkflow;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.logging.Logger;
+import net.sf.json.JSONArray;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -25,7 +26,7 @@ public class CiBuild {
 
     public final AbstractTest test;
 
-    public final String properties;
+    public final JSONArray properties;
 
     public final String notes;
 
@@ -35,7 +36,7 @@ public class CiBuild {
 
     public String pr;
 
-    public CiBuild(AbstractTest test, String properties,
+    public CiBuild(AbstractTest test, JSONArray properties,
                    String notes,
                    boolean isDownloadJtl,
                    boolean isDownloadJunit, String junitPath,
@@ -57,16 +58,10 @@ public class CiBuild {
     public BuildResult execute() {
         Master master = null;
         try {
-            this.test.start();
-            master = this.test.getMaster();
+            master = this.test.start();
             pr = master.getPublicReport();
             master.postNotes(this.notes);
-            /*TODO
-            List<String->Session> sessions = master.getSessions();
-            for (String s : sessions) {
-            push properties;
-            }
-            */
+            master.postProperties(this.properties);
             waitForFinish(master);
             return this.ciPostProcess.execute(master);
         } catch (InterruptedException ie) {
@@ -75,8 +70,6 @@ public class CiBuild {
             } catch (InterruptedException e) {
                 return BuildResult.ABORTED;
             }
-        } catch (IOException ioe) {
-            return BuildResult.FAILED;
         } catch (Exception e) {
             return BuildResult.FAILED;
         }
