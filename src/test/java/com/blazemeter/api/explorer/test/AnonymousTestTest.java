@@ -43,7 +43,6 @@ public class AnonymousTestTest {
             assertEquals("Start is not supported for anonymous test type", ex.getMessage());
             assertEquals("Start is not supported for anonymous test type\r\n", logger.getLogs().toString());
         }
-
     }
 
     @Test
@@ -68,6 +67,7 @@ public class AnonymousTestTest {
         Session session = test.getSession();
         assertEquals("responseSessionId", session.getId());
         assertEquals("responseMasterId", master.getId());
+        assertEquals("external", test.getTestType());
     }
 
     private JSONObject generateResponse() {

@@ -38,9 +38,13 @@ public class ProjectTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+        JSONObject configuration = new JSONObject();
+        configuration.put("type", "http");
+
         JSONObject result = new JSONObject();
         result.put("id", "100");
         result.put("name", "NEW_TEST");
+        result.put("configuration", configuration);
 
         JSONObject response = new JSONObject();
         response.put("result", result);
@@ -51,10 +55,11 @@ public class ProjectTest {
 
         assertEquals("100", test.getId());
         assertEquals("NEW_TEST", test.getName());
+        assertEquals("http", test.getTestType());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests, tag=null}", emul.getRequests().get(0));
         assertEquals("Create single test with name=NEW_TEST\r\n" +
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests, tag=null}\r\n" +
-                        "Response: {\"result\":{\"id\":\"100\",\"name\":\"NEW_TEST\"}}\r\n",
+                        "Response: {\"result\":{\"id\":\"100\",\"name\":\"NEW_TEST\",\"configuration\":{\"type\":\"http\"}}}\r\n",
                 logger.getLogs().toString());
     }
 
@@ -64,9 +69,13 @@ public class ProjectTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+        JSONObject configuration = new JSONObject();
+        configuration.put("type", "http");
+
         JSONObject result = new JSONObject();
         result.put("id", "100");
         result.put("name", "NEW_TEST");
+        result.put("configuration", configuration);
 
         JSONArray results = new JSONArray();
         results.add(result);
@@ -79,14 +88,15 @@ public class ProjectTest {
         Project project = new Project(emul, "10", "projectName");
         List<SingleTest> tests = project.getSingleTests();
         assertEquals(2, tests.size());
-        for (SingleTest t :tests) {
+        for (SingleTest t : tests) {
             assertEquals("100", t.getId());
             assertEquals("NEW_TEST", t.getName());
+            assertEquals("http", t.getTestType());
         }
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}", emul.getRequests().get(0));
         assertEquals("Get list of single tests for project id=10\r\n" +
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_TEST\"},{\"id\":\"100\",\"name\":\"NEW_TEST\"}]}\r\n",
+                        "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_TEST\",\"configuration\":{\"type\":\"http\"}},{\"id\":\"100\",\"name\":\"NEW_TEST\",\"configuration\":{\"type\":\"http\"}}]}\r\n",
                 logger.getLogs().toString());
     }
 
@@ -99,6 +109,7 @@ public class ProjectTest {
         JSONObject result = new JSONObject();
         result.put("id", "100");
         result.put("name", "NEW_TEST");
+        result.put("collectionType", "multi");
 
         JSONArray results = new JSONArray();
         results.add(result);
@@ -111,14 +122,15 @@ public class ProjectTest {
         Project project = new Project(emul, "10", "projectName");
         List<MultiTest> multiTests = project.getMultiTests();
         assertEquals(2, multiTests.size());
-        for (MultiTest t :multiTests) {
+        for (MultiTest t : multiTests) {
             assertEquals("100", t.getId());
             assertEquals("NEW_TEST", t.getName());
+            assertEquals("multi", t.getTestType());
         }
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}", emul.getRequests().get(0));
         assertEquals("Get list of multi tests for project id=10\r\n" +
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_TEST\"},{\"id\":\"100\",\"name\":\"NEW_TEST\"}]}\r\n",
+                        "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_TEST\",\"collectionType\":\"multi\"},{\"id\":\"100\",\"name\":\"NEW_TEST\",\"collectionType\":\"multi\"}]}\r\n",
                 logger.getLogs().toString());
     }
 

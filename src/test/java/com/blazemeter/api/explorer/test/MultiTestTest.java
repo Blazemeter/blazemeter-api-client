@@ -39,8 +39,8 @@ public class MultiTestTest {
 
         emul.addEmul(response.toString());
 
-        MultiTest test = new MultiTest(emul, "testId", "testName");
-        Master master =test.start();
+        MultiTest test = new MultiTest(emul, "testId", "testName", "multi");
+        Master master = test.start();
 
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/collections/testId/start, tag=null}", emul.getRequests().get(0));
@@ -50,6 +50,7 @@ public class MultiTestTest {
                         "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
                 logger.getLogs().toString());
         assertEquals("responseMasterId", master.getId());
+        assertEquals("multi", test.getTestType());
     }
 
     @Test
@@ -58,7 +59,7 @@ public class MultiTestTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        MultiTest test = new MultiTest(emul, "testId", "testName");
+        MultiTest test = new MultiTest(emul, "testId", "testName", "multi");
         try {
             test.startExternal();
             fail("Cannot start external this test type");
@@ -66,7 +67,6 @@ public class MultiTestTest {
             assertEquals("Start external is not supported for multi test type id=testId", ex.getMessage());
             assertEquals("Start external is not supported for multi test type id=testId\r\n", logger.getLogs().toString());
         }
-
     }
 
     private JSONObject generateResponse() {
@@ -102,9 +102,11 @@ public class MultiTestTest {
         JSONObject object = new JSONObject();
         object.put("id", "testId");
         object.put("name", "testName");
+        object.put("collectionType", "multi");
 
         MultiTest test = MultiTest.fromJSON(emul, object);
         assertEquals("testId", test.getId());
         assertEquals("testName", test.getName());
+        assertEquals("multi", test.getTestType());
     }
 }

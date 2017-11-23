@@ -94,9 +94,13 @@ public class WorkspaceTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+        JSONObject configuration = new JSONObject();
+        configuration.put("type", "http");
+
         JSONObject test = new JSONObject();
         test.put("id", "999");
         test.put("name", "SINGLE_TEST");
+        test.put("configuration", configuration);
 
         JSONArray result = new JSONArray();
         result.add(test);
@@ -112,11 +116,12 @@ public class WorkspaceTest {
         for (SingleTest t :tests) {
             assertEquals("999", t.getId());
             assertEquals("SINGLE_TEST", t.getName());
+            assertEquals("http", t.getTestType());
         }
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
         assertEquals("Get list of single tests for workspace id=888\r\n" +
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"SINGLE_TEST\"},{\"id\":\"999\",\"name\":\"SINGLE_TEST\"}]}\r\n",
+                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"SINGLE_TEST\",\"configuration\":{\"type\":\"http\"}},{\"id\":\"999\",\"name\":\"SINGLE_TEST\",\"configuration\":{\"type\":\"http\"}}]}\r\n",
                 logger.getLogs().toString());
     }
 
@@ -129,6 +134,7 @@ public class WorkspaceTest {
         JSONObject test = new JSONObject();
         test.put("id", "999");
         test.put("name", "MULTI_TEST");
+        test.put("collectionType", "multi");
 
         JSONArray result = new JSONArray();
         result.add(test);
@@ -144,11 +150,12 @@ public class WorkspaceTest {
         for (MultiTest t :multiTests) {
             assertEquals("999", t.getId());
             assertEquals("MULTI_TEST", t.getName());
+            assertEquals("multi", t.getTestType());
         }
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
         assertEquals("Get list of multi tests for workspace id=888\r\n" +
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"MULTI_TEST\"},{\"id\":\"999\",\"name\":\"MULTI_TEST\"}]}\r\n",
+                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"MULTI_TEST\",\"collectionType\":\"multi\"},{\"id\":\"999\",\"name\":\"MULTI_TEST\",\"collectionType\":\"multi\"}]}\r\n",
                 logger.getLogs().toString());
     }
 
