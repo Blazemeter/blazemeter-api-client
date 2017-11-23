@@ -55,10 +55,9 @@ public class AnonymousTestTest {
         JSONObject response = new JSONObject();
         response.put("result", generateResponse());
 
-
         AnonymousTest test = new AnonymousTest(emul);
         emul.addEmul(response.toString());
-        test.startExternal();
+        Master master = test.startExternal();
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions, tag=null}", emul.getRequests().get(0));
         checkTest(test);
@@ -68,6 +67,7 @@ public class AnonymousTestTest {
                 logger.getLogs().toString());
         Session session = test.getSession();
         assertEquals("responseSessionId", session.getId());
+        assertEquals("responseMasterId", master.getId());
     }
 
     private JSONObject generateResponse() {

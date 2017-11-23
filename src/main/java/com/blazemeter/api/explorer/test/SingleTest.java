@@ -14,6 +14,7 @@
 
 package com.blazemeter.api.explorer.test;
 
+import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
@@ -26,17 +27,19 @@ public class SingleTest extends AbstractTest {
     }
 
     @Override
-    public void start() throws IOException {
+    public Master start() throws IOException {
         logger.info("Start single test id=" + getId());
         JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start", encode(getId())));
         fillFields(result);
+        return master;
     }
 
     @Override
-    public void startExternal() throws IOException {
+    public Master startExternal() throws IOException {
         logger.info("Start external single test id=" + getId());
         JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start-external", encode(getId())));
         fillFields(result);
+        return master;
     }
 
     public static SingleTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {
