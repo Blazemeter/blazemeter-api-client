@@ -91,11 +91,13 @@ public class CiPostProcess {
     }
 
     public boolean errorsFailed(JSONArray errors) {
+        boolean errorsFailed = false;
         try {
             int l = errors.size();
             for (int i = 0; i < l; i++) {
-                return errors.getJSONObject(i).getInt("code") == 0 |
+                errorsFailed = errors.getJSONObject(i).getInt("code") == 0 |
                         errors.getJSONObject(i).getInt("code") == 70404;
+                return errorsFailed;
             }
         } catch (JSONException je) {
             return false;

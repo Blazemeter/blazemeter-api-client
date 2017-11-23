@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 public class CiPostProcessTest {
 
     @Test
-    public void downloadSummary_func() {
+    public void downloadSummaryFunc() {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -60,7 +60,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void downloadSummary_agr() {
+    public void downloadSummaryAgr() {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);

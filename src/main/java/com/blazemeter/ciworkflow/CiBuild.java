@@ -51,10 +51,10 @@ public class CiBuild {
 
     /**
      * Executes ci build
+     *
      * @return BuildResult
      */
     public BuildResult execute() {
-        BuildResult r = BuildResult.SUCCESS;
         Master master = null;
         try {
             this.test.start();
@@ -68,16 +68,17 @@ public class CiBuild {
             }
             */
             waitForFinish(master);
-            this.ciPostProcess.execute(master);
+            return this.ciPostProcess.execute(master);
         } catch (InterruptedException ie) {
-            this.ciPostProcess.execute(master);
-            r = BuildResult.ABORTED;
+            try {
+                return this.ciPostProcess.execute(master);
+            } catch (InterruptedException e) {
+                return BuildResult.ABORTED;
+            }
         } catch (IOException ioe) {
-            r = BuildResult.FAILED;
+            return BuildResult.FAILED;
         } catch (Exception e) {
-            r = BuildResult.FAILED;
-        } finally {
-            return r;
+            return BuildResult.FAILED;
         }
     }
 
