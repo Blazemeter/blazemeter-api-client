@@ -49,4 +49,8 @@ public abstract class AbstractTest extends BZAObject implements ITest {
     public String getSignature() {
         return signature;
     }
+
+    public String getTestType() {
+        return testType;
+    }
 }
