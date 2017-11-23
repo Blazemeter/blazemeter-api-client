@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -100,5 +101,37 @@ public class CiPostProcessTest {
         } finally {
             emul.clean();
         }
+    }
+
+    @Test
+    public void errorsFailed() {
+
+        JSONArray e = new JSONArray();
+        JSONObject o = new JSONObject();
+        o.put("code", 70404);
+        e.add(o);
+
+        LoggerTest logger = new LoggerTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", logger);
+        assertTrue(ciPostProcess.errorsFailed(e));
+
+        e = new JSONArray();
+        o = new JSONObject();
+        o.put("code", 0);
+        e.add(o);
+
+        assertTrue(ciPostProcess.errorsFailed(e));
+
+        e = new JSONArray();
+        o = new JSONObject();
+        o.put("code", 111);
+        e.add(o);
+
+        assertFalse(ciPostProcess.errorsFailed(e));
+
+        e = new JSONArray();
+        assertFalse(ciPostProcess.errorsFailed(e));
+
     }
 }
