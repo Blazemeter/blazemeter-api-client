@@ -5,6 +5,7 @@ import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
+import com.blazemeter.ciworkflow.BuildResult;
 import com.blazemeter.ciworkflow.CiPostProcess;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -134,4 +135,109 @@ public class CiPostProcessTest {
         assertFalse(ciPostProcess.errorsFailed(e));
 
     }
+
+    @Test
+    public void validateCIStatusSuccess() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        JSONArray e = new JSONArray();
+        result.put("errors", e);
+        JSONArray f = new JSONArray();
+        result.put("failures", f);
+        JSONObject o = new JSONObject();
+        o.put("result", result);
+        emul.addEmul(o.toString());
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", logger);
+        Master master = new Master(emul, "id", "name");
+        BuildResult r = ciPostProcess.validateCiStatus(master);
+        assertTrue(r.equals(BuildResult.SUCCESS));
+        emul.clean();
+    }
+
+    @Test
+    public void validateCIStatusFailure() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        JSONArray e = new JSONArray();
+        result.put("errors", e);
+        JSONArray fa = new JSONArray();
+        JSONObject fo = new JSONObject();
+        fo.put("code", 61000);
+        fa.add(fo);
+        result.put("failures", fa);
+        JSONObject o = new JSONObject();
+        o.put("result", result);
+        emul.addEmul(o.toString());
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", logger);
+        Master master = new Master(emul, "id", "name");
+        BuildResult r = ciPostProcess.validateCiStatus(master);
+        assertTrue(r.equals(BuildResult.FAILED));
+        emul.clean();
+
+    }
+
+    @Test
+    public void validateCIStatus70404Failure() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        JSONArray ea = new JSONArray();
+        JSONObject eo = new JSONObject();
+
+        eo.put("code", 70404);
+        ea.add(eo);
+        result.put("errors", ea);
+
+        JSONArray fa = new JSONArray();
+        result.put("failures", fa);
+        JSONObject o = new JSONObject();
+        o.put("result", result);
+        emul.addEmul(o.toString());
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", logger);
+        Master master = new Master(emul, "id", "name");
+        BuildResult r = ciPostProcess.validateCiStatus(master);
+        assertTrue(r.equals(BuildResult.FAILED));
+        emul.clean();
+
+    }
+
+    @Test
+    public void validateCIStatusError() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        JSONArray ea = new JSONArray();
+        JSONObject eo = new JSONObject();
+
+        eo.put("code", 111);
+        ea.add(eo);
+        result.put("errors", ea);
+
+        JSONArray fa = new JSONArray();
+        result.put("failures", fa);
+        JSONObject o = new JSONObject();
+        o.put("result", result);
+        emul.addEmul(o.toString());
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", logger);
+        Master master = new Master(emul, "id", "name");
+        BuildResult r = ciPostProcess.validateCiStatus(master);
+        assertTrue(r.equals(BuildResult.ERROR));
+        emul.clean();
+
+    }
+
 }
