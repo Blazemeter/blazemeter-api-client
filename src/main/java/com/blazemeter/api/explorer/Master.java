@@ -63,26 +63,30 @@ public class Master extends BZAObject {
         List<Session> sessions = new ArrayList<>();
         JSONObject response = utils.execute(utils.createGet(uri));
         JSONObject result = response.getJSONObject("result");
-        JSONArray sessionsa = result.getJSONArray("sessions");
-        for (int i = 0; i < sessionsa.size(); i++) {
-            JSONObject so = sessionsa.getJSONObject(i);
-            String id = so.getString("id");
-            String name = so.getString("name");
-            String userId = so.getString("userId");
-            String testId = so.getString("testId");
-            Session s = new Session(this.utils, id, name, userId, testId, "unknown");
+        JSONArray sessionsArray = result.getJSONArray("sessions");
+        for (int i = 0; i < sessionsArray.size(); i++) {
+            JSONObject so = sessionsArray.getJSONObject(i);
+            Session s = Session.fromJSON(this.utils, so);
             sessions.add(s);
         }
         return sessions;
     }
 
+    /**
+     * Posts properties to master.
+     */
     public void postProperties(JSONArray properties) {
-        List<Session> sessions = new ArrayList<>();
+        List<Session> sessions = null;
         try {
             sessions = this.getSessions();
+            this.postProperties(properties, sessions);
         } catch (IOException ioe) {
             logger.error("Failed to get sessions for master = " + this.id, ioe);
         }
+
+    }
+
+    private void postProperties(JSONArray properties, List<Session> sessions) {
         for (Session s : sessions) {
             try {
                 s.postProperties(properties);

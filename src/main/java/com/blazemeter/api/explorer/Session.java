@@ -25,7 +25,7 @@ import okhttp3.RequestBody;
 import java.io.IOException;
 
 public class Session extends BZAObject {
-
+    public static final String UNDEFINED = "undefined";
     private final String userId;
     private final String testId;
     private final String signature;
@@ -113,6 +113,12 @@ public class Session extends BZAObject {
             }
         }
         return null;
+    }
+
+
+    public static Session fromJSON(BlazeMeterUtils utils, JSONObject so) {
+        return new Session(utils, so.getString("id"), so.getString("name"),
+                so.getString("userId"), so.getString("testId"), Session.UNDEFINED);
     }
 
     public static Session fromJSON(BlazeMeterUtils utils, String testId, String signature, JSONObject session) {

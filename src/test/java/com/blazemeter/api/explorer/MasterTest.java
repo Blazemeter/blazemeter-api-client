@@ -99,11 +99,11 @@ public class MasterTest {
         session.put("userId", "12");
         session.put("testId", "13");
 
-        JSONArray sessionsa = new JSONArray();
-        sessionsa.add(session);
+        JSONArray sessionsArray = new JSONArray();
+        sessionsArray.add(session);
 
         JSONObject sessions = new JSONObject();
-        sessions.put("sessions", sessionsa);
+        sessions.put("sessions", sessionsArray);
 
         JSONObject result = new JSONObject();
         result.put("result", sessions);
@@ -118,7 +118,7 @@ public class MasterTest {
         assertEquals("13", sessionsList.get(0).getTestId());
         assertEquals("r-v3-1234567890qwerty", sessionsList.get(0).getId());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
-        assertTrue(logger.getLogs().toString().length() == 254);
+        assertEquals(254, logger.getLogs().toString().length());
     }
 
     @Test
@@ -364,9 +364,9 @@ public class MasterTest {
 
 
         JSONArray properties = new JSONArray();
-        JSONObject p = new JSONObject();
-        p.put("1", "2");
-        properties.add(p);
+        JSONObject property = new JSONObject();
+        property.put("1", "2");
+        properties.add(property);
 
         Master master = new Master(emul, "id", "name");
         master.postProperties(properties);
