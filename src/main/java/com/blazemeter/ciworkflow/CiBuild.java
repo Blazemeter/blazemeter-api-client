@@ -15,15 +15,12 @@
 package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
-import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.logging.Logger;
 import net.sf.json.JSONArray;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class CiBuild {
 
@@ -64,12 +61,6 @@ public class CiBuild {
             master = this.test.start();
             pr = master.getPublicReport();
             master.postNotes(this.notes);
-            List<Session> sessions = new ArrayList<>();
-            try {
-                sessions = master.getSessions();
-            } catch (IOException ioe) {
-                logger.error("Failed to get sessions for master = " + master.getId(), ioe);
-            }
             master.postProperties(this.properties);
             waitForFinish(master);
             return this.ciPostProcess.execute(master);

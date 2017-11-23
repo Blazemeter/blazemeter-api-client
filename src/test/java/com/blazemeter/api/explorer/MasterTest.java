@@ -14,7 +14,6 @@ import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class MasterTest {
 
@@ -342,6 +341,38 @@ public class MasterTest {
 
     @Test
     public void postProperties() {
-        fail();
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+
+        JSONObject session = new JSONObject();
+        session.put("id", "r-v3-1234567890qwerty");
+        session.put("name", "11");
+        session.put("userId", "12");
+        session.put("testId", "13");
+
+        JSONArray sessionsa = new JSONArray();
+        sessionsa.add(session);
+
+        JSONObject sessions = new JSONObject();
+        sessions.put("sessions", sessionsa);
+
+        JSONObject result = new JSONObject();
+        result.put("result", sessions);
+        emul.addEmul(result.toString());
+
+
+        JSONArray properties = new JSONArray();
+        JSONObject p = new JSONObject();
+        p.put("1", "2");
+        properties.add(p);
+
+        Master master = new Master(emul, "id", "name");
+        master.postProperties(properties);
+        assertEquals(2, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(1));
+        assertEquals(511, logger.getLogs().toString().length());
     }
 }
