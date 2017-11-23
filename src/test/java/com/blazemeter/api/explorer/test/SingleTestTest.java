@@ -39,7 +39,7 @@ public class SingleTestTest {
 
         emul.addEmul(response.toString());
 
-        SingleTest test = new SingleTest(emul, "testId", "testName");
+        SingleTest test = new SingleTest(emul, "testId", "testName", "http");
         Master master = test.start();
 
         assertEquals(1, emul.getRequests().size());
@@ -50,6 +50,7 @@ public class SingleTestTest {
                         "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
                 logger.getLogs().toString());
         assertEquals("responseMasterId", master.getId());
+        assertEquals("http", test.getTestType());
     }
 
     @Test
@@ -63,7 +64,7 @@ public class SingleTestTest {
 
         emul.addEmul(response.toString());
 
-        SingleTest test = new SingleTest(emul, "testId", "testName");
+        SingleTest test = new SingleTest(emul, "testId", "testName", "http");
         Master master = test.startExternal();
 
         assertEquals(1, emul.getRequests().size());
@@ -74,6 +75,7 @@ public class SingleTestTest {
                         "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
                 logger.getLogs().toString());
         assertEquals("responseMasterId", master.getId());
+        assertEquals("http", test.getTestType());
     }
 
     private JSONObject generateResponse() {
@@ -105,12 +107,17 @@ public class SingleTestTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+        JSONObject configuration = new JSONObject();
+        configuration.put("type", "http");
+
         JSONObject object = new JSONObject();
         object.put("id", "testId");
         object.put("name", "testName");
+        object.put("configuration", configuration);
 
         SingleTest test = SingleTest.fromJSON(emul, object);
         assertEquals("testId", test.getId());
         assertEquals("testName", test.getName());
+        assertEquals("http", test.getTestType());
     }
 }

@@ -22,8 +22,8 @@ import java.io.IOException;
 
 public class SingleTest extends AbstractTest {
 
-    public SingleTest(BlazeMeterUtils utils, String id, String name) {
-        super(utils, id, name);
+    public SingleTest(BlazeMeterUtils utils, String id, String name, String testType) {
+        super(utils, id, name, testType);
     }
 
     @Override
@@ -43,6 +43,7 @@ public class SingleTest extends AbstractTest {
     }
 
     public static SingleTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {
-        return new SingleTest(utils, obj.getString("id"), obj.getString("name"));
+        return new SingleTest(utils, obj.getString("id"), obj.getString("name"),
+                obj.getJSONObject("configuration").getString("type"));
     }
 }
