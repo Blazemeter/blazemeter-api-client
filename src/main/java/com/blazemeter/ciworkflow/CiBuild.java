@@ -57,16 +57,10 @@ public class CiBuild {
     public BuildResult execute() {
         Master master = null;
         try {
-            this.test.start();
-            master = this.test.getMaster();
+            master = this.test.start();
             pr = master.getPublicReport();
             master.postNotes(this.notes);
-            /*TODO
-            List<String->Session> sessions = master.getSessions();
-            for (String s : sessions) {
-            push properties;
-            }
-            */
+            master.postProperties(this.properties);
             waitForFinish(master);
             return this.ciPostProcess.execute(master);
         } catch (InterruptedException ie) {
@@ -75,8 +69,6 @@ public class CiBuild {
             } catch (InterruptedException e) {
                 return BuildResult.ABORTED;
             }
-        } catch (IOException ioe) {
-            return BuildResult.FAILED;
         } catch (Exception e) {
             return BuildResult.FAILED;
         }
@@ -90,7 +82,8 @@ public class CiBuild {
     public void waitForFinish(Master master) throws InterruptedException, IOException {
         long lastPrint = 0;
         while (true) {
-            Thread.sleep(15000);
+            long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
+            Thread.sleep(bzmCheckTimeout);
             if (master.getStatus() == 140) {
                 return;
             }
@@ -107,4 +100,5 @@ public class CiBuild {
             }
         }
     }
+
 }

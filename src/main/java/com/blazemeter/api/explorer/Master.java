@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Master extends BZAObject {
@@ -57,17 +58,42 @@ public class Master extends BZAObject {
     /**
      * @return list of Sessions Id
      */
-    public List<String> getSessions() throws IOException {
+    public List<Session> getSessions() throws IOException {
         logger.info("Get list of sessions for master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/sessions", encode(getId()));
-        List<String> sessionIds = new ArrayList<>();
+        List<Session> sessions = new ArrayList<>();
         JSONObject response = utils.execute(utils.createGet(uri));
         JSONObject result = response.getJSONObject("result");
-        JSONArray sessions = result.getJSONArray("sessions");
-        for (int i = 0; i < sessions.size(); i++) {
-            sessionIds.add(sessions.getJSONObject(i).getString("id"));
+        JSONArray sessionsArray = result.getJSONArray("sessions");
+        for (int i = 0; i < sessionsArray.size(); i++) {
+            JSONObject so = sessionsArray.getJSONObject(i);
+            sessions.add(Session.fromJSON(this.utils, so));
         }
-        return sessionIds;
+        return sessions;
+    }
+
+    /**
+     * Posts properties to master.
+     */
+    public void postProperties(String properties) {
+        try {
+            List<Session> sessions = this.getSessions();
+            this.postProperties(properties, sessions);
+        } catch (IOException ioe) {
+            logger.error("Failed to get sessions for master = " + this.id, ioe);
+        }
+
+    }
+
+    private void postProperties(String properties, List<Session> sessions) {
+        JSONArray propertiesArray = convertProperties(properties);
+        for (Session s : sessions) {
+            try {
+                s.postProperties(propertiesArray);
+            } catch (Exception e) {
+                logger.error("Failed to send properties for session = " + s.getId());
+            }
+        }
     }
 
     public JSONArray stop() throws IOException {
@@ -159,4 +185,21 @@ public class Master extends BZAObject {
     public static Master fromJSON(BlazeMeterUtils utils, JSONObject obj) {
         return new Master(utils, obj.getString("id"), obj.getString("name"));
     }
+
+    public static JSONArray convertProperties(String properties) {
+        JSONArray propsArray = new JSONArray();
+        List<String> propList = Arrays.asList(properties.split(","));
+        for (String s : propList) {
+            JSONObject prop = new JSONObject();
+            List<String> pr = Arrays.asList(s.split("="));
+            if (pr.size() > 1) {
+                prop.put("key", pr.get(0).trim());
+                prop.put("value", pr.get(1).trim());
+            }
+            propsArray.add(prop);
+        }
+        return propsArray;
+    }
+
+
 }
