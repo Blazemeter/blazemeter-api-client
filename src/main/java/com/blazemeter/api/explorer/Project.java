@@ -69,7 +69,7 @@ public class Project extends BZAObject {
      */
     public List<MultiTest> getMultiTests() throws IOException {
         logger.info("Get list of multi tests for project id=" + getId());
-        String uri = utils.getAddress() + "/api/v4/tests?projectId=" + encode(getId());
+        String uri = utils.getAddress() + "/api/v4/multi-tests?projectId=" + encode(getId());
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractMultiTests(response.getJSONArray("result"));
     }
