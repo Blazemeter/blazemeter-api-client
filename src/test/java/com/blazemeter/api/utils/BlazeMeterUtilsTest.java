@@ -6,6 +6,7 @@ import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import okhttp3.Request;
 import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
@@ -18,8 +19,8 @@ public class BlazeMeterUtilsTest {
     public void testProcessResponse() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtils utils = new BlazeMeterUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
         JSONObject result = utils.processResponse("{\"result\": \"ok\"}");
         assertNotNull(result);
         assertEquals("ok", result.get("result"));
@@ -53,5 +54,22 @@ public class BlazeMeterUtilsTest {
             assertEquals("Cannot parse response: incorrect json\r\n" +
                     "A JSONObject text must begin with '{' at character 1 of incorrect json\r\n", logger.getLogs().toString());
         }
+    }
+
+    @Test
+    public void testSetters() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtils utils = new BlazeMeterUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        Request.Builder builder = new Request.Builder().url(BZM_ADDRESS).get();
+
+        Request request = utils.addRequiredHeader(builder).build();
+        assertEquals(0, request.headers().size());
+
+        utils.setApiKeyId("xxxx");
+        utils.setApiKeySecret("yyy");
+        request = utils.addRequiredHeader(builder).build();
+        assertEquals(1, request.headers().size());
     }
 }
