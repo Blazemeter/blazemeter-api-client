@@ -87,11 +87,6 @@ public class Master extends BZAObject {
 
     private void postProperties(String properties, List<Session> sessions) {
         JSONArray propertiesArray = convertProperties(properties);
-        try {
-        } catch (Exception e) {
-            logger.error("Failed to convert properties from String to JSONArray ", e);
-            return;
-        }
         for (Session s : sessions) {
             try {
                 s.postProperties(propertiesArray);
