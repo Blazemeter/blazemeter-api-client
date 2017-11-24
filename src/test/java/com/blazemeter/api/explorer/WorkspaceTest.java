@@ -94,21 +94,7 @@ public class WorkspaceTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject configuration = new JSONObject();
-        configuration.put("type", "http");
-
-        JSONObject test = new JSONObject();
-        test.put("id", "999");
-        test.put("name", "SINGLE_TEST");
-        test.put("configuration", configuration);
-
-        JSONArray result = new JSONArray();
-        result.add(test);
-        result.add(test);
-
-        JSONObject response = new JSONObject();
-        response.put("result", result);
-        emul.addEmul(response.toString());
+        emul.addEmul(generateResponseGetSingleTests());
 
         Workspace workspace = new Workspace(emul, "888", "workspace_name");
         List<SingleTest> tests = workspace.getSingleTests();
@@ -125,12 +111,49 @@ public class WorkspaceTest {
                 logger.getLogs().toString());
     }
 
+    public static String generateResponseGetSingleTests() {
+        JSONObject configuration = new JSONObject();
+        configuration.put("type", "http");
+
+        JSONObject test = new JSONObject();
+        test.put("id", "999");
+        test.put("name", "SINGLE_TEST");
+        test.put("configuration", configuration);
+
+        JSONArray result = new JSONArray();
+        result.add(test);
+        result.add(test);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
     @Test
     public void testGetMultiTests() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+
+        emul.addEmul(generateResponseGetMultiTests());
+
+        Workspace workspace = new Workspace(emul, "888", "workspace_name");
+        List<MultiTest> multiTests = workspace.getMultiTests();
+        assertEquals(2, multiTests.size());
+        for (MultiTest t :multiTests) {
+            assertEquals("999", t.getId());
+            assertEquals("MULTI_TEST", t.getName());
+            assertEquals("multi", t.getTestType());
+        }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get list of multi tests for workspace id=888\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=888, tag=null}\r\n" +
+                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"MULTI_TEST\",\"collectionType\":\"multi\"},{\"id\":\"999\",\"name\":\"MULTI_TEST\",\"collectionType\":\"multi\"}]}\r\n",
+                logger.getLogs().toString());
+    }
+
+    public static String generateResponseGetMultiTests() {
         JSONObject test = new JSONObject();
         test.put("id", "999");
         test.put("name", "MULTI_TEST");
@@ -142,21 +165,7 @@ public class WorkspaceTest {
 
         JSONObject response = new JSONObject();
         response.put("result", result);
-        emul.addEmul(response.toString());
-
-        Workspace workspace = new Workspace(emul, "888", "workspace_name");
-        List<MultiTest> multiTests = workspace.getMultiTests();
-        assertEquals(2, multiTests.size());
-        for (MultiTest t :multiTests) {
-            assertEquals("999", t.getId());
-            assertEquals("MULTI_TEST", t.getName());
-            assertEquals("multi", t.getTestType());
-        }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
-        assertEquals("Get list of multi tests for workspace id=888\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"MULTI_TEST\",\"collectionType\":\"multi\"},{\"id\":\"999\",\"name\":\"MULTI_TEST\",\"collectionType\":\"multi\"}]}\r\n",
-                logger.getLogs().toString());
+        return response.toString();
     }
 
     @Test
