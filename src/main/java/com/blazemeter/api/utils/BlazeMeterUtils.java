@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 
 public class BlazeMeterUtils extends HttpUtils {
 
-    public static final String EMPTY_TOKEN = "";
     private String apiKeyId;
     private String apiKeySecret;
 
@@ -37,8 +36,8 @@ public class BlazeMeterUtils extends HttpUtils {
     /**
      * @param apiKeyId     - BlazeMeter Api Key Id
      * @param apiKeySecret - BlazeMeter Api Key Secret
-     * @param address      - BlazeMeter app address: http://a.blazemeter.com/
-     * @param dataAddress  - BlazeMeter data address: http://data.blazemeter.com/
+     * @param address      - BlazeMeter app address: https://a.blazemeter.com/
+     * @param dataAddress  - BlazeMeter data address: https://data.blazemeter.com/
      * @param notifier     - user notifier, to show user information
      * @param logger       - logger, for log events of http requests / response etc.
      */

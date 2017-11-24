@@ -25,6 +25,7 @@ import java.util.LinkedList;
 
 public class BlazeMeterUtilsEmul extends BlazeMeterUtils {
 
+    // Warning! You should use https(!) protocol!
     public static final String BZM_ADDRESS = "http://a.blazemeter.com";
     public static final String BZM_DATA_ADDRESS = "http://data.blazemeter.com";
 
