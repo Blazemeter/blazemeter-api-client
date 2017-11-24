@@ -60,6 +60,9 @@ public class HttpUtilsTest {
         LoggerTest logger = new LoggerTest();
 
         HttpUtils utils = new HttpUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, logger);
+        utils.setLogger(logger);
+        utils.setAddress(BZM_ADDRESS);
+        utils.setDataAddress(BZM_DATA_ADDRESS);
         assertEquals(BZM_ADDRESS, utils.getAddress());
         assertEquals(BZM_DATA_ADDRESS, utils.getDataAddress());
         assertEquals(logger, utils.getLogger());
