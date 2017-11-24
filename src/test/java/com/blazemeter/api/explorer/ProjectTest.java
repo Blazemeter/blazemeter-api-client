@@ -127,9 +127,9 @@ public class ProjectTest {
             assertEquals("NEW_TEST", t.getName());
             assertEquals("multi", t.getTestType());
         }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?projectId=10, tag=null}", emul.getRequests().get(0));
         assertEquals("Get list of multi tests for project id=10\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?projectId=10, tag=null}\r\n" +
                         "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_TEST\",\"collectionType\":\"multi\"},{\"id\":\"100\",\"name\":\"NEW_TEST\",\"collectionType\":\"multi\"}]}\r\n",
                 logger.getLogs().toString());
     }
