@@ -43,10 +43,8 @@ public class MultiTest extends AbstractTest {
 
     @Override
     public void fillFields(JSONObject result) {
-        {
             this.signature = Session.UNDEFINED;
             this.master = Master.fromJSON(utils, result);
-        }
     }
 
     public static MultiTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {

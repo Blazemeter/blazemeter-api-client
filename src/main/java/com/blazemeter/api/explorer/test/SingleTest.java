@@ -45,10 +45,8 @@ public class SingleTest extends AbstractTest {
 
     @Override
     public void fillFields(JSONObject result) {
-        {
             this.signature = Session.UNDEFINED;
             this.master = Master.fromJSON(utils, result);
-        }
     }
 
     public static SingleTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {

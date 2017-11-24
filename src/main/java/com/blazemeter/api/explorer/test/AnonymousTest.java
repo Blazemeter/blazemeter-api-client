@@ -52,10 +52,8 @@ public class AnonymousTest extends AbstractTest {
 
     @Override
     public void fillFields(JSONObject result) {
-        {
             this.signature = result.getString("signature");
             this.master = Master.fromJSON(utils, result.getJSONObject("master"));
-        }
     }
 
     public Session getSession() {
