@@ -71,8 +71,8 @@ public class TestsListFlow {
         try {
             return workspace.getMultiTests();
         } catch (IOException e) {
-            utils.getNotifier().notifyAbout("Failed to get single tests for workspace id =" + workspace.getId() +". Reason is: " + e.getMessage());
-            utils.getLogger().error("Failed to get single tests for workspace id =" + workspace.getId() +". Reason is: " + e.getMessage(), e);
+            utils.getNotifier().notifyAbout("Failed to get multi tests for workspace id =" + workspace.getId() +". Reason is: " + e.getMessage());
+            utils.getLogger().error("Failed to get multi tests for workspace id =" + workspace.getId() +". Reason is: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
