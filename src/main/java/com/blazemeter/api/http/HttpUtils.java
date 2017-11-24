@@ -49,10 +49,10 @@ public class HttpUtils {
     protected static final String AUTHORIZATION = "Authorization";
     protected static final MediaType JSON_CONTENT = MediaType.parse("application/json; charset=utf-8");
 
-    protected final Logger logger;
+    protected Logger logger;
 
-    protected final String address;
-    protected final String dataAddress;
+    protected String address;
+    protected String dataAddress;
     private OkHttpClient httpClient;
 
     public HttpUtils(String address, String dataAddress, Logger logger) {
@@ -152,6 +152,18 @@ public class HttpUtils {
 
     public String getDataAddress() {
         return dataAddress;
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setDataAddress(String dataAddress) {
+        this.dataAddress = dataAddress;
     }
 
     private OkHttpClient createHTTPClient() {

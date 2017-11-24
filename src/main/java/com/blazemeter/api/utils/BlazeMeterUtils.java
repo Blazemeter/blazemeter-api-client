@@ -18,6 +18,7 @@ import com.blazemeter.api.exception.UnexpectedResponseException;
 import com.blazemeter.api.http.HttpUtils;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
+import com.sun.istack.internal.NotNull;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import okhttp3.Credentials;
@@ -28,7 +29,8 @@ import org.apache.commons.lang.StringUtils;
 public class BlazeMeterUtils extends HttpUtils {
 
     public static final String EMPTY_TOKEN = "";
-    private final String token;
+    private String apiKeyId;
+    private String apiKeySecret;
 
     protected final UserNotifier notifier;
 
@@ -40,16 +42,15 @@ public class BlazeMeterUtils extends HttpUtils {
      * @param notifier     - user notifier, to show user information
      * @param logger       - logger, for log events of http requests / response etc.
      */
-    public BlazeMeterUtils(String apiKeyId, String apiKeySecret,
-                           String address, String dataAddress,
-                           UserNotifier notifier, Logger logger) {
+    public BlazeMeterUtils(@NotNull String apiKeyId, @NotNull String apiKeySecret,
+                           @NotNull String address, @NotNull String dataAddress,
+                           UserNotifier notifier, @NotNull Logger logger) {
         super(address, dataAddress, logger);
-        this.token = isValidCredantials(apiKeyId, apiKeySecret) ? Credentials.basic(apiKeyId, apiKeySecret) : EMPTY_TOKEN;
         this.notifier = notifier;
     }
 
 
-    public BlazeMeterUtils(String address, String dataAddress, UserNotifier notifier, Logger logger) {
+    public BlazeMeterUtils(@NotNull String address, @NotNull String dataAddress, UserNotifier notifier, @NotNull Logger logger) {
         this("", "", address, dataAddress, notifier, logger);
     }
 
@@ -59,7 +60,9 @@ public class BlazeMeterUtils extends HttpUtils {
 
     @Override
     protected Request.Builder addRequiredHeader(Request.Builder requestBuilder) {
-        return EMPTY_TOKEN.equals(token) ? requestBuilder : requestBuilder.addHeader(AUTHORIZATION, token);
+        return isValidCredantials(apiKeyId, apiKeySecret) ?
+                requestBuilder.addHeader(AUTHORIZATION, Credentials.basic(apiKeyId, apiKeySecret)) :
+                requestBuilder;
     }
 
     @Override
@@ -86,5 +89,17 @@ public class BlazeMeterUtils extends HttpUtils {
             }
         }
         return null;
+    }
+
+    public UserNotifier getNotifier() {
+        return notifier;
+    }
+
+    public void setApiKeyId(String apiKeyId) {
+        this.apiKeyId = apiKeyId;
+    }
+
+    public void setApiKeySecret(String apiKeySecret) {
+        this.apiKeySecret = apiKeySecret;
     }
 }
