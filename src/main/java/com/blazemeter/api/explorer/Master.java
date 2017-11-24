@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 public class Master extends BZAObject {
@@ -87,9 +86,8 @@ public class Master extends BZAObject {
     }
 
     private void postProperties(String properties, List<Session> sessions) {
-        JSONArray propertiesArray = null;
+        JSONArray propertiesArray = convertProperties(properties);
         try {
-            propertiesArray = convertProperties(properties);
         } catch (Exception e) {
             logger.error("Failed to convert properties from String to JSONArray ", e);
             return;
@@ -193,7 +191,7 @@ public class Master extends BZAObject {
         return new Master(utils, obj.getString("id"), obj.getString("name"));
     }
 
-    public static JSONArray convertProperties(String properties) throws Exception {
+    public static JSONArray convertProperties(String properties) {
         JSONArray propsArray = new JSONArray();
         List<String> propList = Arrays.asList(properties.split(","));
         for (String s : propList) {
@@ -208,30 +206,5 @@ public class Master extends BZAObject {
         return propsArray;
     }
 
-    /**
-     * Waits until test will be over on server
-     *
-     * @throws InterruptedException IOException
-     */
-    public void waitForFinish() throws InterruptedException, IOException {
-        long lastPrint = 0;
-        while (true) {
-            Thread.sleep(10000);
-            if (getStatus() == 140) {
-                return;
-            }
-            long start = Calendar.getInstance().getTime().getTime();
-            long now = Calendar.getInstance().getTime().getTime();
-            long diffInSec = (now - start) / 1000;
-            if (now - lastPrint > 60000) {
-                logger.info("BlazeMeter test# , masterId # " + getId() + " running from " + start + " - for " + diffInSec + " seconds");
-                lastPrint = now;
-            }
-            if (Thread.interrupted()) {
-                logger.info("Job was stopped by user");
-                throw new InterruptedException("Job was stopped by user");
-            }
-        }
-    }
 
 }

@@ -18,6 +18,9 @@ import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.logging.Logger;
 
+import java.io.IOException;
+import java.util.Calendar;
+
 public class CiBuild {
 
     public final AbstractTest test;
@@ -58,7 +61,7 @@ public class CiBuild {
             pr = master.getPublicReport();
             master.postNotes(this.notes);
             master.postProperties(this.properties);
-            master.waitForFinish();
+            waitForFinish(master);
             return this.ciPostProcess.execute(master);
         } catch (InterruptedException ie) {
             try {
@@ -70,4 +73,31 @@ public class CiBuild {
             return BuildResult.FAILED;
         }
     }
+
+    /**
+     * Waits until test will be over on server
+     *
+     * @throws InterruptedException IOException
+     */
+    public void waitForFinish(Master master) throws InterruptedException, IOException {
+        long lastPrint = 0;
+        while (true) {
+            Thread.sleep(10000);
+            if (master.getStatus() == 140) {
+                return;
+            }
+            long start = Calendar.getInstance().getTime().getTime();
+            long now = Calendar.getInstance().getTime().getTime();
+            long diffInSec = (now - start) / 1000;
+            if (now - lastPrint > 60000) {
+                logger.info("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
+                lastPrint = now;
+            }
+            if (Thread.interrupted()) {
+                logger.info("Job was stopped by user");
+                throw new InterruptedException("Job was stopped by user");
+            }
+        }
+    }
+
 }
