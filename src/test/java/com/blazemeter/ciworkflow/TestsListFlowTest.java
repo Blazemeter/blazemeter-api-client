@@ -15,7 +15,6 @@ import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 
 public class TestsListFlowTest {
@@ -59,6 +58,5 @@ public class TestsListFlowTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=100, tag=null}", requests.get(8));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=100, tag=null}", requests.get(9));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=100, tag=null}", requests.get(10));
-
     }
 }
