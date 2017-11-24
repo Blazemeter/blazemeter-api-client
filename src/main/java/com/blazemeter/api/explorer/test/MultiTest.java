@@ -22,8 +22,8 @@ import java.io.IOException;
 
 public class MultiTest extends AbstractTest {
 
-    public MultiTest(BlazeMeterUtils utils, String id, String name) {
-        super(utils, id, name);
+    public MultiTest(BlazeMeterUtils utils, String id, String name, String testType) {
+        super(utils, id, name, testType);
     }
 
     @Override
@@ -41,6 +41,6 @@ public class MultiTest extends AbstractTest {
     }
 
     public static MultiTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {
-        return new MultiTest(utils, obj.getString("id"), obj.getString("name"));
+        return new MultiTest(utils, obj.getString("id"), obj.getString("name"), obj.getString("collectionType"));
     }
 }

@@ -26,7 +26,7 @@ public class AnonymousTest extends AbstractTest {
     private Session session;
 
     public AnonymousTest(BlazeMeterUtils utils) {
-        super(utils, "", "");
+        super(utils, "", "", "external");
     }
 
     @Override
