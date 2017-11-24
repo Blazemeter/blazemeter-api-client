@@ -14,6 +14,7 @@ import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MasterTest {
 
@@ -369,10 +370,26 @@ public class MasterTest {
         properties.add(property);
 
         Master master = new Master(emul, "id", "name");
-        master.postProperties(properties);
+        master.postProperties("1=2");
         assertEquals(2, emul.getRequests().size());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(1));
         assertEquals(511, logger.getLogs().toString().length());
+    }
+
+    @Test
+    public void convertProperties() {
+        try {
+            JSONArray array = Master.convertProperties("1=2,3=4");
+            assertEquals(2, array.size());
+            assertEquals(2, array.getJSONObject(0).size());
+            assertEquals("1", array.getJSONObject(0).getString("key"));
+            assertEquals("2", array.getJSONObject(0).getString("value"));
+            assertEquals(2, array.getJSONObject(1).size());
+            assertEquals("3", array.getJSONObject(1).getString("key"));
+            assertEquals("4", array.getJSONObject(1).getString("value"));
+        } catch (Exception e) {
+            fail("Failed to convert properties to JSONArray");
+        }
     }
 }

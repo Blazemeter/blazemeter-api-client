@@ -17,7 +17,6 @@ package com.blazemeter.ciworkflow;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.logging.Logger;
-import net.sf.json.JSONArray;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -26,7 +25,7 @@ public class CiBuild {
 
     public final AbstractTest test;
 
-    public final JSONArray properties;
+    public final String properties;
 
     public final String notes;
 
@@ -36,7 +35,7 @@ public class CiBuild {
 
     public String pr;
 
-    public CiBuild(AbstractTest test, JSONArray properties,
+    public CiBuild(AbstractTest test, String properties,
                    String notes,
                    boolean isDownloadJtl,
                    boolean isDownloadJunit, String junitPath,

@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SessionTest {
 
@@ -126,4 +126,27 @@ public class SessionTest {
         assertEquals("testId", session.getTestId());
         assertEquals("signature", session.getSignature());
     }
+
+
+    @Test
+    public void testFromJSONNoSign() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject object = new JSONObject();
+        object.put("id", "id");
+        object.put("name", "name");
+        object.put("userId", "userId");
+        object.put("testId", "testId");
+
+
+        Session session = Session.fromJSON(emul, object);
+        assertEquals("id", session.getId());
+        assertEquals("name", session.getName());
+        assertEquals("userId", session.getUserId());
+        assertEquals("testId", session.getTestId());
+        assertEquals(Session.UNDEFINED, session.getSignature());
+    }
+
 }
