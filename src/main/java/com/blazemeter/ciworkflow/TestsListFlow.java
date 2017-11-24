@@ -4,6 +4,7 @@ import com.blazemeter.api.explorer.Account;
 import com.blazemeter.api.explorer.User;
 import com.blazemeter.api.explorer.Workspace;
 import com.blazemeter.api.explorer.test.AbstractTest;
+import com.blazemeter.api.explorer.test.MultiTest;
 import com.blazemeter.api.explorer.test.SingleTest;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 
@@ -66,9 +67,9 @@ public class TestsListFlow {
         return Collections.emptyList();
     }
 
-    private List<SingleTest> getMultiTestsForWorkspace(Workspace workspace) {
+    private List<MultiTest> getMultiTestsForWorkspace(Workspace workspace) {
         try {
-            return workspace.getSingleTests();
+            return workspace.getMultiTests();
         } catch (IOException e) {
             utils.getNotifier().notifyAbout("Failed to get single tests for workspace id =" + workspace.getId() +". Reason is: " + e.getMessage());
             utils.getLogger().error("Failed to get single tests for workspace id =" + workspace.getId() +". Reason is: " + e.getMessage(), e);

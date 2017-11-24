@@ -36,17 +36,8 @@ public class UserTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject acc = new JSONObject();
-        acc.put("id", "accountId");
-        acc.put("name", "accountName");
 
-        JSONArray result = new JSONArray();
-        result.add(acc);
-        result.add(acc);
-
-        JSONObject response = new JSONObject();
-        response.put("result", result);
-        emul.addEmul(response.toString());
+        emul.addEmul(generateResponseGetAccounts());
 
         User user = new User(emul);
         List<Account> accounts = user.getAccounts();
@@ -60,5 +51,19 @@ public class UserTest {
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}\r\n" +
                         "Response: {\"result\":[{\"id\":\"accountId\",\"name\":\"accountName\"},{\"id\":\"accountId\",\"name\":\"accountName\"}]}\r\n",
                 logger.getLogs().toString());
+    }
+
+    public static String generateResponseGetAccounts() {
+        JSONObject acc = new JSONObject();
+        acc.put("id", "accountId");
+        acc.put("name", "accountName");
+
+        JSONArray result = new JSONArray();
+        result.add(acc);
+        result.add(acc);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
     }
 }
