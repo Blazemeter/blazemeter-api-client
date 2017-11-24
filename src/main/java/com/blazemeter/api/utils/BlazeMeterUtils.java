@@ -46,6 +46,8 @@ public class BlazeMeterUtils extends HttpUtils {
                            @NotNull String address, @NotNull String dataAddress,
                            UserNotifier notifier, @NotNull Logger logger) {
         super(address, dataAddress, logger);
+        this.apiKeyId = apiKeyId;
+        this.apiKeySecret = apiKeySecret;
         this.notifier = notifier;
     }
 
