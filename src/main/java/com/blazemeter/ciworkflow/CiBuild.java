@@ -82,7 +82,8 @@ public class CiBuild {
     public void waitForFinish(Master master) throws InterruptedException, IOException {
         long lastPrint = 0;
         while (true) {
-            Thread.sleep(10000);
+            long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
+            Thread.sleep(bzmCheckTimeout);
             if (master.getStatus() == 140) {
                 return;
             }
