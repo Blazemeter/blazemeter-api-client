@@ -37,7 +37,7 @@ public class CiBuildTest {
 
 
         Master master = new Master(emul, "id", "name");
-        AbstractTest test = new SingleTest(emul, "id", "name");
+        AbstractTest test = new SingleTest(emul, "id", "name", "http");
         CiBuild ciBuild = new CiBuild(test, "", "",
                 false, false,
                 "", "", "", logger);
