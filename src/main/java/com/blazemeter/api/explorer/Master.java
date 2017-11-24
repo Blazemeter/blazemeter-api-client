@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class Master extends BZAObject {
@@ -206,4 +207,31 @@ public class Master extends BZAObject {
         }
         return propsArray;
     }
+
+    /**
+     * Waits until test will be over on server
+     *
+     * @throws InterruptedException IOException
+     */
+    public void waitForFinish() throws InterruptedException, IOException {
+        long lastPrint = 0;
+        while (true) {
+            Thread.sleep(10000);
+            if (getStatus() == 140) {
+                return;
+            }
+            long start = Calendar.getInstance().getTime().getTime();
+            long now = Calendar.getInstance().getTime().getTime();
+            long diffInSec = (now - start) / 1000;
+            if (now - lastPrint > 60000) {
+                logger.info("BlazeMeter test# , masterId # " + getId() + " running from " + start + " - for " + diffInSec + " seconds");
+                lastPrint = now;
+            }
+            if (Thread.interrupted()) {
+                logger.info("Job was stopped by user");
+                throw new InterruptedException("Job was stopped by user");
+            }
+        }
+    }
+
 }

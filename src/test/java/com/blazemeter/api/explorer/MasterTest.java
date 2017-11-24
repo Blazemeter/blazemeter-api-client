@@ -326,6 +326,33 @@ public class MasterTest {
     }
 
     @Test
+    public void testWaitForFinish() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        JSONObject result = new JSONObject();
+        JSONObject response = new JSONObject();
+
+        result.put("progress", 70);
+        response.put("result", result);
+        emul.addEmul(response.toString());
+
+        result = new JSONObject();
+        result.put("progress", 140);
+
+        response.put("result", result);
+        emul.addEmul(response.toString());
+
+
+        Master master = new Master(emul, "id", "name");
+        master.waitForFinish();
+        assertEquals(2, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}", emul.getRequests().get(1));
+        assertEquals(440, logger.getLogs().length());
+    }
+
+    @Test
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
