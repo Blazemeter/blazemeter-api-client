@@ -18,7 +18,6 @@ import com.blazemeter.api.exception.UnexpectedResponseException;
 import com.blazemeter.api.http.HttpUtils;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
-import com.sun.istack.internal.NotNull;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import okhttp3.Credentials;
@@ -41,9 +40,9 @@ public class BlazeMeterUtils extends HttpUtils {
      * @param notifier     - user notifier, to show user information
      * @param logger       - logger, for log events of http requests / response etc.
      */
-    public BlazeMeterUtils(@NotNull String apiKeyId, @NotNull String apiKeySecret,
-                           @NotNull String address, @NotNull String dataAddress,
-                           UserNotifier notifier, @NotNull Logger logger) {
+    public BlazeMeterUtils(String apiKeyId, String apiKeySecret,
+                           String address, String dataAddress,
+                           UserNotifier notifier, Logger logger) {
         super(address, dataAddress, logger);
         this.apiKeyId = apiKeyId;
         this.apiKeySecret = apiKeySecret;
@@ -51,7 +50,7 @@ public class BlazeMeterUtils extends HttpUtils {
     }
 
 
-    public BlazeMeterUtils(@NotNull String address, @NotNull String dataAddress, UserNotifier notifier, @NotNull Logger logger) {
+    public BlazeMeterUtils(String address, String dataAddress, UserNotifier notifier, Logger logger) {
         this("", "", address, dataAddress, notifier, logger);
     }
 
