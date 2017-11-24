@@ -39,21 +39,18 @@ public class AnonymousTest extends AbstractTest {
     public Master startExternal() throws IOException {
         logger.info("Start external anonymous test");
         JSONObject result = sendStartTest(utils.getAddress() + "/api/v4/sessions");
-        setTestFields(result.getJSONObject("test"));
         fillFields(result);
-        this.session = Session.fromJSON(utils, getId(), signature, result.getJSONObject("session"));
         return master;
-    }
-
-    private void setTestFields(JSONObject obj) {
-        setId(obj.getString("id"));
-        setName(obj.getString("name"));
     }
 
     @Override
     public void fillFields(JSONObject result) {
             this.signature = result.getString("signature");
             this.master = Master.fromJSON(utils, result.getJSONObject("master"));
+        JSONObject test = result.getJSONObject("test");
+        this.id = test.getString("id");
+        this.name = test.getString("name");
+        this.session = Session.fromJSON(utils, getId(), signature, result.getJSONObject("session"));
     }
 
     public Session getSession() {
