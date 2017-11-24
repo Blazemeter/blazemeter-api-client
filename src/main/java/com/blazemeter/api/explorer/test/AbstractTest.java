@@ -37,7 +37,7 @@ public abstract class AbstractTest extends BZAObject implements ITest {
         return response.getJSONObject("result");
     }
 
-    abstract void fillFields(JSONObject result);
+    public abstract void fillFields(JSONObject result);
 
     public Master getMaster() {
         return master;
