@@ -15,6 +15,7 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
@@ -40,6 +41,14 @@ public class SingleTest extends AbstractTest {
         JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start-external", encode(getId())));
         fillFields(result);
         return master;
+    }
+
+    @Override
+    public void fillFields(JSONObject result) {
+        {
+            this.signature = Session.UNDEFINED;
+            this.master = Master.fromJSON(utils, result);
+        }
     }
 
     public static SingleTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {

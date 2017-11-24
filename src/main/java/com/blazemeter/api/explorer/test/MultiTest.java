@@ -15,6 +15,7 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
@@ -38,6 +39,14 @@ public class MultiTest extends AbstractTest {
     public Master startExternal() throws IOException {
         logger.error("Start external is not supported for multi test type id=" + getId());
         throw new UnsupportedOperationException("Start external is not supported for multi test type id=" + getId());
+    }
+
+    @Override
+    public void fillFields(JSONObject result) {
+        {
+            this.signature = Session.UNDEFINED;
+            this.master = Master.fromJSON(utils, result);
+        }
     }
 
     public static MultiTest fromJSON(BlazeMeterUtils utils, JSONObject obj) {
