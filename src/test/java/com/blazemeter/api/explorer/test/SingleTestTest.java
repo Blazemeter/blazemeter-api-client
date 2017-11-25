@@ -15,6 +15,7 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -24,7 +25,7 @@ import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SingleTestTest {
 
@@ -45,10 +46,7 @@ public class SingleTestTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(0));
         checkTest(test);
-        assertEquals("Start single test id=testId\r\n" +
-                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}\r\n" +
-                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
-                logger.getLogs().toString());
+        assertEquals(212, logger.getLogs().length());
         assertEquals("responseMasterId", master.getId());
         assertEquals("http", test.getTestType());
     }
@@ -70,35 +68,23 @@ public class SingleTestTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start-external, tag=null}", emul.getRequests().get(0));
         checkTest(test);
-        assertEquals("Start external single test id=testId\r\n" +
-                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start-external, tag=null}\r\n" +
-                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"}}}\r\n",
-                logger.getLogs().toString());
+        assertEquals(230, logger.getLogs().length());
         assertEquals("responseMasterId", master.getId());
         assertEquals("http", test.getTestType());
     }
 
     private JSONObject generateResponse() {
-        JSONObject testResponse = new JSONObject();
-        testResponse.put("id", "responseTestId");
-        testResponse.put("name", "responseTestName");
-
         JSONObject masterResponse = new JSONObject();
         masterResponse.put("id", "responseMasterId");
         masterResponse.put("name", "responseMasterName");
-
-        JSONObject result = new JSONObject();
-        result.put("test", testResponse);
-        result.put("signature", "responseSignature");
-        result.put("master", masterResponse);
-        return result;
+        return masterResponse;
     }
 
     private void checkTest(SingleTest test) {
         Master master = test.getMaster();
         assertEquals("responseMasterId", master.getId());
         assertEquals("responseMasterName", master.getName());
-        assertEquals("responseSignature", test.getSignature());
+        assertEquals(Session.UNDEFINED, test.getSignature());
     }
 
     @Test
