@@ -153,7 +153,7 @@ public class CiBuildTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(15));
         assertTrue(logger.getLogs().toString().contains("Simulating request: Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}"));
         assertEquals(16, emul.getRequests().size());
-        assertEquals(4374, logger.getLogs().length());
+        assertEquals(4421, logger.getLogs().length());
     }
 
 }
