@@ -4,7 +4,7 @@ We, at BlazeMeter, aim to bring you tools for quicker, and easier development.
 
 As part of this ambition, we are proud to present our Java SDK!
 
-Read more about this library on our [wiki page](wiki/).
+Read more about this library on our [wiki page](https://github.com/Blazemeter/blazemeter-api-client/wiki).
 
 [![Build Status](https://travis-ci.org/Blazemeter/blazemeter-api-client.svg?branch=master)](https://travis-ci.org/Blazemeter/blazemeter-api-client)
 [![codecov](https://codecov.io/gh/Blazemeter/blazemeter-api-client/branch/master/graph/badge.svg)](https://codecov.io/gh/Blazemeter/blazemeter-api-client)
