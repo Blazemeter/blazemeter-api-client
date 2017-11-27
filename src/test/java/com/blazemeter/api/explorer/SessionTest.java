@@ -11,6 +11,7 @@ import org.junit.Test;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class SessionTest {
@@ -69,6 +70,29 @@ public class SessionTest {
         assertEquals("Get JTL report for session id=id\r\n" +
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}\r\n" +
                         "Response: {\"result\":{\"data\":[{\"dataUrl\":\"dataUrl\",\"title\":\"Zip\"}]}}\r\n",
+                logger.getLogs().toString());
+    }
+
+    @Test
+    public void testGetJTLReportReturnNull() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        result.put("data", new JSONArray());
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        emul.addEmul(response.toString());
+
+        Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
+        String url = session.getJTLReport();
+        assertNull(url);
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get JTL report for session id=id\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}\r\n" +
+                        "Response: {\"result\":{\"data\":[]}}\r\n",
                 logger.getLogs().toString());
     }
 
