@@ -45,11 +45,11 @@ public class CiBuildTest {
         assertEquals(2, emul.getRequests().size());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}", emul.getRequests().get(1));
-        assertEquals(440, logger.getLogs().length());
+        assertEquals(441, logger.getLogs().length());
     }
 
-    @Ignore
     @Test
+    @Ignore
     public void testExecute() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
@@ -64,8 +64,8 @@ public class CiBuildTest {
         masterResponse.put("name", "responseMasterName");
         masterResponse.put("signature", "responseSignature");
 
-        JSONObject result = new JSONObject();
-        result.put("master", masterResponse);
+//        JSONObject result = new JSONObject();
+//        result.put("master", masterResponse);
         JSONObject response = new JSONObject();
         response.put("result", masterResponse);
 

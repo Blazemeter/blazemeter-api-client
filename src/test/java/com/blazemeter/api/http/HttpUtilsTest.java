@@ -15,9 +15,12 @@ import static com.blazemeter.api.http.HttpUtils.PROXY_HOST;
 import static com.blazemeter.api.http.HttpUtils.PROXY_PASS;
 import static com.blazemeter.api.http.HttpUtils.PROXY_PORT;
 import static com.blazemeter.api.http.HttpUtils.PROXY_USER;
-import static org.junit.Assert.*;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class HttpUtilsTest {
 

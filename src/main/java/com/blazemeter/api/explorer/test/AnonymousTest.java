@@ -45,8 +45,8 @@ public class AnonymousTest extends AbstractTest {
 
     @Override
     public void fillFields(JSONObject result) {
-            this.signature = result.getString("signature");
-            this.master = Master.fromJSON(utils, result.getJSONObject("master"));
+        this.signature = result.getString("signature");
+        this.master = Master.fromJSON(utils, result.getJSONObject("master"));
         JSONObject test = result.getJSONObject("test");
         this.id = test.getString("id");
         this.name = test.getString("name");

@@ -81,13 +81,13 @@ public class CiBuild {
      */
     public void waitForFinish(Master master) throws InterruptedException, IOException {
         long lastPrint = 0;
+        long start = Calendar.getInstance().getTime().getTime();
+        long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
         while (true) {
-            long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
             Thread.sleep(bzmCheckTimeout);
             if (master.getStatus() == 140) {
                 return;
             }
-            long start = Calendar.getInstance().getTime().getTime();
             long now = Calendar.getInstance().getTime().getTime();
             long diffInSec = (now - start) / 1000;
             if (now - lastPrint > 60000) {
