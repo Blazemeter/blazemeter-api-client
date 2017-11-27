@@ -21,13 +21,7 @@ public class SessionTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject property = new JSONObject();
-        property.put("key", "url");
-        property.put("value", "google.com");
-
-        JSONObject result = new JSONObject();
-        result.put("result", property);
-        emul.addEmul(result.toString());
+        emul.addEmul(generateResponsePostProperties());
 
         Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
         session.postProperties("key=url,value=google.com");
@@ -36,6 +30,16 @@ public class SessionTest {
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/properties?target=all, tag=null}\r\n" +
                         "Response: {\"result\":{\"key\":\"url\",\"value\":\"google.com\"}}\r\n",
                 logger.getLogs().toString());
+    }
+
+    public static String generateResponsePostProperties() {
+        JSONObject property = new JSONObject();
+        property.put("key", "url");
+        property.put("value", "google.com");
+
+        JSONObject result = new JSONObject();
+        result.put("result", property);
+        return result.toString();
     }
 
     @Test
