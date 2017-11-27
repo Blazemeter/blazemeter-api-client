@@ -107,19 +107,6 @@ public class CiBuildTest {
         response.put("result", result);
         emul.addEmul(response.toString());
 
-
-        /*
-        {
-    "api_version": 4,
-    "error": null,
-    "result": {
-        "key": "URL",
-        "value": "www.google.com"
-    }
-}
-         */
-
-
         result = new JSONObject();
         response = new JSONObject();
 
@@ -133,6 +120,13 @@ public class CiBuildTest {
         response.put("result", result);
         emul.addEmul(response.toString());
 
+
+        JSONObject status = new JSONObject();
+        status.put("masterId", "id");
+
+        result = new JSONObject();
+        result.put("result", status);
+        emul.addEmul(result.toString());
 
         AbstractTest test = new SingleTest(emul, "id", "name", "http");
         CiBuild ciBuild = new CiBuild(test, "1=2", "",
@@ -150,7 +144,7 @@ public class CiBuildTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(6));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(7));
         assertTrue(logger.getLogs().toString().contains("Simulating request: Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}"));
-        assertEquals(9, emul.getRequests().size());
+        assertEquals(16, emul.getRequests().size());
         //        assertEquals(440, logger.getLogs().length());
     }
 

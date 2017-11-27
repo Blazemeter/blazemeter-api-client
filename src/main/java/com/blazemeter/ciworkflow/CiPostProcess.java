@@ -68,18 +68,24 @@ public class CiPostProcess {
     public BuildResult validateCiStatus(Master master) {
         BuildResult result = BuildResult.SUCCESS;
         try {
+            JSONArray failures = null;
             JSONObject cis = master.getCIStatus();
-            JSONArray failures = cis.getJSONArray("failures");
-            JSONArray errors = cis.getJSONArray("errors");
-            if (errors.size() > 0) {
-                logger.info("Having errors " + errors.toString());
-                result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
+            if (cis.has("failures")) {
+                failures = cis.getJSONArray("failures");
+                if (failures.size() > 0) {
+                    logger.info("Having failures " + failures.toString());
+                    result = BuildResult.FAILED;
+                    logger.info("Setting ci-status = " + result.name());
+                    return result;
+                }
             }
-            if (failures.size() > 0) {
-                logger.info("Having failures " + failures.toString());
-                result = BuildResult.FAILED;
-                logger.info("Setting ci-status = " + result.name());
-                return result;
+            JSONArray errors = null;
+            if (cis.has("errors")) {
+                errors = cis.getJSONArray("errors");
+                if (errors.size() > 0) {
+                    logger.info("Having errors " + errors.toString());
+                    result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
+                }
             }
             if (result.equals(BuildResult.SUCCESS)) {
                 logger.info("No errors/failures while validating CIStatus: setting " + result.name());
@@ -124,7 +130,7 @@ public class CiPostProcess {
      * It will be either functional or aggregate depending on server settings;
      */
     public JSONObject downloadSummary(Master master) throws InterruptedException {
-        JSONObject summary = null;
+        JSONObject summary = new JSONObject();
         int retries = 1;
         while (retries < 5) {
             try {
@@ -133,7 +139,7 @@ public class CiPostProcess {
             } catch (IOException e) {
                 this.logger.error("Failed to get functional summary for master ", e);
             }
-            if (summary.size() > 0) {
+            if (summary != null && summary.size() > 0) {
                 this.logger.info("Got functional report from server");
                 return summary;
             } else {
@@ -143,7 +149,7 @@ public class CiPostProcess {
                 } catch (Exception e) {
                     this.logger.error("Failed to get aggregate summary for master ", e);
                 }
-                if (summary.size() > 0) {
+                if (summary != null && summary.size() > 0) {
                     this.logger.info("Got aggregated report from server");
                     return summary;
                 }
