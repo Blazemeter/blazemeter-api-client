@@ -29,6 +29,7 @@ import java.util.List;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class WorkspaceTest {
 
@@ -38,22 +39,26 @@ public class WorkspaceTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject result = new JSONObject();
-        result.put("id", "999");
-        result.put("name", "NEW_PROJECT");
-        JSONObject response = new JSONObject();
-        response.put("result", result);
+        emul.addEmul(generateResponseCreateProject());
 
         Workspace workspace = new Workspace(emul, "888", "workspace_name");
-        emul.addEmul(response.toString());
         Project project = workspace.createProject("NEW_PROJECT");
         assertEquals("999", project.getId());
         assertEquals("NEW_PROJECT", project.getName());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/projects, tag=null}", emul.getRequests().get(0));
-        assertEquals("Create project with name=NEW_PROJECT\r\n" +
-                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/projects, tag=null}\r\n" +
-                        "Response: {\"result\":{\"id\":\"999\",\"name\":\"NEW_PROJECT\"}}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 191, logs.length());
+        assertTrue(logs, logs.contains("Create project with name=NEW_PROJECT"));
+    }
+
+    public static String generateResponseCreateProject() {
+        JSONObject result = new JSONObject();
+        result.put("id", "999");
+        result.put("name", "NEW_PROJECT");
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
     }
 
     @Test
@@ -62,6 +67,22 @@ public class WorkspaceTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+        emul.addEmul(generateResponseGetProjects());
+
+        Workspace workspace = new Workspace(emul, "888", "workspace_name");
+        List<Project> projects = workspace.getProjects();
+        assertEquals(2, projects.size());
+        for (Project p :projects) {
+            assertEquals("999", p.getId());
+            assertEquals("NEW_PROJECT", p.getName());
+        }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/projects?workspaceId=888&limit=99999, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 259, logs.length());
+        assertTrue(logs, logs.contains("Get list of projects for workspace id=888"));
+    }
+
+    public static String generateResponseGetProjects() {
         JSONObject project = new JSONObject();
         project.put("id", "999");
         project.put("name", "NEW_PROJECT");
@@ -72,20 +93,7 @@ public class WorkspaceTest {
 
         JSONObject response = new JSONObject();
         response.put("result", result);
-        emul.addEmul(response.toString());
-
-        Workspace workspace = new Workspace(emul, "888", "workspace_name");
-        List<Project> projects = workspace.getProjects();
-        assertEquals(2, projects.size());
-        for (Project p :projects) {
-            assertEquals("999", p.getId());
-            assertEquals("NEW_PROJECT", p.getName());
-        }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/projects?workspaceId=888&limit=99999, tag=null}", emul.getRequests().get(0));
-        assertEquals("Get list of projects for workspace id=888\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/projects?workspaceId=888&limit=99999, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"NEW_PROJECT\"},{\"id\":\"999\",\"name\":\"NEW_PROJECT\"}]}\r\n",
-                logger.getLogs().toString());
+        return response.toString();
     }
 
     @Test
@@ -105,10 +113,9 @@ public class WorkspaceTest {
             assertEquals("http", t.getTestType());
         }
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
-        assertEquals("Get list of single tests for workspace id=888\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"SINGLE_TEST\",\"configuration\":{\"type\":\"http\"}},{\"id\":\"999\",\"name\":\"SINGLE_TEST\",\"configuration\":{\"type\":\"http\"}}]}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 312, logs.length());
+        assertTrue(logs, logs.contains("Get list of single tests for workspace id=888"));
     }
 
     public static String generateResponseGetSingleTests() {
@@ -135,7 +142,6 @@ public class WorkspaceTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-
         emul.addEmul(generateResponseGetMultiTests());
 
         Workspace workspace = new Workspace(emul, "888", "workspace_name");
@@ -147,10 +153,9 @@ public class WorkspaceTest {
             assertEquals("multi", t.getTestType());
         }
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
-        assertEquals("Get list of multi tests for workspace id=888\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=888, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"999\",\"name\":\"MULTI_TEST\",\"collectionType\":\"multi\"},{\"id\":\"999\",\"name\":\"MULTI_TEST\",\"collectionType\":\"multi\"}]}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 301, logs.length());
+        assertTrue(logs, logs.contains("Get list of multi tests for workspace id=888"));
     }
 
     public static String generateResponseGetMultiTests() {
@@ -172,8 +177,8 @@ public class WorkspaceTest {
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
-
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
         JSONObject object = new JSONObject();
         object.put("id", "workspaceId");
         object.put("name", "workspaceName");
