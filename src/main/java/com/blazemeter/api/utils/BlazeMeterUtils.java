@@ -29,8 +29,10 @@ public class BlazeMeterUtils extends HttpUtils {
 
     private String apiKeyId;
     private String apiKeySecret;
+    protected String address;
+    protected String dataAddress;
 
-    protected final UserNotifier notifier;
+    protected UserNotifier notifier;
 
     /**
      * @param apiKeyId     - BlazeMeter Api Key Id
@@ -43,7 +45,9 @@ public class BlazeMeterUtils extends HttpUtils {
     public BlazeMeterUtils(String apiKeyId, String apiKeySecret,
                            String address, String dataAddress,
                            UserNotifier notifier, Logger logger) {
-        super(address, dataAddress, logger);
+        super(logger);
+        this.address = address;
+        this.dataAddress = dataAddress;
         this.apiKeyId = apiKeyId;
         this.apiKeySecret = apiKeySecret;
         this.notifier = notifier;
@@ -95,11 +99,27 @@ public class BlazeMeterUtils extends HttpUtils {
         return notifier;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public String getDataAddress() {
+        return dataAddress;
+    }
+
     public void setApiKeyId(String apiKeyId) {
         this.apiKeyId = apiKeyId;
     }
 
     public void setApiKeySecret(String apiKeySecret) {
         this.apiKeySecret = apiKeySecret;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setDataAddress(String dataAddress) {
+        this.dataAddress = dataAddress;
     }
 }

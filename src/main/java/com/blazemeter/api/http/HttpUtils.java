@@ -51,13 +51,9 @@ public class HttpUtils {
 
     protected Logger logger;
 
-    protected String address;
-    protected String dataAddress;
     private OkHttpClient httpClient;
 
-    public HttpUtils(String address, String dataAddress, Logger logger) {
-        this.address = address;
-        this.dataAddress = dataAddress;
+    public HttpUtils(Logger logger) {
         this.logger = logger;
         this.httpClient = createHTTPClient();
     }
@@ -146,24 +142,8 @@ public class HttpUtils {
         return logger;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public String getDataAddress() {
-        return dataAddress;
-    }
-
     public void setLogger(Logger logger) {
         this.logger = logger;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public void setDataAddress(String dataAddress) {
-        this.dataAddress = dataAddress;
     }
 
     private OkHttpClient createHTTPClient() {
