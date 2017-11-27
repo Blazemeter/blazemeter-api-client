@@ -19,7 +19,6 @@ import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.logging.Logger;
 
 import java.io.IOException;
-import java.util.Calendar;
 
 public class CiBuild {
 
@@ -81,14 +80,14 @@ public class CiBuild {
      */
     public void waitForFinish(Master master) throws InterruptedException, IOException {
         long lastPrint = 0;
-        long start = Calendar.getInstance().getTime().getTime();
+        long start = System.currentTimeMillis();
         long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
         while (true) {
             Thread.sleep(bzmCheckTimeout);
             if (master.getStatus() == 140) {
                 return;
             }
-            long now = Calendar.getInstance().getTime().getTime();
+            long now = System.currentTimeMillis();
             long diffInSec = (now - start) / 1000;
             if (now - lastPrint > 60000) {
                 logger.info("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
