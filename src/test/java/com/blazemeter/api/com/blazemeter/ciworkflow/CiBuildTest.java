@@ -54,7 +54,48 @@ public class CiBuildTest {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        setEmulator(emul);
+        AbstractTest test = new SingleTest(emul, "id", "name", "http");
+        CiBuild ciBuild = new CiBuild(test, "1=2", "",
+                false, false,
+                "", "", "", logger);
+        ciBuild.execute();
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/id/start, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(1));
+        assertEquals("http://a.blazemeter.com/app/?public-token=x1x1x1x1x1x1x1x11x1x1x1#/masters/responseMasterId/summary",
+                ciBuild.pr);
+        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(2));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/sessions, tag=null}", emul.getRequests().get(3));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(4));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(5));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(6));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(7));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(8));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(9));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(10));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(11));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(12));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(13));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(14));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(15));
+        String logs = logger.getLogs().toString();
+        assertTrue(logs.contains("Start single test id=id"));
+        assertTrue(logs.contains("Get link to public report for master id=responseMasterId"));
+        assertTrue(logs.contains("Post notes to master id=responseMasterId"));
+        assertTrue(logs.contains("Get list of sessions for master id=responseMasterId"));
+        assertTrue(logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
+        assertTrue(logs.contains("Response: {\"result\":{\"progress\":70}}"));
+        assertTrue(logs.contains("Response: {\"result\":{\"progress\":140}}"));
+        assertTrue(logs.contains("No errors/failures while validating CIStatus: setting SUCCESS"));
+        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 4"));
+        assertTrue(logs.contains("Failed to get aggregate summary for master"));
+        assertTrue(logs.contains("Failed to get functional summary for master"));
+        assertEquals(16, emul.getRequests().size());
+        assertEquals(4421, logger.getLogs().length());
+    }
 
+
+    private void setEmulator(BlazeMeterUtilsEmul emul) {
         JSONObject testResponse = new JSONObject();
         testResponse.put("id", "responseTestId");
         testResponse.put("name", "responseTestName");
@@ -128,46 +169,5 @@ public class CiBuildTest {
         result.put("result", status);
         emul.addEmul(result.toString());
 
-        AbstractTest test = new SingleTest(emul, "id", "name", "http");
-        CiBuild ciBuild = new CiBuild(test, "1=2", "",
-                false, false,
-                "", "", "", logger);
-        ciBuild.execute();
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/id/start, tag=null}", emul.getRequests().get(0));
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(1));
-        assertEquals("http://a.blazemeter.com/app/?public-token=x1x1x1x1x1x1x1x11x1x1x1#/masters/responseMasterId/summary",
-                ciBuild.pr);
-        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(2));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/sessions, tag=null}", emul.getRequests().get(3));
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(4));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(5));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(6));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(7));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(8));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(9));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(10));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(11));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(12));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(13));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(14));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(15));
-        String logs = logger.getLogs().toString();
-        assertTrue(logs.contains("Start single test id=id"));
-        assertTrue(logs.contains("Get link to public report for master id=responseMasterId"));
-        assertTrue(logs.contains("Post notes to master id=responseMasterId"));
-        assertTrue(logs.contains("Get list of sessions for master id=responseMasterId"));
-        assertTrue(logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
-        assertTrue(logs.contains("Response: {\"result\":{\"progress\":70}}"));
-        assertTrue(logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertTrue(logs.contains("No errors/failures while validating CIStatus: setting SUCCESS"));
-        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 1"));
-        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 2"));
-        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 3"));
-        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 4"));
-        assertTrue(logs.contains("Failed to get aggregate summary for master"));
-        assertTrue(logs.contains("Failed to get functional summary for master"));
-        assertEquals(16, emul.getRequests().size());
-        assertEquals(4421, logger.getLogs().length());
     }
-
 }
