@@ -62,17 +62,7 @@ public class AccountTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject result = new JSONObject();
-        result.put("id", "100");
-        result.put("name", "NEW_WORKSPACE");
-
-        JSONArray results = new JSONArray();
-        results.add(result);
-        results.add(result);
-
-        JSONObject response = new JSONObject();
-        response.put("result", results);
-        emul.addEmul(response.toString());
+        emul.addEmul(generateResponseGetWorkspaces());
 
         Account account = new Account(emul, "777", "account_name");
         List<Workspace> workspaces = account.getWorkspaces();
@@ -87,6 +77,20 @@ public class AccountTest {
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/workspaces?accountId=777&enabled=true&limit=100, tag=null}\r\n" +
                         "Response: {\"result\":[{\"id\":\"100\",\"name\":\"NEW_WORKSPACE\"},{\"id\":\"100\",\"name\":\"NEW_WORKSPACE\"}]}\r\n",
                 logger.getLogs().toString());
+    }
+
+    public static String generateResponseGetWorkspaces() {
+        JSONObject result = new JSONObject();
+        result.put("id", "100");
+        result.put("name", "NEW_WORKSPACE");
+
+        JSONArray results = new JSONArray();
+        results.add(result);
+        results.add(result);
+
+        JSONObject response = new JSONObject();
+        response.put("result", results);
+        return response.toString();
     }
 
     @Test

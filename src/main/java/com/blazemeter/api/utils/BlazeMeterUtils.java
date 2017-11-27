@@ -27,16 +27,16 @@ import org.apache.commons.lang.StringUtils;
 
 public class BlazeMeterUtils extends HttpUtils {
 
-    public static final String EMPTY_TOKEN = "";
-    private final String token;
+    private String apiKeyId;
+    private String apiKeySecret;
 
     protected final UserNotifier notifier;
 
     /**
      * @param apiKeyId     - BlazeMeter Api Key Id
      * @param apiKeySecret - BlazeMeter Api Key Secret
-     * @param address      - BlazeMeter app address: http://a.blazemeter.com/
-     * @param dataAddress  - BlazeMeter data address: http://data.blazemeter.com/
+     * @param address      - BlazeMeter app address: https://a.blazemeter.com/
+     * @param dataAddress  - BlazeMeter data address: https://data.blazemeter.com/
      * @param notifier     - user notifier, to show user information
      * @param logger       - logger, for log events of http requests / response etc.
      */
@@ -44,7 +44,8 @@ public class BlazeMeterUtils extends HttpUtils {
                            String address, String dataAddress,
                            UserNotifier notifier, Logger logger) {
         super(address, dataAddress, logger);
-        this.token = isValidCredantials(apiKeyId, apiKeySecret) ? Credentials.basic(apiKeyId, apiKeySecret) : EMPTY_TOKEN;
+        this.apiKeyId = apiKeyId;
+        this.apiKeySecret = apiKeySecret;
         this.notifier = notifier;
     }
 
@@ -59,7 +60,9 @@ public class BlazeMeterUtils extends HttpUtils {
 
     @Override
     protected Request.Builder addRequiredHeader(Request.Builder requestBuilder) {
-        return EMPTY_TOKEN.equals(token) ? requestBuilder : requestBuilder.addHeader(AUTHORIZATION, token);
+        return isValidCredantials(apiKeyId, apiKeySecret) ?
+                requestBuilder.addHeader(AUTHORIZATION, Credentials.basic(apiKeyId, apiKeySecret)) :
+                requestBuilder;
     }
 
     @Override
@@ -86,5 +89,17 @@ public class BlazeMeterUtils extends HttpUtils {
             }
         }
         return null;
+    }
+
+    public UserNotifier getNotifier() {
+        return notifier;
+    }
+
+    public void setApiKeyId(String apiKeyId) {
+        this.apiKeyId = apiKeyId;
+    }
+
+    public void setApiKeySecret(String apiKeySecret) {
+        this.apiKeySecret = apiKeySecret;
     }
 }
