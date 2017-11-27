@@ -26,6 +26,7 @@ import org.junit.Test;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SingleTestTest {
 
@@ -36,7 +37,7 @@ public class SingleTestTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject response = new JSONObject();
-        response.put("result", generateResponse());
+        response.put("result", generateResponseStartSingleTest());
 
         emul.addEmul(response.toString());
 
@@ -46,7 +47,9 @@ public class SingleTestTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(0));
         checkTest(test);
-        assertEquals(212, logger.getLogs().length());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 212, logs.length());
+        assertTrue(logs, logs.contains("Start single test id=testId"));
         assertEquals("responseMasterId", master.getId());
         assertEquals("http", test.getTestType());
     }
@@ -58,7 +61,7 @@ public class SingleTestTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject response = new JSONObject();
-        response.put("result", generateResponse());
+        response.put("result", generateResponseStartSingleTest());
 
         emul.addEmul(response.toString());
 
@@ -68,16 +71,18 @@ public class SingleTestTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start-external, tag=null}", emul.getRequests().get(0));
         checkTest(test);
-        assertEquals(230, logger.getLogs().length());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 230, logs.length());
+        assertTrue(logs, logs.contains("Start external single test id=testId"));
         assertEquals("responseMasterId", master.getId());
         assertEquals("http", test.getTestType());
     }
 
-    private JSONObject generateResponse() {
+    public static String generateResponseStartSingleTest() {
         JSONObject masterResponse = new JSONObject();
         masterResponse.put("id", "responseMasterId");
         masterResponse.put("name", "responseMasterName");
-        return masterResponse;
+        return masterResponse.toString();
     }
 
     private void checkTest(SingleTest test) {
