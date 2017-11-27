@@ -151,7 +151,21 @@ public class CiBuildTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(13));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(14));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(15));
-        assertTrue(logger.getLogs().toString().contains("Simulating request: Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}"));
+        String logs = logger.getLogs().toString();
+        assertTrue(logs.contains("Start single test id=id"));
+        assertTrue(logs.contains("Get link to public report for master id=responseMasterId"));
+        assertTrue(logs.contains("Post notes to master id=responseMasterId"));
+        assertTrue(logs.contains("Get list of sessions for master id=responseMasterId"));
+        assertTrue(logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
+        assertTrue(logs.contains("Response: {\"result\":{\"progress\":70}}"));
+        assertTrue(logs.contains("Response: {\"result\":{\"progress\":140}}"));
+        assertTrue(logs.contains("No errors/failures while validating CIStatus: setting SUCCESS"));
+        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 1"));
+        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 2"));
+        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 3"));
+        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 4"));
+        assertTrue(logs.contains("Failed to get aggregate summary for master"));
+        assertTrue(logs.contains("Failed to get functional summary for master"));
         assertEquals(16, emul.getRequests().size());
         assertEquals(4421, logger.getLogs().length());
     }
