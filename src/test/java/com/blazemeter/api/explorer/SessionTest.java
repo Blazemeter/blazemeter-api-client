@@ -11,6 +11,7 @@ import org.junit.Test;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class SessionTest {
 
@@ -24,15 +25,12 @@ public class SessionTest {
         property.put("key", "url");
         property.put("value", "google.com");
 
-        JSONArray properties = new JSONArray();
-        properties.add(property);
-
         JSONObject result = new JSONObject();
         result.put("result", property);
         emul.addEmul(result.toString());
 
         Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
-        session.postProperties(properties);
+        session.postProperties("key=url,value=google.com");
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/properties?target=all, tag=null}", emul.getRequests().get(0));
         assertEquals("Post properties to session id=id\r\n" +
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/properties?target=all, tag=null}\r\n" +
@@ -149,4 +147,19 @@ public class SessionTest {
         assertEquals(Session.UNDEFINED, session.getSignature());
     }
 
+    @Test
+    public void convertProperties() {
+        try {
+            JSONArray array = Session.convertProperties("1=2,3=4");
+            assertEquals(2, array.size());
+            assertEquals(2, array.getJSONObject(0).size());
+            assertEquals("1", array.getJSONObject(0).getString("key"));
+            assertEquals("2", array.getJSONObject(0).getString("value"));
+            assertEquals(2, array.getJSONObject(1).size());
+            assertEquals("3", array.getJSONObject(1).getString("key"));
+            assertEquals("4", array.getJSONObject(1).getString("value"));
+        } catch (Exception e) {
+            fail("Failed to convert properties to JSONArray");
+        }
+    }
 }
