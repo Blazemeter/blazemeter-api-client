@@ -23,6 +23,7 @@ import net.sf.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -145,14 +146,66 @@ public class CiPostProcess {
      * Saves jtl report to hdd;
      */
     public void saveJtl(Master master) {
+        URL url = null;
         try {
             List<Session> sessions = master.getSessions();
             for (Session s : sessions) {
-                s.getJTLReport();
+                url = new URL(s.getJTLReport());
             }
         } catch (IOException e) {
             notifier.notifyAbout("Failed to get junit report from master = " + master.getId());
         }
+/*
+    public static void downloadJtlReport(String sessionId, String jtlUrl, FilePath filePath, StdErrLog bzmLog, StdErrLog consLog) {
+        URL url = null;
+        try {
+            url = new URL(jtlUrl);
+            int i = 1;
+            boolean jtl = false;
+            while (!jtl && i < 4) {
+                try {
+                    bzmLog.info("Downloading JTLZIP for sessionId = " + sessionId + " attemp # " + i);
+                    consLog.info("Downloading JTLZIP for sessionId = " + sessionId + " attemp # " + i);
+                    int conTo = (int) (10000 * Math.pow(3, i - 1));
+                    URLConnection connection = url.openConnection();
+                    connection.setConnectTimeout(conTo);
+                    connection.setReadTimeout(30000);
+                    InputStream input = connection.getInputStream();
+                    filePath.unzipFrom(input);
+                    jtl = true;
+                } catch (MalformedURLException e) {
+                    bzmLog.warn("It seems like test was terminated on server side...");
+                    consLog.warn("It seems like test was terminated on server side...");
+                    bzmLog.warn("Unable to get JTLZIP for sessionId=" + sessionId + ":check server for test artifacts");
+                    consLog.warn("Unable to get JTLZIP for sessionId=" + sessionId + ":check server for test artifacts");
+                } catch (Exception e) {
+                    bzmLog.warn("Unable to get JTLZIP for sessionId=" + sessionId + ":check server for test artifacts" + e);
+                    consLog.warn("Unable to get JTLZIP for sessionId=" + sessionId + ":check server for test artifacts" + e);
+                } finally {
+                    i++;
+                }
+            }
+
+            FilePath sample_jtl = new FilePath(filePath, "sample.jtl");
+            FilePath bm_kpis_jtl = new FilePath(filePath, Constants.BM_KPIS);
+            if (sample_jtl.exists()) {
+                sample_jtl.renameTo(bm_kpis_jtl);
+            }
+        } catch (MalformedURLException e) {
+            bzmLog.warn("It seems like test was terminated on server side...");
+            consLog.warn("It seems like test was terminated on server side...");
+            bzmLog.warn("Unable to get JTLZIP for sessionId=" + sessionId + ":check server for test artifacts " + e);
+            consLog.warn("Unable to get JTLZIP for sessionId=" + sessionId + ":check server for test artifacts " + e);
+        } catch (IOException e) {
+            bzmLog.warn("Unable to get JTLZIP from " + url, e);
+            consLog.warn("Unable to get JTLZIP from " + url, e);
+        } catch (InterruptedException e) {
+            bzmLog.warn("Unable to get JTLZIP from " + url, e);
+            consLog.warn("Unable to get JTLZIP from " + url, e);
+        }
+    }
+
+ */
 
     }
 
