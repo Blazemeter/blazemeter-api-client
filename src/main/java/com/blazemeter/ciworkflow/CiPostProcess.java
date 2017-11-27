@@ -15,12 +15,17 @@
 package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.logging.UserNotifier;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class CiPostProcess {
 
@@ -34,7 +39,7 @@ public class CiPostProcess {
 
     public final String workspaceDir;
 
-    public final UserNotifier logger;
+    public final UserNotifier notifier;
 
     public CiPostProcess(boolean isDownloadJtl,
                          boolean isDownloadJunit, String junitPath,
@@ -44,7 +49,7 @@ public class CiPostProcess {
         this.junitPath = junitPath;
         this.jtlPath = jtlPath;
         this.workspaceDir = workspaceDir;
-        this.logger = logger;
+        this.notifier = logger;
     }
 
     /**
@@ -55,13 +60,13 @@ public class CiPostProcess {
     public BuildResult execute(Master master) throws InterruptedException {
         BuildResult r = validateCiStatus(master);
         if (this.isDownloadJunit) {
-            saveJunit();
+            saveJunit(master);
         }
         if (this.isDownloadJtl) {
-            saveJtl();
+            saveJtl(master);
         }
         JSONObject summary = downloadSummary(master);
-        this.logger.notifyAbout(summary.toString());
+        this.notifier.notifyAbout(summary.toString());
         return r;
     }
 
@@ -73,9 +78,9 @@ public class CiPostProcess {
             if (cis.has("failures")) {
                 failures = cis.getJSONArray("failures");
                 if (failures.size() > 0) {
-                    logger.notifyAbout("Having failures " + failures.toString());
+                    notifier.notifyAbout("Having failures " + failures.toString());
                     result = BuildResult.FAILED;
-                    logger.notifyAbout("Setting ci-status = " + result.name());
+                    notifier.notifyAbout("Setting ci-status = " + result.name());
                     return result;
                 }
             }
@@ -83,15 +88,15 @@ public class CiPostProcess {
             if (cis.has("errors")) {
                 errors = cis.getJSONArray("errors");
                 if (errors.size() > 0) {
-                    logger.notifyAbout("Having errors " + errors.toString());
+                    notifier.notifyAbout("Having errors " + errors.toString());
                     result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
                 }
             }
             if (result.equals(BuildResult.SUCCESS)) {
-                logger.notifyAbout("No errors/failures while validating CIStatus: setting " + result.name());
+                notifier.notifyAbout("No errors/failures while validating CIStatus: setting " + result.name());
             }
         } catch (IOException e) {
-            logger.notifyAbout("Error while getting CI status from server " + e);
+            notifier.notifyAbout("Error while getting CI status from server " + e);
         }
         return result;
     }
@@ -114,14 +119,40 @@ public class CiPostProcess {
     /**
      * Saves junit report to hdd;
      */
-    public void saveJunit() {
+    public void saveJunit(Master master) {
+        try {
+            String junitReport = master.getJUnitReport();
+            File junitFile = createJunitFile(junitPath + File.separator + master.getId() + ".xml",
+                    workspaceDir);
+            Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
+        } catch (Exception e) {
+            notifier.notifyAbout("Failed to save junit report from master = " + master.getId() + " to disk.");
+        }
+    }
 
+    private File createJunitFile(String junitPath, String workspaceDir) throws Exception {
+        File junitFile = new File(junitPath);
+        try {
+            junitFile.createNewFile();
+        } catch (IOException e) {
+            junitFile = new File(workspaceDir);
+            junitFile.createNewFile();
+        }
+        return junitFile;
     }
 
     /**
      * Saves jtl report to hdd;
      */
-    public void saveJtl() {
+    public void saveJtl(Master master) {
+        try {
+            List<Session> sessions = master.getSessions();
+            for (Session s : sessions) {
+                s.getJTLReport();
+            }
+        } catch (IOException e) {
+            notifier.notifyAbout("Failed to get junit report from master = " + master.getId());
+        }
 
     }
 
@@ -134,23 +165,23 @@ public class CiPostProcess {
         int retries = 1;
         while (retries < 5) {
             try {
-                this.logger.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
+                this.notifier.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
                 summary = master.getFunctionalReport();
             } catch (IOException e) {
-                this.logger.notifyAbout("Failed to get functional summary for master " + e);
+                this.notifier.notifyAbout("Failed to get functional summary for master " + e);
             }
             if (summary != null && summary.size() > 0) {
-                this.logger.notifyAbout("Got functional report from server");
+                this.notifier.notifyAbout("Got functional report from server");
                 return summary;
             } else {
                 try {
-                    this.logger.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
+                    this.notifier.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
                     summary = master.getSummary();
                 } catch (Exception e) {
-                    this.logger.notifyAbout("Failed to get aggregate summary for master " + e);
+                    this.notifier.notifyAbout("Failed to get aggregate summary for master " + e);
                 }
                 if (summary != null && summary.size() > 0) {
-                    this.logger.notifyAbout("Got aggregated report from server");
+                    this.notifier.notifyAbout("Got aggregated report from server");
                     return summary;
                 }
             }
