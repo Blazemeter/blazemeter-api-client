@@ -41,12 +41,12 @@ public class CiBuildTest {
         Master master = new Master(emul, "id", "name");
         CiBuild ciBuild = new CiBuild(test, "", "",
                 false, false,
-                "", "", "", logger);
+                "", "", "");
         ciBuild.waitForFinish(master);
         assertEquals(2, emul.getRequests().size());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}", emul.getRequests().get(1));
-        assertEquals(441, logger.getLogs().length());
+        assertEquals(363, logger.getLogs().length());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class CiBuildTest {
         AbstractTest test = new SingleTest(emul, "id", "name", "http");
         CiBuild ciBuild = new CiBuild(test, "1=2", "",
                 false, false,
-                "", "", "", logger);
+                "", "", "");
         ciBuild.execute();
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/id/start, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(1));
@@ -86,12 +86,8 @@ public class CiBuildTest {
         assertTrue(logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
         assertTrue(logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertTrue(logs.contains("No errors/failures while validating CIStatus: setting SUCCESS"));
-        assertTrue(logs.contains("Trying to get  functional summary from server, attempt# 4"));
-        assertTrue(logs.contains("Failed to get aggregate summary for master"));
-        assertTrue(logs.contains("Failed to get functional summary for master"));
         assertEquals(16, emul.getRequests().size());
-        assertEquals(4421, logger.getLogs().length());
+        assertEquals(3230, logger.getLogs().length());
     }
 
 

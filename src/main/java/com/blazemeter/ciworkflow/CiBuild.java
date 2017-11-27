@@ -16,7 +16,7 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
-import com.blazemeter.api.logging.Logger;
+import com.blazemeter.api.logging.UserNotifier;
 
 import java.io.IOException;
 
@@ -28,7 +28,7 @@ public class CiBuild {
 
     public final String notes;
 
-    public final Logger logger;
+    public final UserNotifier notifier;
 
     public final CiPostProcess ciPostProcess;
 
@@ -38,14 +38,13 @@ public class CiBuild {
                    String notes,
                    boolean isDownloadJtl,
                    boolean isDownloadJunit, String junitPath,
-                   String jtlPath, String workspaceDir,
-                   Logger logger) {
+                   String jtlPath, String workspaceDir) {
         this.test = test;
         this.properties = properties;
         this.notes = notes;
-        this.logger = logger;
+        this.notifier = this.test.getUtils().getNotifier();
         this.ciPostProcess = new CiPostProcess(isDownloadJtl, isDownloadJunit,
-                junitPath, jtlPath, workspaceDir, logger);
+                junitPath, jtlPath, workspaceDir, notifier);
     }
 
     /**
@@ -56,6 +55,9 @@ public class CiBuild {
     public BuildResult execute() {
         Master master = null;
         try {
+            notifier.notifyAbout("CiBuild is started.");
+            notifier.notifyAbout("TestId = " + test.getId());
+            notifier.notifyAbout("TestName = " + test.getName());
             master = this.test.start();
             pr = master.getPublicReport();
             master.postNotes(this.notes);
@@ -90,11 +92,11 @@ public class CiBuild {
             long now = System.currentTimeMillis();
             long diffInSec = (now - start) / 1000;
             if (now - lastPrint > 60000) {
-                logger.info("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
+                notifier.notifyAbout("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
                 lastPrint = now;
             }
             if (Thread.interrupted()) {
-                logger.info("Job was stopped by user");
+                notifier.notifyAbout("Job was stopped by user");
                 throw new InterruptedException("Job was stopped by user");
             }
         }
