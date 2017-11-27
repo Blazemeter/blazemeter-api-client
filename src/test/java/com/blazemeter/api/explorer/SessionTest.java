@@ -11,6 +11,8 @@ import org.junit.Test;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public class SessionTest {
 
@@ -20,24 +22,25 @@ public class SessionTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject property = new JSONObject();
-        property.put("key", "url");
-        property.put("value", "google.com");
-
-        JSONArray properties = new JSONArray();
-        properties.add(property);
-
-        JSONObject result = new JSONObject();
-        result.put("result", property);
-        emul.addEmul(result.toString());
+        emul.addEmul(generateResponsePostProperties());
 
         Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
-        session.postProperties(properties);
+        session.postProperties("key=url,value=google.com");
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/properties?target=all, tag=null}", emul.getRequests().get(0));
         assertEquals("Post properties to session id=id\r\n" +
                         "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/properties?target=all, tag=null}\r\n" +
                         "Response: {\"result\":{\"key\":\"url\",\"value\":\"google.com\"}}\r\n",
                 logger.getLogs().toString());
+    }
+
+    public static String generateResponsePostProperties() {
+        JSONObject property = new JSONObject();
+        property.put("key", "url");
+        property.put("value", "google.com");
+
+        JSONObject result = new JSONObject();
+        result.put("result", property);
+        return result.toString();
     }
 
     @Test
@@ -67,6 +70,29 @@ public class SessionTest {
         assertEquals("Get JTL report for session id=id\r\n" +
                         "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}\r\n" +
                         "Response: {\"result\":{\"data\":[{\"dataUrl\":\"dataUrl\",\"title\":\"Zip\"}]}}\r\n",
+                logger.getLogs().toString());
+    }
+
+    @Test
+    public void testGetJTLReportReturnNull() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        result.put("data", new JSONArray());
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        emul.addEmul(response.toString());
+
+        Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
+        String url = session.getJTLReport();
+        assertNull(url);
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}", emul.getRequests().get(0));
+        assertEquals("Get JTL report for session id=id\r\n" +
+                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}\r\n" +
+                        "Response: {\"result\":{\"data\":[]}}\r\n",
                 logger.getLogs().toString());
     }
 
@@ -149,4 +175,19 @@ public class SessionTest {
         assertEquals(Session.UNDEFINED, session.getSignature());
     }
 
+    @Test
+    public void convertProperties() {
+        try {
+            JSONArray array = Session.convertProperties("1=2,3=4");
+            assertEquals(2, array.size());
+            assertEquals(2, array.getJSONObject(0).size());
+            assertEquals("1", array.getJSONObject(0).getString("key"));
+            assertEquals("2", array.getJSONObject(0).getString("value"));
+            assertEquals(2, array.getJSONObject(1).size());
+            assertEquals("3", array.getJSONObject(1).getString("key"));
+            assertEquals("4", array.getJSONObject(1).getString("value"));
+        } catch (Exception e) {
+            fail("Failed to convert properties to JSONArray");
+        }
+    }
 }

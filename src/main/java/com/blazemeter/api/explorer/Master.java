@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Master extends BZAObject {
@@ -67,7 +66,7 @@ public class Master extends BZAObject {
         JSONArray sessionsArray = result.getJSONArray("sessions");
         for (int i = 0; i < sessionsArray.size(); i++) {
             JSONObject so = sessionsArray.getJSONObject(i);
-            sessions.add(Session.fromJSON(this.utils, so));
+            sessions.add(Session.fromJSON(utils, so));
         }
         return sessions;
     }
@@ -76,22 +75,22 @@ public class Master extends BZAObject {
      * Posts properties to master.
      */
     public void postProperties(String properties) {
+        logger.info("Post properties to master id=" + getId());
         try {
-            List<Session> sessions = this.getSessions();
-            this.postProperties(properties, sessions);
+            List<Session> sessions = getSessions();
+            postProperties(properties, sessions);
         } catch (IOException ioe) {
-            logger.error("Failed to get sessions for master = " + this.id, ioe);
+            logger.error("Failed to get sessions for master id=" + getId(), ioe);
         }
-
     }
 
     private void postProperties(String properties, List<Session> sessions) {
-        JSONArray propertiesArray = convertProperties(properties);
-        for (Session s : sessions) {
+        JSONArray propertiesArray = Session.convertProperties(properties);
+        for (Session session : sessions) {
             try {
-                s.postProperties(propertiesArray);
+                session.postProperties(propertiesArray);
             } catch (Exception e) {
-                logger.error("Failed to send properties for session = " + s.getId());
+                logger.error("Failed to send properties for session id=" + session.getId());
             }
         }
     }
@@ -185,21 +184,4 @@ public class Master extends BZAObject {
     public static Master fromJSON(BlazeMeterUtils utils, JSONObject obj) {
         return new Master(utils, obj.getString("id"), obj.getString("name"));
     }
-
-    public static JSONArray convertProperties(String properties) {
-        JSONArray propsArray = new JSONArray();
-        List<String> propList = Arrays.asList(properties.split(","));
-        for (String s : propList) {
-            JSONObject prop = new JSONObject();
-            List<String> pr = Arrays.asList(s.split("="));
-            if (pr.size() > 1) {
-                prop.put("key", pr.get(0).trim());
-                prop.put("value", pr.get(1).trim());
-            }
-            propsArray.add(prop);
-        }
-        return propsArray;
-    }
-
-
 }
