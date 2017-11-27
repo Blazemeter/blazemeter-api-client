@@ -93,7 +93,21 @@ public class MasterTest {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(generateResponseGetSessions());
 
+        Master master = new Master(emul, "id", "name");
+
+        List<Session> sessionsList = master.getSessions();
+        assertEquals(1, sessionsList.size());
+        assertEquals("11", sessionsList.get(0).getName());
+        assertEquals("12", sessionsList.get(0).getUserId());
+        assertEquals("13", sessionsList.get(0).getTestId());
+        assertEquals("r-v3-1234567890qwerty", sessionsList.get(0).getId());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+        assertEquals(254, logger.getLogs().toString().length());
+    }
+
+    public static String generateResponseGetSessions() {
         JSONObject session = new JSONObject();
         session.put("id", "r-v3-1234567890qwerty");
         session.put("name", "11");
@@ -108,18 +122,7 @@ public class MasterTest {
 
         JSONObject result = new JSONObject();
         result.put("result", sessions);
-        emul.addEmul(result.toString());
-
-        Master master = new Master(emul, "id", "name");
-
-        List<Session> sessionsList = master.getSessions();
-        assertEquals(1, sessionsList.size());
-        assertEquals("11", sessionsList.get(0).getName());
-        assertEquals("12", sessionsList.get(0).getUserId());
-        assertEquals("13", sessionsList.get(0).getTestId());
-        assertEquals("r-v3-1234567890qwerty", sessionsList.get(0).getId());
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
-        assertEquals(254, logger.getLogs().toString().length());
+        return result.toString();
     }
 
     @Test
@@ -341,55 +344,56 @@ public class MasterTest {
     }
 
     @Test
-    public void postProperties() {
+    public void testPostProperties() {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-
-        JSONObject session = new JSONObject();
-        session.put("id", "r-v3-1234567890qwerty");
-        session.put("name", "11");
-        session.put("userId", "12");
-        session.put("testId", "13");
-
-        JSONArray sessionsa = new JSONArray();
-        sessionsa.add(session);
-
-        JSONObject sessions = new JSONObject();
-        sessions.put("sessions", sessionsa);
-
-        JSONObject result = new JSONObject();
-        result.put("result", sessions);
-        emul.addEmul(result.toString());
-
-
-        JSONArray properties = new JSONArray();
-        JSONObject property = new JSONObject();
-        property.put("1", "2");
-        properties.add(property);
+        emul.addEmul(generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponsePostProperties());
 
         Master master = new Master(emul, "id", "name");
         master.postProperties("1=2");
         assertEquals(2, emul.getRequests().size());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(1));
-        assertEquals(511, logger.getLogs().toString().length());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 538, logs.length());
+        assertTrue(logs, logs.contains("Post properties to master id=id"));
+        assertTrue(logs, logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
     }
 
     @Test
-    public void convertProperties() {
-        try {
-            JSONArray array = Master.convertProperties("1=2,3=4");
-            assertEquals(2, array.size());
-            assertEquals(2, array.getJSONObject(0).size());
-            assertEquals("1", array.getJSONObject(0).getString("key"));
-            assertEquals("2", array.getJSONObject(0).getString("value"));
-            assertEquals(2, array.getJSONObject(1).size());
-            assertEquals("3", array.getJSONObject(1).getString("key"));
-            assertEquals("4", array.getJSONObject(1).getString("value"));
-        } catch (Exception e) {
-            fail("Failed to convert properties to JSONArray");
-        }
+    public void testPostPropertiesFailGetSessions() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        Master master = new Master(emul, "id", "name");
+        master.postProperties("1=2");
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Failed to get sessions for master id=id"));
+        assertEquals(logs, 245, logs.length());
+
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+    }
+
+    @Test
+    public void testPostPropertiesFailPostPropToSessions() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetSessions());
+        Master master = new Master(emul, "id", "name");
+        master.postProperties("1=2");
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Failed to send properties for session id=r-v3-1234567890qwerty"));
+        assertEquals(logs, 545, logs.length());
+
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(1));
     }
 }

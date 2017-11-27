@@ -23,6 +23,8 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class Session extends BZAObject {
     public static final String UNDEFINED = "undefined";
@@ -59,7 +61,12 @@ public class Session extends BZAObject {
      * Send properties to test session
      * if properties were send correctly(server's response contains the same properties)
      */
-    public void postProperties(JSONArray properties) throws IOException {
+    public void postProperties(String properties) throws IOException {
+        postProperties(convertProperties(properties));
+    }
+
+
+    void postProperties(JSONArray properties) throws IOException {
         logger.info("Post properties to session id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/properties?target=all", encode(getId()));
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"),
@@ -115,6 +122,20 @@ public class Session extends BZAObject {
         return null;
     }
 
+    public static JSONArray convertProperties(String properties) {
+        JSONArray propsArray = new JSONArray();
+        List<String> propList = Arrays.asList(properties.split(","));
+        for (String s : propList) {
+            JSONObject prop = new JSONObject();
+            List<String> pr = Arrays.asList(s.split("="));
+            if (pr.size() > 1) {
+                prop.put("key", pr.get(0).trim());
+                prop.put("value", pr.get(1).trim());
+            }
+            propsArray.add(prop);
+        }
+        return propsArray;
+    }
 
     public static Session fromJSON(BlazeMeterUtils utils, JSONObject so) {
         return new Session(utils, so.getString("id"), so.getString("name"),

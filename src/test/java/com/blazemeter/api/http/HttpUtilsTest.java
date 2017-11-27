@@ -30,7 +30,7 @@ public class HttpUtilsTest {
     public void testRequests() throws Exception {
         LoggerTest logger = new LoggerTest();
 
-        HttpUtils utils = new HttpUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, logger);
+        HttpUtils utils = new HttpUtils(logger);
         Request get = utils.createGet(BZM_ADDRESS);
         assertEquals("GET", get.method());
         assertEquals(BZM_ADDRESS + '/', get.url().toString());
@@ -61,13 +61,8 @@ public class HttpUtilsTest {
     @Test
     public void testGetters() throws Exception {
         LoggerTest logger = new LoggerTest();
-
-        HttpUtils utils = new HttpUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, logger);
+        HttpUtils utils = new HttpUtils(logger);
         utils.setLogger(logger);
-        utils.setAddress(BZM_ADDRESS);
-        utils.setDataAddress(BZM_DATA_ADDRESS);
-        assertEquals(BZM_ADDRESS, utils.getAddress());
-        assertEquals(BZM_DATA_ADDRESS, utils.getDataAddress());
         assertEquals(logger, utils.getLogger());
     }
 
@@ -75,7 +70,7 @@ public class HttpUtilsTest {
     public void testModifiers() throws Exception {
         LoggerTest logger = new LoggerTest();
 
-        HttpUtils utils = new HttpUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, logger);
+        HttpUtils utils = new HttpUtils(logger);
 
         String response = "No response string";
         assertEquals(response, utils.extractErrorMessage(response));
@@ -90,7 +85,7 @@ public class HttpUtilsTest {
         assertTrue(resp.contains("BlazeMeter"));
 
         final String jsonResponse = "{\"param\":\"value\"}";
-        utils = new HttpUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, logger) {
+        utils = new HttpUtils(logger) {
             @Override
             public String executeRequest(Request request) throws IOException {
                 return jsonResponse;
@@ -108,7 +103,7 @@ public class HttpUtilsTest {
             LoggerTest logger = new LoggerTest();
 
             setProxyProps(BLAZEDEMO, "9999", "user1", "pass123456");
-            HttpUtils utils = new HttpUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, logger);
+            HttpUtils utils = new HttpUtils(logger);
             assertNotNull(utils);
             assertEquals("Using http.proxyHost = http://blazedemo.com/\r\n" +
                     "Using http.proxyPort = 9999\r\n" +
@@ -117,7 +112,7 @@ public class HttpUtilsTest {
             logger.reset();
 
             setProxyProps(BLAZEDEMO, "use default port", "", "");
-            utils = new HttpUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, logger);
+            utils = new HttpUtils(logger);
             assertNotNull(utils);
             assertEquals("Using http.proxyHost = http://blazedemo.com/\r\n" +
                     "Failed to read http.proxyPort: \r\n" +
@@ -128,7 +123,7 @@ public class HttpUtilsTest {
 
             try {
                 setProxyProps("XXXX", "-12345", "", "");
-                new HttpUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, logger);
+                new HttpUtils(logger);
                 fail("Cannot init proxy with port '-12345'");
             } catch (RuntimeException ex) {
                 assertEquals("ERROR Instantiating HTTPClient. Exception received: port out of range:-12345", ex.getMessage());

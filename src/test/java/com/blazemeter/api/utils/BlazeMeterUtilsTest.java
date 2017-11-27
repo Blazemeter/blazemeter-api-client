@@ -68,10 +68,13 @@ public class BlazeMeterUtilsTest {
 
         Request request = utils.addRequiredHeader(builder).build();
         assertEquals(0, request.headers().size());
-
+        utils.setAddress(BZM_ADDRESS);
+        utils.setDataAddress(BZM_DATA_ADDRESS);
         utils.setApiKeyId("xxxx");
         utils.setApiKeySecret("yyy");
         request = utils.addRequiredHeader(builder).build();
         assertEquals(1, request.headers().size());
+        assertEquals(BZM_ADDRESS, utils.getAddress());
+        assertEquals(BZM_DATA_ADDRESS, utils.getDataAddress());
     }
 }
