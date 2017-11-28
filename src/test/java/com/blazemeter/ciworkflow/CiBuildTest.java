@@ -9,6 +9,8 @@ import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
@@ -17,6 +19,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class CiBuildTest {
+    @Before
+    public void setUp() throws Exception {
+        System.setProperty("bzm.checkTimeout", "1000");
+        System.setProperty("bzm.minute", "1500");
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        System.setProperty("bzm.checkTimeout", "10000");
+        System.setProperty("bzm.minute", "60000");
+    }
 
     @Test
     public void testWaitForFinish() throws Exception {
