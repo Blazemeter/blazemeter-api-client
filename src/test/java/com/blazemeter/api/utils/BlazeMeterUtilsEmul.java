@@ -55,7 +55,7 @@ public class BlazeMeterUtilsEmul extends BlazeMeterUtils {
     @Override
     public JSONObject execute(Request request) throws IOException {
         extractBody(request);
-        return JSONObject.fromObject(getResponse(request));
+        return JSONObject.fromObject(processResponse(getResponse(request)));
     }
 
     @Override
