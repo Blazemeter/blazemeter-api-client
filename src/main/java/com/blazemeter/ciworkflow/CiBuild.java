@@ -23,19 +23,19 @@ import java.io.IOException;
 
 public class CiBuild {
 
-    public final AbstractTest test;
+    protected final AbstractTest test;
 
-    public final String properties;
+    protected final String properties;
 
-    public final String notes;
+    protected final String notes;
 
-    public final UserNotifier notifier;
+    protected final UserNotifier notifier;
 
-    public final Logger logger;
+    protected final Logger logger;
 
-    public final CiPostProcess ciPostProcess;
+    protected final CiPostProcess ciPostProcess;
 
-    public String publicReport;
+    protected String publicReport;
 
     public CiBuild(AbstractTest test, String properties, String notes,
                    boolean isDownloadJtl, boolean isDownloadJunit,
@@ -109,4 +109,36 @@ public class CiBuild {
         }
     }
 
+
+    public AbstractTest getTest() {
+        return test;
+    }
+
+    public String getProperties() {
+        return properties;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public UserNotifier getNotifier() {
+        return notifier;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public CiPostProcess getCiPostProcess() {
+        return ciPostProcess;
+    }
+
+    public String getPublicReport() {
+        return publicReport;
+    }
+
+    public void setPublicReport(String publicReport) {
+        this.publicReport = publicReport;
+    }
 }
