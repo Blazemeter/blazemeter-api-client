@@ -108,4 +108,38 @@ public class SingleTestTest {
         assertEquals("testName", test.getName());
         assertEquals("http", test.getTestType());
     }
+
+    @Test
+    public void testGetSingleTest() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(generateResponseGetSingleTest());
+
+        SingleTest test = SingleTest.getSingleTest(emul, "testId");
+        assertEquals("testId", test.getId());
+        assertEquals("Single_testName", test.getName());
+        assertEquals("http", test.getTestType());
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(0));
+
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 222, logs.length());
+        assertTrue(logs, logs.contains("Get Single Test id=testId"));
+    }
+
+    public static String generateResponseGetSingleTest() {
+        JSONObject configuration = new JSONObject();
+        configuration.put("type", "http");
+
+        JSONObject result = new JSONObject();
+        result.put("id", "testId");
+        result.put("name", "Single_testName");
+        result.put("configuration", configuration);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
 }

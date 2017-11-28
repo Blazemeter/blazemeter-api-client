@@ -68,6 +68,14 @@ public class BZAObject {
     }
 
     public String encode(String text, String encoding) {
+        return encode(logger, text, encoding);
+    }
+
+    public static String encode(Logger logger, String text) {
+        return encode(logger, text, UTF_8);
+    }
+
+    public static String encode(Logger logger, String text, String encoding) {
         try {
             return URLEncoder.encode(text, encoding);
         } catch (UnsupportedEncodingException e) {

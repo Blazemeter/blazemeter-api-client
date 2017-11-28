@@ -16,6 +16,8 @@ package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.Session;
+import com.blazemeter.api.explorer.base.BZAObject;
+import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
@@ -42,6 +44,15 @@ public class SingleTest extends AbstractTest {
         fillFields(result);
         return master;
     }
+
+    public static SingleTest getSingleTest(BlazeMeterUtils utils, String id) throws IOException {
+        Logger logger = utils.getLogger();
+        logger.info("Get Single Test id=" + id);
+        String uri = utils.getAddress() + String.format("/api/v4/tests/%s", BZAObject.encode(logger, id));
+        JSONObject response = utils.execute(utils.createGet(uri));
+        return SingleTest.fromJSON(utils, response.getJSONObject("result"));
+    }
+
 
     @Override
     public void fillFields(JSONObject result) {
