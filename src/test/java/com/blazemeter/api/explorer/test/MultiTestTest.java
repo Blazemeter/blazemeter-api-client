@@ -87,6 +87,37 @@ public class MultiTestTest {
     }
 
     @Test
+    public void testGetMultiTest() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(generateResponseGetMultiTest());
+
+        MultiTest test = MultiTest.getMultiTest(emul, "testId");
+        assertEquals("testId", test.getId());
+        assertEquals("Multi_testName", test.getName());
+        assertEquals("multi", test.getTestType());
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests/testId, tag=null}", emul.getRequests().get(0));
+
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 219, logs.length());
+        assertTrue(logs, logs.contains("Get Multi Test id=testId"));
+    }
+
+    public static String generateResponseGetMultiTest() {
+        JSONObject result = new JSONObject();
+        result.put("id", "testId");
+        result.put("name", "Multi_testName");
+        result.put("collectionType", "multi");
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
+    @Test
     public void testFromJSON() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
