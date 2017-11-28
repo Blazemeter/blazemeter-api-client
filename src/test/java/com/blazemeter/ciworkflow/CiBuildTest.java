@@ -23,16 +23,16 @@ public class CiBuildTest {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        JSONObject result = new JSONObject();
-        JSONObject response = new JSONObject();
 
+        JSONObject result = new JSONObject();
         result.put("progress", 70);
+
+        JSONObject response = new JSONObject();
         response.put("result", result);
         emul.addEmul(response.toString());
 
         result = new JSONObject();
         result.put("progress", 140);
-
         response.put("result", result);
         emul.addEmul(response.toString());
 
@@ -62,7 +62,7 @@ public class CiBuildTest {
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/id/start, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(1));
         assertEquals("http://a.blazemeter.com/app/?public-token=x1x1x1x1x1x1x1x11x1x1x1#/masters/responseMasterId/summary",
-                ciBuild.pr);
+                ciBuild.publicReport);
         assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(2));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/sessions, tag=null}", emul.getRequests().get(3));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(4));
@@ -163,6 +163,23 @@ public class CiBuildTest {
         result = new JSONObject();
         result.put("result", status);
         emul.addEmul(result.toString());
+    }
 
+    @Test
+    public void testExecuteFailStart() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        AbstractTest test = new SingleTest(emul, "id", "name", "http");
+        CiBuild ciBuild = new CiBuild(test, "1=2", "",
+                false, false,
+                "", "", "");
+        BuildResult result = ciBuild.execute();
+        assertEquals(BuildResult.FAILED, result);
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/id/start, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 234, logs.length());
+        assertTrue(logs, logs.contains("Caught exception. Set Build status [FAILED]. Reason is:"));
     }
 }
