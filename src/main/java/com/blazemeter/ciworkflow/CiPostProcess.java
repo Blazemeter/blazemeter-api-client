@@ -15,6 +15,7 @@
 package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -24,26 +25,29 @@ import java.io.IOException;
 
 public class CiPostProcess {
 
-    public final boolean isDownloadJtl;
+    protected final boolean isDownloadJtl;
 
-    public final boolean isDownloadJunit;
+    protected final boolean isDownloadJunit;
 
-    public final String junitPath;
+    protected final String junitPath;
 
-    public final String jtlPath;
+    protected final String jtlPath;
 
-    public final String workspaceDir;
+    protected final String workspaceDir;
 
-    public final UserNotifier logger;
+    private final UserNotifier notifier;
 
-    public CiPostProcess(boolean isDownloadJtl,
-                         boolean isDownloadJunit, String junitPath,
-                         String jtlPath, String workspaceDir, UserNotifier logger) {
+    private final Logger logger;
+
+    public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit,
+                         String junitPath, String jtlPath, String workspaceDir,
+                         UserNotifier notifier, Logger logger) {
         this.isDownloadJtl = isDownloadJtl;
         this.isDownloadJunit = isDownloadJunit;
         this.junitPath = junitPath;
         this.jtlPath = jtlPath;
         this.workspaceDir = workspaceDir;
+        this.notifier = notifier;
         this.logger = logger;
     }
 
@@ -61,7 +65,7 @@ public class CiPostProcess {
             saveJtl();
         }
         JSONObject summary = downloadSummary(master);
-        this.logger.notifyAbout(summary.toString());
+        this.notifier.notifyAbout(summary.toString());
         return r;
     }
 
@@ -73,9 +77,9 @@ public class CiPostProcess {
             if (cis.has("failures")) {
                 failures = cis.getJSONArray("failures");
                 if (failures.size() > 0) {
-                    logger.notifyAbout("Having failures " + failures.toString());
+                    notifier.notifyAbout("Having failures " + failures.toString());
                     result = BuildResult.FAILED;
-                    logger.notifyAbout("Setting ci-status = " + result.name());
+                    notifier.notifyAbout("Setting ci-status = " + result.name());
                     return result;
                 }
             }
@@ -83,15 +87,15 @@ public class CiPostProcess {
             if (cis.has("errors")) {
                 errors = cis.getJSONArray("errors");
                 if (errors.size() > 0) {
-                    logger.notifyAbout("Having errors " + errors.toString());
+                    notifier.notifyAbout("Having errors " + errors.toString());
                     result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
                 }
             }
             if (result.equals(BuildResult.SUCCESS)) {
-                logger.notifyAbout("No errors/failures while validating CIStatus: setting " + result.name());
+                notifier.notifyAbout("No errors/failures while validating CIStatus: setting " + result.name());
             }
         } catch (IOException e) {
-            logger.notifyAbout("Error while getting CI status from server " + e);
+            notifier.notifyAbout("Error while getting CI status from server " + e);
         }
         return result;
     }
@@ -134,23 +138,23 @@ public class CiPostProcess {
         int retries = 1;
         while (retries < 5) {
             try {
-                this.logger.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
+                this.notifier.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
                 summary = master.getFunctionalReport();
             } catch (IOException e) {
-                this.logger.notifyAbout("Failed to get functional summary for master " + e);
+                this.notifier.notifyAbout("Failed to get functional summary for master " + e);
             }
             if (summary != null && summary.size() > 0) {
-                this.logger.notifyAbout("Got functional report from server");
+                this.notifier.notifyAbout("Got functional report from server");
                 return summary;
             } else {
                 try {
-                    this.logger.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
+                    this.notifier.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
                     summary = master.getSummary();
                 } catch (Exception e) {
-                    this.logger.notifyAbout("Failed to get aggregate summary for master " + e);
+                    this.notifier.notifyAbout("Failed to get aggregate summary for master " + e);
                 }
                 if (summary != null && summary.size() > 0) {
-                    this.logger.notifyAbout("Got aggregated report from server");
+                    this.notifier.notifyAbout("Got aggregated report from server");
                     return summary;
                 }
             }
