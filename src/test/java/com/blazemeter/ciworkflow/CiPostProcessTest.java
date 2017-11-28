@@ -1,6 +1,8 @@
 package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.MasterTest;
+import com.blazemeter.api.explorer.SessionTest;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -8,6 +10,13 @@ import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -55,6 +64,91 @@ public class CiPostProcessTest {
             fail();
         } finally {
             emul.clean();
+        }
+    }
+
+    @Test
+    public void createJunitFileException() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", notifier, logger);
+        try {
+            ciPostProcess.createJunitFile("", "./junit");
+            File junit = new File("./junit");
+            assertTrue(junit.exists());
+            junit.delete();
+            assertFalse(junit.exists());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void createJunitFileSuccess() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", notifier, logger);
+        try {
+            ciPostProcess.createJunitFile("./junit", "./junit111");
+            File junit = new File("./junit");
+            assertTrue(junit.exists());
+            junit.delete();
+            assertFalse(junit.exists());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void unzipJtl() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", notifier, logger);
+        try {
+            File sampleJtl = new File("sample.jtl");
+            sampleJtl.createNewFile();
+            FileInputStream in = new FileInputStream(sampleJtl);
+            File bzmZip = new File("bzm.zip");
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(bzmZip));
+            out.putNextEntry(new ZipEntry("sample.jtl"));
+            // buffer size
+            byte[] b = new byte[1024];
+            int count;
+            while ((count = in.read(b)) > 0) {
+                out.write(b, 0, count);
+            }
+            out.close();
+            in.close();
+            InputStream is = new FileInputStream(bzmZip);
+            ciPostProcess.unzipjtl(is);
+            File bmKpi = new File("bm-kpis.jtl");
+            assertTrue(bmKpi.exists());
+            bmKpi.delete();
+            bzmZip.delete();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+
+    @Test
+    public void saveJtl() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", notifier, logger);
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReport());
+        try {
+            Master master = new Master(emul, "id", "name");
+            ciPostProcess.saveJtl(master);
+            assertFalse(new File("bm-kpis.jtl").exists());
+        } catch (Exception e) {
+            fail();
         }
     }
 
