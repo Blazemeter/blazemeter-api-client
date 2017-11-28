@@ -72,7 +72,7 @@ public class WorkspaceTest {
         Workspace workspace = new Workspace(emul, "888", "workspace_name");
         List<Project> projects = workspace.getProjects();
         assertEquals(2, projects.size());
-        for (Project p :projects) {
+        for (Project p : projects) {
             assertEquals("999", p.getId());
             assertEquals("NEW_PROJECT", p.getName());
         }

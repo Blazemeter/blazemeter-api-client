@@ -103,7 +103,7 @@ public class CiBuildTest {
         assertTrue(logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs.contains("Response: {\"result\":{\"progress\":140}}"));
         assertEquals(16, emul.getRequests().size());
-        assertEquals(logger.getLogs().toString(), 3661, logger.getLogs().length());
+        assertEquals(logger.getLogs().toString(), 3289, logger.getLogs().length());
     }
 
 
