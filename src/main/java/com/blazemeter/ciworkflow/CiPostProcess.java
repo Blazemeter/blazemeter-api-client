@@ -108,23 +108,23 @@ public class CiPostProcess {
                 logger.info("No errors/failures while validating CIStatus: setting " + result.name());
             }
         } catch (IOException e) {
-            notifier.notifyAbout("Error while getting CI status from server " + e);
-            logger.error("Error while getting CI status from server " + e);
+            notifier.notifyAbout("Error while getting CI status from server " + e.getMessage());
+            logger.error("Error while getting CI status from server ", e);
         }
         return result;
     }
 
     public boolean errorsFailed(JSONArray errors) {
-        boolean errorsFailed = false;
         try {
             int l = errors.size();
             for (int i = 0; i < l; i++) {
-                errorsFailed = errors.getJSONObject(i).getInt("code") == 0 |
+                boolean errorsFailed = errors.getJSONObject(i).getInt("code") == 0 |
                         errors.getJSONObject(i).getInt("code") == 70404;
                 return errorsFailed;
             }
         } catch (JSONException je) {
             notifier.notifyAbout("Failed get errors from json: " + errors.toString() + " " + je);
+            logger.error("Failed get errors from json: " + errors.toString(), je);
             return false;
         }
         return false;
@@ -136,21 +136,26 @@ public class CiPostProcess {
     public void saveJunit(Master master) {
         try {
             String junitReport = master.getJUnitReport();
-            File junitFile = createJunitFile(junitPath + File.separator + master.getId() + ".xml",
-                    workspaceDir);
+            String junitFileName = master.getId() + ".xml";
+            File junitFile = createJunitFile(junitPath + File.separator + junitFileName,
+                    workspaceDir + File.separator + junitFileName);
             Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
         } catch (Exception e) {
             notifier.notifyAbout("Failed to save junit report from master = " + master.getId() + " to disk.");
+            logger.error("Failed to save junit report from master = " + master.getId() + " to disk.", e);
         }
     }
 
-    private File createJunitFile(String junitPath, String workspaceDir) throws Exception {
+    private File createJunitFile(String junitPath, String workspaceJunitPath) throws Exception {
         File junitFile = new File(junitPath);
         try {
             junitFile.createNewFile();
-        } catch (IOException e) {
-            junitFile = new File(workspaceDir);
+        } catch (Exception e) {
+            junitFile = new File(workspaceJunitPath);
             junitFile.createNewFile();
+            notifier.notifyAbout("Failed to created a file " + junitPath);
+            logger.error("Failed to created a file " + junitPath, e);
+            notifier.notifyAbout("Junit report will be saved to " + workspaceJunitPath);
         }
         return junitFile;
     }
@@ -159,22 +164,25 @@ public class CiPostProcess {
      * Saves jtl report to hdd;
      */
     public void saveJtl(Master master) {
-        URL url = null;
         try {
             List<Session> sessions = master.getSessions();
+            URL url;
             for (Session s : sessions) {
                 url = new URL(s.getJTLReport());
-                downloadUnzip(url);
+                try {
+                    downloadUnzip(url);
+                } catch (Exception e) {
+                    logger.error("Failed to download&unzip jtl-report from " + url.getPath(), e);
+                }
             }
         } catch (Exception e) {
-            notifier.notifyAbout("Unable to get JTLZIP from " + url + " " + e);
+            notifier.notifyAbout("Unable to get JTLZIP from " + master.getId() + " " + e.getMessage());
+            logger.error("Unable to get JTLZIP from " + master.getId() + " ", e);
         }
     }
 
     public void downloadUnzip(URL url) {
-        int i = 1;
-        boolean jtl = false;
-        while (!jtl && i < 4) {
+        for (int i = 1; i < 4; i++) {
             try {
                 notifier.notifyAbout("Downloading JTLZIP from url=" + url.getPath() + " attemp # " + i);
                 int conTo = (int) (10000 * Math.pow(3, i - 1));
@@ -183,11 +191,9 @@ public class CiPostProcess {
                 connection.setReadTimeout(30000);
                 InputStream is = connection.getInputStream();
                 unzipjtl(is);
-                jtl = true;
+                break;
             } catch (Exception e) {
                 notifier.notifyAbout("Unable to get JTLZIP for sessionId=" + url.getPath() + ":check server for test artifacts" + e);
-            } finally {
-                i++;
             }
         }
     }
@@ -237,6 +243,7 @@ public class CiPostProcess {
                     summary = master.getSummary();
                 } catch (Exception e) {
                     notifier.notifyAbout("Failed to get aggregate summary for master " + e);
+                    logger.error("Failed to get aggregate summary for master ", e);
                 }
                 if (summary != null && summary.size() > 0) {
                     notifier.notifyAbout("Got aggregated report from server");
