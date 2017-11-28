@@ -241,7 +241,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testGettes() throws Exception {
+    public void testGetters() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         CiPostProcess ciPostProcess = new CiPostProcess(true, true,
