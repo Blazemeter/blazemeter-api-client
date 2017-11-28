@@ -23,7 +23,7 @@ public class CiPostProcessTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
         CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier);
+                "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
 
         JSONObject funcReportEmul = new JSONObject();
@@ -63,7 +63,7 @@ public class CiPostProcessTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
         CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier);
+                "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
         JSONObject result = new JSONObject();
         JSONObject response = new JSONObject();
@@ -110,9 +110,10 @@ public class CiPostProcessTest {
         o.put("code", 70404);
         e.add(o);
 
+        LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier);
+                "", "", "", notifier, logger);
         assertTrue(ciPostProcess.errorsFailed(e));
 
         e = new JSONArray();
@@ -149,7 +150,7 @@ public class CiPostProcessTest {
         o.put("result", result);
         emul.addEmul(o.toString());
         CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier);
+                "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
         BuildResult r = ciPostProcess.validateCiStatus(master);
         assertTrue(r.equals(BuildResult.SUCCESS));
@@ -174,7 +175,7 @@ public class CiPostProcessTest {
         o.put("result", result);
         emul.addEmul(o.toString());
         CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier);
+                "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
         BuildResult r = ciPostProcess.validateCiStatus(master);
         assertTrue(r.equals(BuildResult.FAILED));
@@ -202,7 +203,7 @@ public class CiPostProcessTest {
         o.put("result", result);
         emul.addEmul(o.toString());
         CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier);
+                "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
         BuildResult r = ciPostProcess.validateCiStatus(master);
         assertTrue(r.equals(BuildResult.FAILED));
@@ -230,7 +231,7 @@ public class CiPostProcessTest {
         o.put("result", result);
         emul.addEmul(o.toString());
         CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier);
+                "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
         BuildResult r = ciPostProcess.validateCiStatus(master);
         assertTrue(r.equals(BuildResult.ERROR));
