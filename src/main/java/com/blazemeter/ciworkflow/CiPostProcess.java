@@ -58,10 +58,10 @@ public class CiPostProcess {
      */
     public BuildResult execute(Master master) throws InterruptedException {
         BuildResult r = validateCiStatus(master);
-        if (this.isDownloadJunit) {
+        if (isDownloadJunit) {
             saveJunit();
         }
-        if (this.isDownloadJtl) {
+        if (isDownloadJtl) {
             saveJtl();
         }
         JSONObject summary = downloadSummary(master);
@@ -88,14 +88,17 @@ public class CiPostProcess {
                 errors = cis.getJSONArray("errors");
                 if (errors.size() > 0) {
                     notifier.notifyAbout("Having errors " + errors.toString());
+                    logger.error("Having errors " + errors.toString());
                     result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
                 }
             }
             if (result.equals(BuildResult.SUCCESS)) {
                 notifier.notifyAbout("No errors/failures while validating CIStatus: setting " + result.name());
+                logger.info("No errors/failures while validating CIStatus: setting " + result.name());
             }
         } catch (IOException e) {
-            notifier.notifyAbout("Error while getting CI status from server " + e);
+            notifier.notifyAbout("Error while getting CI status from server " + e.getMessage());
+            logger.error("Error while getting CI status from server " + e.getMessage(), e);
         }
         return result;
     }
@@ -110,6 +113,7 @@ public class CiPostProcess {
                 return errorsFailed;
             }
         } catch (JSONException je) {
+            logger.warn("Failed get errors from json: " + errors.toString(), je);
             return false;
         }
         return false;
@@ -138,23 +142,24 @@ public class CiPostProcess {
         int retries = 1;
         while (retries < 5) {
             try {
-                this.notifier.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
+                notifier.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
                 summary = master.getFunctionalReport();
             } catch (IOException e) {
-                this.notifier.notifyAbout("Failed to get functional summary for master " + e);
+                notifier.notifyAbout("Failed to get functional summary for master " + e);
             }
             if (summary != null && summary.size() > 0) {
-                this.notifier.notifyAbout("Got functional report from server");
+                notifier.notifyAbout("Got functional report from server");
                 return summary;
             } else {
                 try {
-                    this.notifier.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
+                    notifier.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
                     summary = master.getSummary();
                 } catch (Exception e) {
-                    this.notifier.notifyAbout("Failed to get aggregate summary for master " + e);
+                    logger.error("Failed to get aggregate summary for master " + e.getMessage(), e);
+                    notifier.notifyAbout("Failed to get aggregate summary for master " + e.getMessage());
                 }
                 if (summary != null && summary.size() > 0) {
-                    this.notifier.notifyAbout("Got aggregated report from server");
+                    notifier.notifyAbout("Got aggregated report from server");
                     return summary;
                 }
             }
