@@ -46,7 +46,8 @@ public class CiBuild {
         this.notifier = this.test.getUtils().getNotifier();
         this.logger = this.test.getUtils().getLogger();
         this.ciPostProcess = new CiPostProcess(isDownloadJtl, isDownloadJunit,
-                junitPath, jtlPath, workspaceDir, notifier);
+                junitPath, jtlPath, workspaceDir,
+                notifier, logger);
     }
 
     /**
@@ -120,14 +121,6 @@ public class CiBuild {
 
     public String getNotes() {
         return notes;
-    }
-
-    public UserNotifier getNotifier() {
-        return notifier;
-    }
-
-    public Logger getLogger() {
-        return logger;
     }
 
     public CiPostProcess getCiPostProcess() {
