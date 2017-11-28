@@ -1,6 +1,8 @@
 package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.MasterTest;
+import com.blazemeter.api.explorer.SessionTest;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -126,6 +128,25 @@ public class CiPostProcessTest {
             assertTrue(bmKpi.exists());
             bmKpi.delete();
             bzmZip.delete();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+
+    @Test
+    public void saveJtl() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", notifier, logger);
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReport());
+        try {
+            Master master = new Master(emul, "id", "name");
+            ciPostProcess.saveJtl(master);
+            assertFalse(new File("bm-kpis.jtl").exists());
         } catch (Exception e) {
             fail();
         }
