@@ -17,6 +17,7 @@ package com.blazemeter.ciworkflow;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.logging.UserNotifier;
+import com.blazemeter.api.logging.Logger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -35,27 +36,30 @@ import java.util.zip.ZipInputStream;
 
 public class CiPostProcess {
 
-    public final boolean isDownloadJtl;
+    protected final boolean isDownloadJtl;
 
-    public final boolean isDownloadJunit;
+    protected final boolean isDownloadJunit;
 
-    public final String junitPath;
+    protected final String junitPath;
 
-    public final String jtlPath;
+    protected final String jtlPath;
 
-    public final String workspaceDir;
+    protected final String workspaceDir;
 
-    public final UserNotifier notifier;
+    private final UserNotifier notifier;
 
-    public CiPostProcess(boolean isDownloadJtl,
-                         boolean isDownloadJunit, String junitPath,
-                         String jtlPath, String workspaceDir, UserNotifier logger) {
+    private final Logger logger;
+
+    public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit,
+                         String junitPath, String jtlPath, String workspaceDir,
+                         UserNotifier notifier, Logger logger) {
         this.isDownloadJtl = isDownloadJtl;
         this.isDownloadJunit = isDownloadJunit;
         this.junitPath = junitPath;
         this.jtlPath = jtlPath;
         this.workspaceDir = workspaceDir;
-        this.notifier = logger;
+        this.notifier = notifier;
+        this.logger = logger;
     }
 
     /**
@@ -95,14 +99,17 @@ public class CiPostProcess {
                 errors = cis.getJSONArray("errors");
                 if (errors.size() > 0) {
                     notifier.notifyAbout("Having errors " + errors.toString());
+                    logger.error("Having errors " + errors.toString());
                     result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
                 }
             }
             if (result.equals(BuildResult.SUCCESS)) {
                 notifier.notifyAbout("No errors/failures while validating CIStatus: setting " + result.name());
+                logger.info("No errors/failures while validating CIStatus: setting " + result.name());
             }
         } catch (IOException e) {
             notifier.notifyAbout("Error while getting CI status from server " + e);
+            logger.error("Error while getting CI status from server " + e);
         }
         return result;
     }
@@ -117,6 +124,7 @@ public class CiPostProcess {
                 return errorsFailed;
             }
         } catch (JSONException je) {
+            notifier.notifyAbout("Failed get errors from json: " + errors.toString()+" "+je);
             return false;
         }
         return false;
@@ -215,23 +223,23 @@ public class CiPostProcess {
         int retries = 1;
         while (retries < 5) {
             try {
-                this.notifier.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
+                notifier.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
                 summary = master.getFunctionalReport();
             } catch (IOException e) {
-                this.notifier.notifyAbout("Failed to get functional summary for master " + e);
+                notifier.notifyAbout("Failed to get functional summary for master " + e);
             }
             if (summary != null && summary.size() > 0) {
-                this.notifier.notifyAbout("Got functional report from server");
+                notifier.notifyAbout("Got functional report from server");
                 return summary;
             } else {
                 try {
-                    this.notifier.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
+                    notifier.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
                     summary = master.getSummary();
                 } catch (Exception e) {
-                    this.notifier.notifyAbout("Failed to get aggregate summary for master " + e);
+                    notifier.notifyAbout("Failed to get aggregate summary for master " + e);
                 }
                 if (summary != null && summary.size() > 0) {
-                    this.notifier.notifyAbout("Got aggregated report from server");
+                    notifier.notifyAbout("Got aggregated report from server");
                     return summary;
                 }
             }
@@ -239,5 +247,25 @@ public class CiPostProcess {
             retries++;
         }
         return summary;
+    }
+
+    public boolean isDownloadJtl() {
+        return isDownloadJtl;
+    }
+
+    public boolean isDownloadJunit() {
+        return isDownloadJunit;
+    }
+
+    public String getJunitPath() {
+        return junitPath;
+    }
+
+    public String getJtlPath() {
+        return jtlPath;
+    }
+
+    public String getWorkspaceDir() {
+        return workspaceDir;
     }
 }

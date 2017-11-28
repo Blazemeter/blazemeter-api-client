@@ -52,7 +52,7 @@ public class AnonymousTestTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject response = new JSONObject();
-        response.put("result", generateResponse());
+        response.put("result", generateResponseStartExternalAnonymousTest());
 
         AnonymousTest test = new AnonymousTest(emul);
         emul.addEmul(response.toString());
@@ -60,17 +60,16 @@ public class AnonymousTestTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions, tag=null}", emul.getRequests().get(0));
         checkTest(test);
-        assertEquals("Start external anonymous test\r\n" +
-                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions, tag=null}\r\n" +
-                        "Response: {\"result\":{\"test\":{\"id\":\"responseTestId\",\"name\":\"responseTestName\"},\"signature\":\"responseSignature\",\"master\":{\"id\":\"responseMasterId\",\"name\":\"responseMasterName\"},\"session\":{\"id\":\"responseSessionId\",\"name\":\"responseSessionName\",\"userId\":\"responseUserId\"}}}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 396, logs.length());
+        assertTrue(logs, logs.contains("Start external anonymous test"));
         Session session = test.getSession();
         assertEquals("responseSessionId", session.getId());
         assertEquals("responseMasterId", master.getId());
         assertEquals("external", test.getTestType());
     }
 
-    private JSONObject generateResponse() {
+    public static String generateResponseStartExternalAnonymousTest() {
         JSONObject testResponse = new JSONObject();
         testResponse.put("id", "responseTestId");
         testResponse.put("name", "responseTestName");
@@ -89,7 +88,7 @@ public class AnonymousTestTest {
         result.put("signature", "responseSignature");
         result.put("master", masterResponse);
         result.put("session", sessionResponse);
-        return result;
+        return result.toString();
     }
 
 

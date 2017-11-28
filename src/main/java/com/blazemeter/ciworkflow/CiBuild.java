@@ -16,35 +16,38 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
+import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 
 import java.io.IOException;
 
 public class CiBuild {
 
-    public final AbstractTest test;
+    protected final AbstractTest test;
 
-    public final String properties;
+    protected final String properties;
 
-    public final String notes;
+    protected final String notes;
 
-    public final UserNotifier notifier;
+    protected final UserNotifier notifier;
 
-    public final CiPostProcess ciPostProcess;
+    protected final Logger logger;
 
-    public String pr;
+    protected final CiPostProcess ciPostProcess;
 
-    public CiBuild(AbstractTest test, String properties,
-                   String notes,
-                   boolean isDownloadJtl,
-                   boolean isDownloadJunit, String junitPath,
-                   String jtlPath, String workspaceDir) {
+    protected String publicReport;
+
+    public CiBuild(AbstractTest test, String properties, String notes,
+                   boolean isDownloadJtl, boolean isDownloadJunit,
+                   String junitPath, String jtlPath, String workspaceDir) {
         this.test = test;
         this.properties = properties;
         this.notes = notes;
         this.notifier = this.test.getUtils().getNotifier();
+        this.logger = this.test.getUtils().getLogger();
         this.ciPostProcess = new CiPostProcess(isDownloadJtl, isDownloadJunit,
-                junitPath, jtlPath, workspaceDir, notifier);
+                junitPath, jtlPath, workspaceDir,
+                notifier, logger);
     }
 
     /**
@@ -58,19 +61,22 @@ public class CiBuild {
             notifier.notifyAbout("CiBuild is started.");
             notifier.notifyAbout("TestId = " + test.getId());
             notifier.notifyAbout("TestName = " + test.getName());
-            master = this.test.start();
-            pr = master.getPublicReport();
-            master.postNotes(this.notes);
-            master.postProperties(this.properties);
+            master = test.start();
+            publicReport = master.getPublicReport();
+            master.postNotes(notes);
+            master.postProperties(properties);
             waitForFinish(master);
             return this.ciPostProcess.execute(master);
         } catch (InterruptedException ie) {
             try {
+                logger.warn("Caught InterruptedException, execute postProcess. " + ie.getMessage());
                 return this.ciPostProcess.execute(master);
             } catch (InterruptedException e) {
                 return BuildResult.ABORTED;
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
+            notifier.notifyAbout("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
             return BuildResult.FAILED;
         }
     }
@@ -84,6 +90,7 @@ public class CiBuild {
         long lastPrint = 0;
         long start = System.currentTimeMillis();
         long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
+        long bzmMinute = Long.parseLong(System.getProperty("bzm.minute", "60000"));
         while (true) {
             Thread.sleep(bzmCheckTimeout);
             if (master.getStatus() == 140) {
@@ -91,15 +98,40 @@ public class CiBuild {
             }
             long now = System.currentTimeMillis();
             long diffInSec = (now - start) / 1000;
-            if (now - lastPrint > 60000) {
+            if (now - lastPrint > bzmMinute) {
                 notifier.notifyAbout("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
                 lastPrint = now;
             }
             if (Thread.interrupted()) {
+                logger.warn("Job was stopped by user");
                 notifier.notifyAbout("Job was stopped by user");
                 throw new InterruptedException("Job was stopped by user");
             }
         }
     }
 
+
+    public AbstractTest getTest() {
+        return test;
+    }
+
+    public String getProperties() {
+        return properties;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public CiPostProcess getCiPostProcess() {
+        return ciPostProcess;
+    }
+
+    public String getPublicReport() {
+        return publicReport;
+    }
+
+    public void setPublicReport(String publicReport) {
+        this.publicReport = publicReport;
+    }
 }

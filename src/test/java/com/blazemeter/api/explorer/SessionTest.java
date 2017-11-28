@@ -12,6 +12,7 @@ import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class SessionTest {
@@ -27,10 +28,9 @@ public class SessionTest {
         Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
         session.postProperties("key=url,value=google.com");
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/properties?target=all, tag=null}", emul.getRequests().get(0));
-        assertEquals("Post properties to session id=id\r\n" +
-                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/properties?target=all, tag=null}\r\n" +
-                        "Response: {\"result\":{\"key\":\"url\",\"value\":\"google.com\"}}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 213, logs.length());
+        assertTrue(logs, logs.contains("Post properties to session id=id"));
     }
 
     public static String generateResponsePostProperties() {
@@ -49,6 +49,18 @@ public class SessionTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
+        emul.addEmul(generateResponseGetJTLReport());
+
+        Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
+        String url = session.getJTLReport();
+        assertEquals("dataUrl", url);
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 215, logs.length());
+        assertTrue(logs, logs.contains("Get JTL report for session id=id"));
+    }
+
+    public static String generateResponseGetJTLReport() {
         JSONObject dataUrl = new JSONObject();
         dataUrl.put("dataUrl", "dataUrl");
         dataUrl.put("title", "Zip");
@@ -61,16 +73,7 @@ public class SessionTest {
 
         JSONObject response = new JSONObject();
         response.put("result", result);
-        emul.addEmul(response.toString());
-
-        Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
-        String url = session.getJTLReport();
-        assertEquals("dataUrl", url);
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}", emul.getRequests().get(0));
-        assertEquals("Get JTL report for session id=id\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}\r\n" +
-                        "Response: {\"result\":{\"data\":[{\"dataUrl\":\"dataUrl\",\"title\":\"Zip\"}]}}\r\n",
-                logger.getLogs().toString());
+        return response.toString();
     }
 
     @Test
@@ -79,21 +82,24 @@ public class SessionTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject result = new JSONObject();
-        result.put("data", new JSONArray());
-
-        JSONObject response = new JSONObject();
-        response.put("result", result);
-        emul.addEmul(response.toString());
+        emul.addEmul(generateResponseGetJTLReturnNull());
 
         Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
         String url = session.getJTLReport();
         assertNull(url);
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}", emul.getRequests().get(0));
-        assertEquals("Get JTL report for session id=id\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}\r\n" +
-                        "Response: {\"result\":{\"data\":[]}}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 180, logs.length());
+        assertTrue(logs, logs.contains("Get JTL report for session id=id"));
+    }
+
+    public static String generateResponseGetJTLReturnNull() {
+        JSONObject result = new JSONObject();
+        result.put("data", new JSONArray());
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
     }
 
     @Test
@@ -106,10 +112,9 @@ public class SessionTest {
         Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
         session.terminateExternal();
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/terminate-external, tag=null}", emul.getRequests().get(0));
-        assertEquals("Terminate external session id=id\r\n" +
-                        "Simulating request: Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/id/terminate-external, tag=null}\r\n" +
-                        "Response: {}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 167, logs.length());
+        assertTrue(logs, logs.contains("Terminate external session id=id"));
     }
 
     @Test
@@ -127,11 +132,10 @@ public class SessionTest {
         session.sendData(data);
 
         assertEquals("Request{method=POST, url=http://data.blazemeter.com/submit.php?session_id=sessionId&signature=testSignature&test_id=testId&user_id=userId&pq=0&target=labels_bulk&update=1, tag=null}", emul.getRequests().get(0));
-        assertEquals("Send data to session id=sessionId\r\n" +
-                        "Sending active test data: {\"data\":\"Hello, World!\"}\r\n" +
-                        "Simulating request: Request{method=POST, url=http://data.blazemeter.com/submit.php?session_id=sessionId&signature=testSignature&test_id=testId&user_id=userId&pq=0&target=labels_bulk&update=1, tag=null}\r\n" +
-                        "Response: {\"result\":{\"session\":{\"statusCode\":15}}}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 342, logs.length());
+        assertTrue(logs, logs.contains("Send data to session id=sessionId"));
+        assertTrue(logs, logs.contains("Sending active test data: {\"data\":\"Hello, World!\"}"));
     }
 
     @Test

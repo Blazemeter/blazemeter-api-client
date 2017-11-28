@@ -27,6 +27,7 @@ import java.util.List;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UserTest {
 
@@ -35,7 +36,6 @@ public class UserTest {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-
 
         emul.addEmul(generateResponseGetAccounts());
 
@@ -47,10 +47,9 @@ public class UserTest {
             assertEquals("accountName", account.getName());
         }
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}", emul.getRequests().get(0));
-        assertEquals("Get list of accounts\r\n" +
-                        "Simulating request: Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}\r\n" +
-                        "Response: {\"result\":[{\"id\":\"accountId\",\"name\":\"accountName\"},{\"id\":\"accountId\",\"name\":\"accountName\"}]}\r\n",
-                logger.getLogs().toString());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 222, logs.length());
+        assertTrue(logs, logs.contains("Get list of accounts"));
     }
 
     public static String generateResponseGetAccounts() {
