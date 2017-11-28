@@ -18,6 +18,9 @@ import org.junit.Test;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class CiBuildTest {
@@ -135,5 +138,25 @@ public class CiBuildTest {
         String logs = logger.getLogs().toString();
         assertEquals(logs, 234, logs.length());
         assertTrue(logs, logs.contains("Caught exception. Set Build status [FAILED]. Reason is:"));
+    }
+
+    @Test
+    public void testGetters() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        setEmulator(emul);
+        AbstractTest test = new SingleTest(emul, "id", "name", "http");
+        CiBuild ciBuild = new CiBuild(test, "props", "notes", false, false, "junit", "jtl", "pwd");
+
+        assertEquals(test, ciBuild.getTest());
+        assertEquals("props", ciBuild.getProperties());
+        assertEquals("notes", ciBuild.getNotes());
+        assertNull(ciBuild.getPublicReport());
+        ciBuild.setPublicReport("report");
+        assertEquals("report", ciBuild.getPublicReport());
+
+        assertNotNull(ciBuild.getCiPostProcess());
+
     }
 }
