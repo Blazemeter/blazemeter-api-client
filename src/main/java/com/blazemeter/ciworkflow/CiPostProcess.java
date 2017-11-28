@@ -16,8 +16,8 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.Session;
-import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.Logger;
+import com.blazemeter.api.logging.UserNotifier;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -124,7 +124,7 @@ public class CiPostProcess {
                 return errorsFailed;
             }
         } catch (JSONException je) {
-            notifier.notifyAbout("Failed get errors from json: " + errors.toString()+" "+je);
+            notifier.notifyAbout("Failed get errors from json: " + errors.toString() + " " + je);
             return false;
         }
         return false;
