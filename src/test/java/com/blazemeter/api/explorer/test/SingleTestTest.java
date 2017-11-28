@@ -36,10 +36,7 @@ public class SingleTestTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject response = new JSONObject();
-        response.put("result", generateResponseStartSingleTest());
-
-        emul.addEmul(response.toString());
+        emul.addEmul(generateResponseStartSingleTest());
 
         SingleTest test = new SingleTest(emul, "testId", "testName", "http");
         Master master = test.start();
@@ -60,10 +57,7 @@ public class SingleTestTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject response = new JSONObject();
-        response.put("result", generateResponseStartSingleTest());
-
-        emul.addEmul(response.toString());
+        emul.addEmul(generateResponseStartSingleTest());
 
         SingleTest test = new SingleTest(emul, "testId", "testName", "http");
         Master master = test.startExternal();
@@ -82,7 +76,10 @@ public class SingleTestTest {
         JSONObject masterResponse = new JSONObject();
         masterResponse.put("id", "responseMasterId");
         masterResponse.put("name", "responseMasterName");
-        return masterResponse.toString();
+
+        JSONObject response = new JSONObject();
+        response.put("result", masterResponse);
+        return response.toString();
     }
 
     private void checkTest(SingleTest test) {
