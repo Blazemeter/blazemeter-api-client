@@ -60,10 +60,10 @@ public class CiBuild {
             notifier.notifyAbout("CiBuild is started.");
             notifier.notifyAbout("TestId = " + test.getId());
             notifier.notifyAbout("TestName = " + test.getName());
-            master = this.test.start();
+            master = test.start();
             publicReport = master.getPublicReport();
-            master.postNotes(this.notes);
-            master.postProperties(this.properties);
+            master.postNotes(notes);
+            master.postProperties(properties);
             waitForFinish(master);
             return this.ciPostProcess.execute(master);
         } catch (InterruptedException ie) {
@@ -89,6 +89,7 @@ public class CiBuild {
         long lastPrint = 0;
         long start = System.currentTimeMillis();
         long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
+        long bzmMinute = Long.parseLong(System.getProperty("bzm.minute", "60000"));
         while (true) {
             Thread.sleep(bzmCheckTimeout);
             if (master.getStatus() == 140) {
@@ -96,7 +97,7 @@ public class CiBuild {
             }
             long now = System.currentTimeMillis();
             long diffInSec = (now - start) / 1000;
-            if (now - lastPrint > 60000) {
+            if (now - lastPrint > bzmMinute) {
                 notifier.notifyAbout("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
                 lastPrint = now;
             }
