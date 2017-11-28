@@ -16,6 +16,7 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
+import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 
 import java.io.IOException;
@@ -30,19 +31,20 @@ public class CiBuild {
 
     public final UserNotifier notifier;
 
+    public final Logger logger;
+
     public final CiPostProcess ciPostProcess;
 
-    public String pr;
+    public String publicReport;
 
-    public CiBuild(AbstractTest test, String properties,
-                   String notes,
-                   boolean isDownloadJtl,
-                   boolean isDownloadJunit, String junitPath,
-                   String jtlPath, String workspaceDir) {
+    public CiBuild(AbstractTest test, String properties, String notes,
+                   boolean isDownloadJtl, boolean isDownloadJunit,
+                   String junitPath, String jtlPath, String workspaceDir) {
         this.test = test;
         this.properties = properties;
         this.notes = notes;
         this.notifier = this.test.getUtils().getNotifier();
+        this.logger = this.test.getUtils().getLogger();
         this.ciPostProcess = new CiPostProcess(isDownloadJtl, isDownloadJunit,
                 junitPath, jtlPath, workspaceDir, notifier);
     }
@@ -59,18 +61,21 @@ public class CiBuild {
             notifier.notifyAbout("TestId = " + test.getId());
             notifier.notifyAbout("TestName = " + test.getName());
             master = this.test.start();
-            pr = master.getPublicReport();
+            publicReport = master.getPublicReport();
             master.postNotes(this.notes);
             master.postProperties(this.properties);
             waitForFinish(master);
             return this.ciPostProcess.execute(master);
         } catch (InterruptedException ie) {
             try {
+                logger.warn("Caught InterruptedException, execute postProcess. " + ie.getMessage());
                 return this.ciPostProcess.execute(master);
             } catch (InterruptedException e) {
                 return BuildResult.ABORTED;
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
+            notifier.notifyAbout("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
             return BuildResult.FAILED;
         }
     }
@@ -96,6 +101,7 @@ public class CiBuild {
                 lastPrint = now;
             }
             if (Thread.interrupted()) {
+                logger.warn("Job was stopped by user");
                 notifier.notifyAbout("Job was stopped by user");
                 throw new InterruptedException("Job was stopped by user");
             }
