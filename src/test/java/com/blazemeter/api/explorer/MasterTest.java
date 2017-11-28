@@ -211,7 +211,7 @@ public class MasterTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        emul.addEmul(generateResponseGetStatus());
+        emul.addEmul(generateResponseGetStatus(100));
 
         Master master = new Master(emul, "id", "name");
         assertEquals(100, master.getStatus());
@@ -221,9 +221,9 @@ public class MasterTest {
         assertTrue(logs, logs.contains("Get master status id=id"));
     }
 
-    public static String generateResponseGetStatus() {
+    public static String generateResponseGetStatus(int status) {
         JSONObject result = new JSONObject();
-        result.put("progress", 100);
+        result.put("progress", status);
 
         JSONObject response = new JSONObject();
         response.put("result", result);
