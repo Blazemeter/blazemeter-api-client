@@ -9,6 +9,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.io.File;
+
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
@@ -55,6 +57,40 @@ public class CiPostProcessTest {
             fail();
         } finally {
             emul.clean();
+        }
+    }
+
+    @Test
+    public void createJunitFileException() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", notifier, logger);
+        try {
+            ciPostProcess.createJunitFile("", "./junit");
+            File junit = new File("./junit");
+            assertTrue(junit.exists());
+            junit.delete();
+            assertFalse(junit.exists());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void createJunitFileSuccess() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", notifier, logger);
+        try {
+            ciPostProcess.createJunitFile("./junit", "./junit111");
+            File junit = new File("./junit");
+            assertTrue(junit.exists());
+            junit.delete();
+            assertFalse(junit.exists());
+        } catch (Exception e) {
+            fail();
         }
     }
 

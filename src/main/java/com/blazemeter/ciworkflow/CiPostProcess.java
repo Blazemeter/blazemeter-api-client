@@ -146,7 +146,11 @@ public class CiPostProcess {
         }
     }
 
-    private File createJunitFile(String junitPath, String workspaceJunitPath) throws Exception {
+
+    /*
+    Created file for saving junit report
+     */
+    public File createJunitFile(String junitPath, String workspaceJunitPath) throws Exception {
         File junitFile = new File(junitPath);
         try {
             junitFile.createNewFile();
