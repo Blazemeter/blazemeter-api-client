@@ -10,6 +10,11 @@ import net.sf.json.JSONObject;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -89,6 +94,38 @@ public class CiPostProcessTest {
             assertTrue(junit.exists());
             junit.delete();
             assertFalse(junit.exists());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void unzipJtl() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
+                "", "", "", notifier, logger);
+        try {
+            File sampleJtl = new File("sample.jtl");
+            sampleJtl.createNewFile();
+            FileInputStream in = new FileInputStream(sampleJtl);
+            File bzmZip = new File("bzm.zip");
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(bzmZip));
+            out.putNextEntry(new ZipEntry("sample.jtl"));
+            // buffer size
+            byte[] b = new byte[1024];
+            int count;
+            while ((count = in.read(b)) > 0) {
+                out.write(b, 0, count);
+            }
+            out.close();
+            in.close();
+            InputStream is = new FileInputStream(bzmZip);
+            ciPostProcess.unzipjtl(is);
+            File bmKpi = new File("bm-kpis.jtl");
+            assertTrue(bmKpi.exists());
+            bmKpi.delete();
+            bzmZip.delete();
         } catch (Exception e) {
             fail();
         }
