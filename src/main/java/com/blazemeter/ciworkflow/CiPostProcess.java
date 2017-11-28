@@ -168,4 +168,24 @@ public class CiPostProcess {
         }
         return summary;
     }
+
+    public boolean isDownloadJtl() {
+        return isDownloadJtl;
+    }
+
+    public boolean isDownloadJunit() {
+        return isDownloadJunit;
+    }
+
+    public String getJunitPath() {
+        return junitPath;
+    }
+
+    public String getJtlPath() {
+        return jtlPath;
+    }
+
+    public String getWorkspaceDir() {
+        return workspaceDir;
+    }
 }

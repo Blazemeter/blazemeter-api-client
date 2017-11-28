@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -239,4 +240,17 @@ public class CiPostProcessTest {
 
     }
 
+    @Test
+    public void testGettes() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true,
+                "junit", "jtl", "pwd", notifier, logger);
+
+        assertTrue(ciPostProcess.isDownloadJtl());
+        assertTrue(ciPostProcess.isDownloadJunit());
+        assertEquals("junit", ciPostProcess.getJunitPath());
+        assertEquals("jtl", ciPostProcess.getJtlPath());
+        assertEquals("pwd", ciPostProcess.getWorkspaceDir());
+    }
 }
