@@ -23,6 +23,10 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
+
+/*
+Corresponds to '.multi'/'.multi-location' tests on server.
+ */
 public class MultiTest extends AbstractTest {
 
     public MultiTest(BlazeMeterUtils utils, String id, String name, String testType) {

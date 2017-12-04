@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+Project is set of tests.
+Each project belongs to some workspace
+ */
 public class Project extends BZAObject {
 
     public static final String DEFAULT_PROJECT = "Default project";

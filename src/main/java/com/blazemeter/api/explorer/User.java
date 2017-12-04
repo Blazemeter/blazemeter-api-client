@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+Describes user. User may have one or more accounts.
+ */
 public class User extends BZAObject {
 
 

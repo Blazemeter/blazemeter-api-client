@@ -21,6 +21,11 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
+/*
+Test that doesn't exist on server.
+Used in <a href="https://github.com/Blazemeter/jmeter-bzm-plugins">BZM Jmeter plugins</a>
+*/
+
 public class AnonymousTest extends AbstractTest {
 
     private Session session;

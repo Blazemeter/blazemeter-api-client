@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+Workspace belongs to Account and has at least one Project.
+ */
 public class Workspace extends BZAObject {
 
     public Workspace(BlazeMeterUtils utils, String id, String name) {
