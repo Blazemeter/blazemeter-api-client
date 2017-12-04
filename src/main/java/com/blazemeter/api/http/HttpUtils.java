@@ -125,7 +125,7 @@ public class HttpUtils {
     }
 
     private Request.Builder createRequestBuilder(String url) {
-        final Request.Builder builder = new Request.Builder().url(url).
+        final Request.Builder builder = new Request.Builder().url(modifyRequestUrl(url)).
                 addHeader(ACCEPT, APP_JSON).
                 addHeader(CONTENT_TYPE, APP_JSON_UTF_8);
         return addRequiredHeader(builder);
