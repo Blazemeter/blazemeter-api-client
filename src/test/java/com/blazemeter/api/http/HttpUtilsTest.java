@@ -97,6 +97,21 @@ public class HttpUtilsTest {
     }
 
     @Test
+    public void testModifiers2() throws Exception {
+        LoggerTest logger = new LoggerTest();
+
+        HttpUtils utils = new HttpUtils(logger) {
+            @Override
+            protected String modifyRequestUrl(String url) {
+                return url + "additional_string";
+            }
+        };
+
+        String url = BLAZEDEMO;
+        assertEquals(url + "additional_string", utils.modifyRequestUrl(url));
+    }
+
+    @Test
     public void testProxy() throws Exception {
         final Map<String, String> saveProps = getProxyProps();
         try {
