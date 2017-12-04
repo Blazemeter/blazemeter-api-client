@@ -32,6 +32,33 @@ import static org.junit.Assert.assertTrue;
 public class UserTest {
 
     @Test
+    public void testGetUser() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetUser());
+
+        User user = User.getUser(emul);
+        assertEquals("userId", user.getId());
+        assertEquals("user@bzm.com", user.getName());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/user, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 163, logs.length());
+        assertTrue(logs, logs.contains("Get User"));
+    }
+
+    public static String generateResponseGetUser() {
+        JSONObject res = new JSONObject();
+        res.put("id", "userId");
+        res.put("email", "user@bzm.com");
+
+        JSONObject response = new JSONObject();
+        response.put("result", res);
+        return response.toString();
+    }
+
+    @Test
     public void testGetAccounts() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
@@ -64,5 +91,20 @@ public class UserTest {
         JSONObject response = new JSONObject();
         response.put("result", result);
         return response.toString();
+    }
+
+    @Test
+    public void testFromJSON() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject object = new JSONObject();
+        object.put("id", "userId");
+        object.put("email", "userEmail");
+
+        User user = User.fromJSON(emul, object);
+        assertEquals("userId", user.getId());
+        assertEquals("userEmail", user.getName());
     }
 }
