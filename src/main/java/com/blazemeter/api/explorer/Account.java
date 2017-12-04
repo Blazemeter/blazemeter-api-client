@@ -23,6 +23,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+Corresponds to user's account on server.
+Each credential can have several accounts.
+ */
 public class Account extends BZAObject {
 
     public Account(BlazeMeterUtils utils, String id, String name) {

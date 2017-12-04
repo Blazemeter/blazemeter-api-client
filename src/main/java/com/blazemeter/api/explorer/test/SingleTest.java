@@ -23,6 +23,10 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
+/*
+Corresponds to '.jmeter'/'.http'/'.followme'/'.http'/'.taurus' tests on server.
+ */
+
 public class SingleTest extends AbstractTest {
 
     public SingleTest(BlazeMeterUtils utils, String id, String name, String testType) {

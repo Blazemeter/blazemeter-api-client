@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+/*
+Each session belongs to some Master object.
+ */
 public class Session extends BZAObject {
     public static final String UNDEFINED = "undefined";
     private final String userId;
@@ -122,6 +125,10 @@ public class Session extends BZAObject {
         return null;
     }
 
+    /*
+    Converts String of properties "v=o,b=i" to JSONArray
+    which can be posted to Session.
+     */
     public static JSONArray convertProperties(String properties) {
         JSONArray propsArray = new JSONArray();
         List<String> propList = Arrays.asList(properties.split(","));
@@ -137,6 +144,9 @@ public class Session extends BZAObject {
         return propsArray;
     }
 
+    /*
+    Creates Session from JSON which is received from server.
+     */
     public static Session fromJSON(BlazeMeterUtils utils, JSONObject so) {
         return new Session(utils, so.getString("id"), so.getString("name"),
                 so.getString("userId"), so.getString("testId"), Session.UNDEFINED);

@@ -26,6 +26,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/*
+Master is returned as a result of starting any test.
+It has at least(or more) @link com.blazemeter.api.explorer.Session
+ */
 public class Master extends BZAObject {
 
     public Master(BlazeMeterUtils utils, String id, String name) {

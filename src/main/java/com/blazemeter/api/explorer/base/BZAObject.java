@@ -23,6 +23,8 @@ import java.net.URLEncoder;
 
 /**
  * Base entity for BlazeMeter explorer classes
+ * Contains settings(id,name) which are common for all
+ * server objects(single-tests, multi-tests, master, etc)
  */
 public class BZAObject {
 

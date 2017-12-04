@@ -21,6 +21,9 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
+/*
+Test which is ready to be started on server.
+ */
 public abstract class AbstractTest extends BZAObject implements ITest {
 
     protected Master master;

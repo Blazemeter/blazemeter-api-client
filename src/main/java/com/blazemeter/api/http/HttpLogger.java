@@ -18,6 +18,9 @@ import com.blazemeter.api.logging.Logger;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.commons.lang.StringUtils;
 
+/*
+Pass here valid implementation of @link com.blazemeter.api.logging.Logger
+ */
 public class HttpLogger implements HttpLoggingInterceptor.Logger {
 
     private final Logger logger;
@@ -31,6 +34,9 @@ public class HttpLogger implements HttpLoggingInterceptor.Logger {
         logger.debug(format(message));
     }
 
+    /*
+    Cuts out credentials from "Authorization" header.
+     */
     protected String format(String logEntry) {
         int authorization = logEntry.lastIndexOf(HttpUtils.AUTHORIZATION) + 1;
         if (authorization > 0) {
