@@ -15,6 +15,7 @@
 package com.blazemeter.api.explorer;
 
 import com.blazemeter.api.explorer.base.BZAObject;
+import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -30,6 +31,17 @@ public class User extends BZAObject {
         super(utils, "", "");
     }
 
+    public User(BlazeMeterUtils utils, String id, String name) {
+        super(utils, id, name);
+    }
+
+    public static User getUser(BlazeMeterUtils utils) throws IOException {
+        Logger logger = utils.getLogger();
+        logger.info("Get User");
+        String uri = utils.getAddress() + "/api/v4/user";
+        JSONObject response = utils.execute(utils.createGet(uri));
+        return User.fromJSON(utils, response.getJSONObject("result"));
+    }
 
     /**
      * @return list of Account for user token
@@ -49,5 +61,9 @@ public class User extends BZAObject {
         }
 
         return accounts;
+    }
+
+    public static User fromJSON(BlazeMeterUtils utils, JSONObject result) {
+        return new User(utils, result.getString("id"), result.getString("email"));
     }
 }
