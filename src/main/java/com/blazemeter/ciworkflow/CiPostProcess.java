@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/*
+Set of actions taken after test on server was over.
+Can fetch reports from server(aggregate,functional,jtl,junit,validate ci-status)
+ */
 public class CiPostProcess {
 
     protected final boolean isDownloadJtl;

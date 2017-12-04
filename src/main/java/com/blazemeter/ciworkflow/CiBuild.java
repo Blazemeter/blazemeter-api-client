@@ -51,6 +51,7 @@ public class CiBuild {
     }
 
     /**
+     * Describes the common workflow of all CI plugins.
      * Executes ci build
      *
      * @return BuildResult
@@ -83,7 +84,7 @@ public class CiBuild {
 
     /**
      * Waits until test will be over on server
-     *
+     *Master object corresponds to master session which is created after test was started.
      * @throws InterruptedException IOException
      */
     public void waitForFinish(Master master) throws InterruptedException, IOException {
