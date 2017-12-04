@@ -66,6 +66,10 @@ public class User extends BZAObject {
         return accounts;
     }
 
+    public boolean isValid() throws Exception {
+        return getAccounts().size() > 0;
+    }
+
     public static User fromJSON(BlazeMeterUtils utils, JSONObject result) {
         return new User(utils, result.getString("id"), result.getString("email"));
     }
