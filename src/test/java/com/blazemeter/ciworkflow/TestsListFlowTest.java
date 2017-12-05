@@ -62,7 +62,7 @@ public class TestsListFlowTest {
         List<String> requests = emul.getRequests();
         assertEquals(11, requests.size());
 
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}", requests.get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts?sort%5B%5D=name&limit=1000, tag=null}", requests.get(0));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/workspaces?accountId=accountId&enabled=true&limit=1000, tag=null}", requests.get(1));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=100, tag=null}", requests.get(2));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=100, tag=null}", requests.get(3));

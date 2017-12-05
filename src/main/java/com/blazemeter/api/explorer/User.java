@@ -51,12 +51,24 @@ public class User extends BZAObject {
     }
 
     /**
-     * GET request to 'https://a.blazemeter.com/api/v4/accounts'
-     * @return list of Account for user token
+     * Get Account
+     * limit = 1000, sorted by name
      */
     public List<Account> getAccounts() throws IOException {
+        return getAccounts("1000", "name");
+    }
+
+    /**
+     * Get Accounts
+     * GET request to 'https://a.blazemeter.com/api/v4/accounts'
+     * @param limit of tests count in returned list
+     * @param sort sort type: 'name', 'updated' or other * @return list of Account for user token
+     */
+    public List<Account> getAccounts(String limit, String sort) throws IOException {
         logger.info("Get list of accounts");
         String uri = utils.getAddress()+ "/api/v4/accounts";
+        uri = addParamToUrl(uri, "sort%5B%5D", sort); // 'sort%5B%5D' == 'sort[]'
+        uri = addParamToUrl(uri, "limit", limit);
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractAccounts(response.getJSONArray("result"));
     }
