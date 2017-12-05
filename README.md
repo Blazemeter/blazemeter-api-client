@@ -44,7 +44,7 @@ Supported calls:
 |Get Multi Tests|GET|/api/v4/multi-tests?projectId={projectId}|
 |**Account**||||
 |Create Workspace|POST|/api/v4/workspaces|
-|Get Workspaces |GET|/api/v4/workspaces?accountId={accountId}&enabled=true&limit=100|
+|Get Workspaces |GET|/api/v4/workspaces?accountId={accountId}&enabled={enabled}&limit={limit}|
 |**Single Test**||||
 |Get Test|GET|/api/v4/tests/{testId}|
 |Start |POST|/api/v4/tests{testId}/start|

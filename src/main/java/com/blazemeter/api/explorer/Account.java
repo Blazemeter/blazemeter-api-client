@@ -36,6 +36,7 @@ public class Account extends BZAObject {
     /**
      * Create Workspace in current Account
      * POST request to 'https://a.blazemeter.com/api/v4/workspaces'
+     *
      * @param name - Name of the new Workspace
      */
     public Workspace createWorkspace(String name) throws IOException {
@@ -49,12 +50,28 @@ public class Account extends BZAObject {
     }
 
     /**
-     * GET request to 'https://a.blazemeter.com/api/v4/workspaces?accountId={accountId}&enabled=true&limit=100'
-     * @return list of Workspace in current Account
+     * Get enabled Workspaces for current Account
+     * limit = 1000
      */
     public List<Workspace> getWorkspaces() throws IOException {
+        return getWorkspaces(true, "1000");
+    }
+
+    /**
+     * Get Workspaces for current Account
+     * GET request to 'https://a.blazemeter.com/api/v4/workspaces?accountId={accountId}&enabled=true&limit=100'
+     *
+     * @param enabled - if 'true' that will be return only enabled workspaces,
+     *                if 'false' - only disabled workspaces,
+     *                if null - return all workspaces
+     * @param limit   of workspaces count in returned list
+     * @return list of Workspace in current Account
+     */
+    public List<Workspace> getWorkspaces(Boolean enabled, String limit) throws IOException {
         logger.info("Get list of workspaces for account id=" + getId());
-        String uri = utils.getAddress() + String.format("/api/v4/workspaces?accountId=%s&enabled=true&limit=100", encode(getId()));
+        String uri = utils.getAddress() + String.format("/api/v4/workspaces?accountId=%s", encode(getId()));
+        uri = addParamToUrl(uri, "enabled", enabled);
+        uri = addParamToUrl(uri, "limit", limit);
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractWorkspaces(response.getJSONArray("result"));
     }
