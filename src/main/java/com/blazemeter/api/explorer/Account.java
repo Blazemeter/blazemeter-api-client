@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-Corresponds to user's account on server.
-Each credential can have several accounts.
+/**
+ * Corresponds to user's account on server.
+ * Each credential can have several accounts.
  */
 public class Account extends BZAObject {
 
@@ -35,6 +35,7 @@ public class Account extends BZAObject {
 
     /**
      * Create Workspace in current Account
+     * POST request to 'https://a.blazemeter.com/api/v4/workspaces'
      * @param name - Name of the new Workspace
      */
     public Workspace createWorkspace(String name) throws IOException {
@@ -48,6 +49,7 @@ public class Account extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/workspaces?accountId=%s&enabled=true&limit=100'
      * @return list of Workspace in current Account
      */
     public List<Workspace> getWorkspaces() throws IOException {
