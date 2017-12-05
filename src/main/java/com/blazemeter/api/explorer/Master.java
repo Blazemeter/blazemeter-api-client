@@ -118,7 +118,7 @@ public class Master extends BZAObject {
 
     /**
      * Terminate Master
-     * POST request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/stop'
+     * POST request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/terminate'
      */
     public JSONArray terminate() throws IOException {
         logger.info("Terminate master id=" + getId());
