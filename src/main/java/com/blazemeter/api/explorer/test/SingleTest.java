@@ -58,7 +58,7 @@ public class SingleTest extends AbstractTest {
      * Get single test
      * GET request to 'https://a.blazemeter.com/api/v4/tests/testId'
      * @param utils - BlazeMeterUtils that contains logging and http setup
-     * @param id - multi-test Id
+     * @param id - test Id
      * @return SingleTest entity, which contains test ID and name (test label)
      */
     public static SingleTest getSingleTest(BlazeMeterUtils utils, String id) throws IOException {
