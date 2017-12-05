@@ -9,6 +9,8 @@ import java.io.IOException;
 public class TestDetector {
 
     /**
+     * @param utils - BlazeMeterUtils that contains logging and http setup
+     * @param testId - test Id for detected
      * Detect test type by test id. If test not found that return null
      */
     public static AbstractTest detectTest(BlazeMeterUtils utils, String testId) throws IOException {
