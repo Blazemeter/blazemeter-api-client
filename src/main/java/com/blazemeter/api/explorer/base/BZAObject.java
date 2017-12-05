@@ -85,4 +85,14 @@ public class BZAObject {
             return text;
         }
     }
+
+    protected String addParamToUrl(String url, String paramName, Object paramValue) {
+        if (paramValue == null) {
+            return url;
+        } else {
+            return url.contains("?") ?
+                    (url + '&' + paramName + '=' + paramValue) :
+                    (url + '?' + paramName + '=' + paramValue);
+        }
+    }
 }
