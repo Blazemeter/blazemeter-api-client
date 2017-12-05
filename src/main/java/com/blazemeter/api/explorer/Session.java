@@ -26,11 +26,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-/*
-Each session belongs to some Master object.
+/**
+ * Each session belongs to some Master object.
  */
 public class Session extends BZAObject {
+
     public static final String UNDEFINED = "undefined";
+
     private final String userId;
     private final String testId;
     private final String signature;
@@ -44,7 +46,7 @@ public class Session extends BZAObject {
 
     /**
      * Send test json data for the report
-     *
+     * POST request to 'https://a.blazemeter.com/submit.php?session_id={sessionId}&signature={signature}&test_id={testId}&user_id={userId}'
      * @return session in JSONObject
      */
     public JSONObject sendData(JSONObject data) throws IOException {
@@ -63,12 +65,18 @@ public class Session extends BZAObject {
     /**
      * Send properties to test session
      * if properties were send correctly(server's response contains the same properties)
+     * POST request to 'https://a.blazemeter.com/api/v4/sessions/{sessionId}/properties?target=all'
      */
     public void postProperties(String properties) throws IOException {
         postProperties(convertProperties(properties));
     }
 
 
+    /**
+     * Send properties to Session.
+     * POST request to 'https://a.blazemeter.com/api/v4/sessions/{sessionId}/properties?target=all'
+     * @param properties - in JSONArray. For convert from String use @link com.blazemeter.api.explorer.Session#convertProperties(java.lang.String)
+     */
     void postProperties(JSONArray properties) throws IOException {
         logger.info("Post properties to session id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/properties?target=all", encode(getId()));
@@ -79,6 +87,7 @@ public class Session extends BZAObject {
 
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/sessions/{sessionId}/reports/logs'
      * @return url for downloading jtl report
      */
     public String getJTLReport() throws IOException {
@@ -90,6 +99,7 @@ public class Session extends BZAObject {
 
     /**
      * Stop anonymous session
+     * POST request to 'https://a.blazemeter.com/api/v4/sessions/{sessionId}/terminate-external'
      */
     public void terminateExternal() throws IOException {
         logger.info("Terminate external session id=" + getId());
@@ -125,9 +135,9 @@ public class Session extends BZAObject {
         return null;
     }
 
-    /*
-    Converts String of properties "v=o,b=i" to JSONArray
-    which can be posted to Session.
+    /**
+     * Converts String of properties "v=o,b=i" to JSONArray
+     * which can be posted to Session.
      */
     public static JSONArray convertProperties(String properties) {
         JSONArray propsArray = new JSONArray();
@@ -144,8 +154,8 @@ public class Session extends BZAObject {
         return propsArray;
     }
 
-    /*
-    Creates Session from JSON which is received from server.
+    /**
+     * Creates Session from JSON which is received from server.
      */
     public static Session fromJSON(BlazeMeterUtils utils, JSONObject so) {
         return new Session(utils, so.getString("id"), so.getString("name"),
