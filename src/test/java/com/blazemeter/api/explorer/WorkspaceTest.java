@@ -112,9 +112,9 @@ public class WorkspaceTest {
             assertEquals("SINGLE_TEST", t.getName());
             assertEquals("http", t.getTestType());
         }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=888&sort%5B%5D=name&limit=10000, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 312, logs.length());
+        assertEquals(logs, 340, logs.length());
         assertTrue(logs, logs.contains("Get list of single tests for workspace id=888"));
     }
 
