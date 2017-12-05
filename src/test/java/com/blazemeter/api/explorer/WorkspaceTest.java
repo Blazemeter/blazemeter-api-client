@@ -76,9 +76,9 @@ public class WorkspaceTest {
             assertEquals("999", p.getId());
             assertEquals("NEW_PROJECT", p.getName());
         }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/projects?workspaceId=888&limit=99999, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/projects?workspaceId=888&sort%5B%5D=name&limit=10000, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 259, logs.length());
+        assertEquals(logs, 275, logs.length());
         assertTrue(logs, logs.contains("Get list of projects for workspace id=888"));
     }
 

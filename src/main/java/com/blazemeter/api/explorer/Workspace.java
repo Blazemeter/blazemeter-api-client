@@ -50,12 +50,25 @@ public class Workspace extends BZAObject {
     }
 
     /**
-     * GET request to 'https://a.blazemeter.com/api/v4/projects?workspaceId={workspaceId}&limit=99999'
-     * @return list of Projects in current Workspace
+     * Get Project for Workspace
+     * limit = 10000, sorted by name
      */
     public List<Project> getProjects() throws IOException {
+        return getProjects("10000", "name");
+    }
+
+    /**
+     * Get Project for Workspace
+     * GET request to 'https://a.blazemeter.com/api/v4/projects?workspaceId={workspaceId}&limit=99999'
+     * @param limit of tests count in returned list
+     * @param sort sort type: 'name', 'updated' or other
+     * @return list of Projects in current Workspace
+     */
+    public List<Project> getProjects(String limit, String sort) throws IOException {
         logger.info("Get list of projects for workspace id=" + getId());
-        String uri = utils.getAddress() + String.format("/api/v4/projects?workspaceId=%s&limit=99999", encode(getId()));
+        String uri = utils.getAddress() + String.format("/api/v4/projects?workspaceId=%s", encode(getId()));
+        uri = addParamToUrl(uri, "sort%5B%5D", sort); // 'sort%5B%5D' == 'sort[]'
+        uri = addParamToUrl(uri, "limit", limit);
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractProjects(response.getJSONArray("result"));
     }
