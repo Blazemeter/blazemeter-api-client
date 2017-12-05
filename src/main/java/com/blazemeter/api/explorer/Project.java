@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-Project is set of tests.
-Each project belongs to some workspace
+/**
+ * Project is set of tests.
+ * Each project belongs to some workspace
  */
 public class Project extends BZAObject {
 
@@ -39,6 +39,7 @@ public class Project extends BZAObject {
 
     /**
      * Create Test in current Project
+     * POST request to 'https://a.blazemeter.com/api/v4/tests'
      * @param name - title of the new Test
      */
     public SingleTest createSingleTest(String name) throws IOException {
@@ -59,6 +60,7 @@ public class Project extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/tests??projectId={projectId}'
      * @return list of Tests in current Project
      */
     public List<SingleTest> getSingleTests() throws IOException {
@@ -69,6 +71,7 @@ public class Project extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests??projectId={projectId}'
      * @return list of Multi-Tests in current Project
      */
     public List<MultiTest> getMultiTests() throws IOException {
