@@ -46,7 +46,7 @@ public class MultiTestTest {
         Master master = test.start();
 
         assertEquals(1, emul.getRequests().size());
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/collections/testId/start, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/multi-tests/testId/start, tag=null}", emul.getRequests().get(0));
         checkTest(test);
         String logs = logger.getLogs().toString();
         assertEquals(logs, 217, logs.length());
