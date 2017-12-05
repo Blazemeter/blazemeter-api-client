@@ -21,11 +21,10 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
-/*
-Test that doesn't exist on server.
-Used in <a href="https://github.com/Blazemeter/jmeter-bzm-plugins">BZM Jmeter plugins</a>
+/**
+ * Test that doesn't exist on server.
+ * Used in <a href="https://github.com/Blazemeter/jmeter-bzm-plugins">BZM Jmeter plugins</a>
 */
-
 public class AnonymousTest extends AbstractTest {
 
     private Session session;
@@ -40,6 +39,9 @@ public class AnonymousTest extends AbstractTest {
         throw new UnsupportedOperationException("Start is not supported for anonymous test type");
     }
 
+    /**
+     * GET request to 'https://a.blazemeter.com/api/v4/sessions'
+     */
     @Override
     public Master startExternal() throws IOException {
         logger.info("Start external anonymous test");
