@@ -83,9 +83,9 @@ public class ProjectTest {
             assertEquals("NEW_TEST", t.getName());
             assertEquals("http", t.getTestType());
         }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?projectId=10&sort%5B%5D=name&limit=10000, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 300, logs.length());
+        assertEquals(logs, 328, logs.length());
         assertTrue(logs, logs.contains("Get list of single tests for project id=10"));
     }
 

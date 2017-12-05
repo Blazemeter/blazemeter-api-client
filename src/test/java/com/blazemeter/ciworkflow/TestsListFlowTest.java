@@ -68,7 +68,7 @@ public class TestsListFlowTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=100, tag=null}", requests.get(3));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=100, tag=null}", requests.get(4));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=100, tag=null}", requests.get(5));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/workspaces?accountId=accountId&enabled=true&limit=100, tag=null}", requests.get(6));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/workspaces?accountId=accountId&enabled=true&limit=1000, tag=null}", requests.get(6));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=100, tag=null}", requests.get(7));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=100, tag=null}", requests.get(8));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=100, tag=null}", requests.get(9));
