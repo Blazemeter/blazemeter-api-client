@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/*
-Master is returned as a result of starting any test.
-It has at least(or more) @link com.blazemeter.api.explorer.Session
+/**
+ * Master is returned as a result of starting any test.
+ * It has at least(or more) @link com.blazemeter.api.explorer.Session
  */
 public class Master extends BZAObject {
 
@@ -38,6 +38,7 @@ public class Master extends BZAObject {
     }
 
     /**
+     * POST request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/public-token'
      * @return public link to the report
      */
     public String getPublicReport() throws IOException {
@@ -51,6 +52,7 @@ public class Master extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/reports/thresholds?format=junit'
      * @return junit report as a string
      */
     public String getJUnitReport() throws IOException {
@@ -60,6 +62,7 @@ public class Master extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/sessions'
      * @return list of Sessions Id
      */
     public List<Session> getSessions() throws IOException {
@@ -77,7 +80,9 @@ public class Master extends BZAObject {
     }
 
     /**
-     * Posts properties to master.
+     * Post properties to master.
+     * Step 1: Get list of sessions
+     * Step 2: Post properties to each session
      */
     public void postProperties(String properties) {
         logger.info("Post properties to master id=" + getId());
@@ -100,13 +105,21 @@ public class Master extends BZAObject {
         }
     }
 
+    /**
+     * Stop Master
+     * POST request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/stop'
+     */
     public JSONArray stop() throws IOException {
         logger.info("Stop master id=" + getId());
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/stop", encode(getId()));
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/terminate", encode(getId()));
         RequestBody emptyBody = RequestBody.create(null, new byte[0]);
         return utils.execute(utils.createPost(uri, emptyBody)).getJSONArray("result");
     }
 
+    /**
+     * Terminate Master
+     * POST request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/stop'
+     */
     public JSONArray terminate() throws IOException {
         logger.info("Terminate master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/terminate", encode(getId()));
@@ -115,6 +128,7 @@ public class Master extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/status?events=false'
      * @return master status code
      */
     public int getStatus() throws IOException {
@@ -125,6 +139,7 @@ public class Master extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/reports/main/summary'
      * @return summary as JSON object
      */
     public JSONObject getSummary() throws IOException {
@@ -136,6 +151,7 @@ public class Master extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}'
      * @return functional report as JSON object
      */
     public JSONObject getFunctionalReport() throws IOException {
@@ -146,6 +162,7 @@ public class Master extends BZAObject {
     }
 
     /**
+     * POST request to 'https://a.blazemeter.com/api/v4/masters/{masterId}'
      * @return note which was applied to master if request was successful
      */
     public String postNotes(String note) throws IOException {
@@ -159,6 +176,7 @@ public class Master extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/ci-status'
      * @return ci-status as JSONObject
      */
     public JSONObject getCIStatus() throws IOException {
