@@ -98,12 +98,25 @@ public class Workspace extends BZAObject {
     }
 
     /**
-     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests?workspaceId={workspaceId}'
-     * @return list of Multi-Tests in current Workspace
+     * Get Multi tests for Workspace
+     * limit = 10000, sorted by name
      */
     public List<MultiTest> getMultiTests() throws IOException {
+        return getMultiTests("10000", "name");
+    }
+
+    /**
+     * Get Multi test for Workspace
+     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests?workspaceId={workspaceId}'
+     * @param limit of tests count in returned list
+     * @param sort sort type: 'name', 'updated' or other
+     * @return list of Multi-Tests in current Workspace
+     */
+    public List<MultiTest> getMultiTests(String limit, String sort) throws IOException {
         logger.info("Get list of multi tests for workspace id=" + getId());
         String uri = utils.getAddress() + "/api/v4/multi-tests?workspaceId=" + encode(getId());
+        uri = addParamToUrl(uri, "sort%5B%5D", sort); // 'sort%5B%5D' == 'sort[]'
+        uri = addParamToUrl(uri, "limit", limit);
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractMultiTests(response.getJSONArray("result"));
     }

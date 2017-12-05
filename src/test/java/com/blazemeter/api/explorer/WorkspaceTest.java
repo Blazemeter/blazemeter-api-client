@@ -152,9 +152,9 @@ public class WorkspaceTest {
             assertEquals("MULTI_TEST", t.getName());
             assertEquals("multi", t.getTestType());
         }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=888, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=888&sort%5B%5D=name&limit=10000, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 301, logs.length());
+        assertEquals(logs, 329, logs.length());
         assertTrue(logs, logs.contains("Get list of multi tests for workspace id=888"));
     }
 
