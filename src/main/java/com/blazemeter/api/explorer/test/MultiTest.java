@@ -34,7 +34,7 @@ public class MultiTest extends AbstractTest {
     }
 
     /**
-     * POST request to 'https://a.blazemeter.com/api/v4/multi-tests/testId/start'
+     * POST request to 'https://a.blazemeter.com/api/v4/multi-tests/{testId}/start'
      */
     @Override
     public Master start() throws IOException {
@@ -52,7 +52,7 @@ public class MultiTest extends AbstractTest {
 
     /**
      * Get multi-test
-     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests/testId'
+     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests/{testId}'
      * @param utils - BlazeMeterUtils that contains logging and http setup
      * @param id - multi-test Id
      * @return MultiTest entity, which contains test ID and name (test label)

@@ -49,7 +49,7 @@ public class Account extends BZAObject {
     }
 
     /**
-     * GET request to 'https://a.blazemeter.com/api/v4/workspaces?accountId=%s&enabled=true&limit=100'
+     * GET request to 'https://a.blazemeter.com/api/v4/workspaces?accountId={accountId}&enabled=true&limit=100'
      * @return list of Workspace in current Account
      */
     public List<Workspace> getWorkspaces() throws IOException {

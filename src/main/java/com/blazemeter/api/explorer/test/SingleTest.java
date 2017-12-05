@@ -33,7 +33,7 @@ public class SingleTest extends AbstractTest {
     }
 
     /**
-     * POST request to 'https://a.blazemeter.com/api/v4/tests/testId/start'
+     * POST request to 'https://a.blazemeter.com/api/v4/tests/{testId}/start'
      */
     @Override
     public Master start() throws IOException {
@@ -44,7 +44,7 @@ public class SingleTest extends AbstractTest {
     }
 
     /**
-     * POST request to 'https://a.blazemeter.com/api/v4/tests/testId/start-external'
+     * POST request to 'https://a.blazemeter.com/api/v4/tests/{testId}/start-external'
      */
     @Override
     public Master startExternal() throws IOException {
@@ -56,7 +56,7 @@ public class SingleTest extends AbstractTest {
 
     /**
      * Get single test
-     * GET request to 'https://a.blazemeter.com/api/v4/tests/testId'
+     * GET request to 'https://a.blazemeter.com/api/v4/tests/{testId}'
      * @param utils - BlazeMeterUtils that contains logging and http setup
      * @param id - test Id
      * @return SingleTest entity, which contains test ID and name (test label)
