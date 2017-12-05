@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-Workspace belongs to Account and has at least one Project.
+/**
+ * Workspace belongs to Account and has at least one Project.
  */
 public class Workspace extends BZAObject {
 
@@ -36,6 +36,7 @@ public class Workspace extends BZAObject {
 
     /**
      * Create Project in current Workspace
+     * POST request to 'https://a.blazemeter.com/api/v4/projects'
      * @param name - Name of the new Project
      */
     public Project createProject(String name) throws IOException {
@@ -49,6 +50,7 @@ public class Workspace extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/projects?workspaceId={workspaceId}&limit=99999'
      * @return list of Projects in current Workspace
      */
     public List<Project> getProjects() throws IOException {
@@ -59,6 +61,7 @@ public class Workspace extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/tests?workspaceId={workspaceId}'
      * @return list of Tests in current Workspace
      */
     public List<SingleTest> getSingleTests() throws IOException {
@@ -69,6 +72,7 @@ public class Workspace extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests?workspaceId={workspaceId}'
      * @return list of Multi-Tests in current Workspace
      */
     public List<MultiTest> getMultiTests() throws IOException {
