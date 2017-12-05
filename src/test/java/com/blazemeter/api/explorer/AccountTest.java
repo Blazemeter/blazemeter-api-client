@@ -79,7 +79,7 @@ public class AccountTest {
         }
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/workspaces?accountId=777&enabled=true&limit=1000, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 274, logs.length());
+        assertEquals(logs, 275, logs.length());
         assertTrue(logs, logs.contains("Get list of workspaces for account id=777"));
     }
 
