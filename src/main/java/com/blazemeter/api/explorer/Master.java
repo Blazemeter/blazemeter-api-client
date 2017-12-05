@@ -162,7 +162,7 @@ public class Master extends BZAObject {
     }
 
     /**
-     * POST request to 'https://a.blazemeter.com/api/v4/masters/{masterId}'
+     * PATCH request to 'https://a.blazemeter.com/api/v4/masters/{masterId}'
      * @return note which was applied to master if request was successful
      */
     public String postNotes(String note) throws IOException {
