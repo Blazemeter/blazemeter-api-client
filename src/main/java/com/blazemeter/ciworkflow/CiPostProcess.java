@@ -34,9 +34,9 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-/*
-Set of actions taken after test on server was over.
-Can fetch reports from server(aggregate,functional,jtl,junit,validate ci-status)
+/**
+ * Set of actions taken after test on server was over.
+ * Can fetch reports from server(aggregate,functional,jtl,junit,validate ci-status)
  */
 public class CiPostProcess {
 
@@ -151,8 +151,8 @@ public class CiPostProcess {
     }
 
 
-    /*
-    Created file for saving junit report
+    /**
+     * Created file for saving junit report
      */
     public File createJunitFile(String junitPath, String workspaceJunitPath) throws Exception {
         File junitFile = new File(junitPath);

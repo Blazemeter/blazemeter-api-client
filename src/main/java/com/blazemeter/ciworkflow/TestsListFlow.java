@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/*
-Convenient wrapper for getting tests available for particular credentials.
-*/
+/**
+ * Convenient wrapper for getting tests available for particular credentials.
+ */
 public class TestsListFlow {
 
     private BlazeMeterUtils utils;

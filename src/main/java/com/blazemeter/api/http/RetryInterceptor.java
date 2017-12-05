@@ -21,8 +21,8 @@ import okhttp3.Response;
 
 import java.io.IOException;
 
-/*
-If request was not successful, retry will be taken two times more.
+/**
+ * If request was not successful, retry will be taken two times more.
  */
 public class RetryInterceptor implements Interceptor {
 

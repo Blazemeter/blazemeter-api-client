@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-Describes user. User may have one or more accounts.
+/**
+ * Describes user. User may have one or more accounts.
  */
 public class User extends BZAObject {
 
@@ -38,6 +38,10 @@ public class User extends BZAObject {
         super(utils, id, name);
     }
 
+    /**
+     * GET request to 'https://a.blazemeter.com/api/v4/user'
+     * @return User for current credentials
+     */
     public static User getUser(BlazeMeterUtils utils) throws IOException {
         Logger logger = utils.getLogger();
         logger.info("Get User");
@@ -47,6 +51,7 @@ public class User extends BZAObject {
     }
 
     /**
+     * GET request to 'https://a.blazemeter.com/api/v4/accounts'
      * @return list of Account for user token
      */
     public List<Account> getAccounts() throws IOException {

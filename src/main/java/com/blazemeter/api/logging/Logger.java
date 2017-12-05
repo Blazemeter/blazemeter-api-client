@@ -14,6 +14,9 @@
 
 package com.blazemeter.api.logging;
 
+/**
+ * Logging interface, that used in this library for log events, requests and responses
+ */
 public interface Logger {
 
     void debug(String message);

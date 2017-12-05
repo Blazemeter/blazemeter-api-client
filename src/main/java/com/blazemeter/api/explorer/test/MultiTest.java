@@ -24,8 +24,8 @@ import net.sf.json.JSONObject;
 import java.io.IOException;
 
 
-/*
-Corresponds to '.multi'/'.multi-location' tests on server.
+/**
+ * Corresponds to '.multi' or '.multi-location' tests on server.
  */
 public class MultiTest extends AbstractTest {
 
@@ -33,10 +33,13 @@ public class MultiTest extends AbstractTest {
         super(utils, id, name, testType);
     }
 
+    /**
+     * POST request to 'https://a.blazemeter.com/api/v4/multi-tests/{testId}/start'
+     */
     @Override
     public Master start() throws IOException {
         logger.info("Start multi test id=" + getId());
-        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/collections/%s/start", encode(getId())));
+        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/multi-tests/%s/start", encode(getId())));
         fillFields(result);
         return master;
     }
@@ -47,7 +50,13 @@ public class MultiTest extends AbstractTest {
         throw new UnsupportedOperationException("Start external is not supported for multi test type id=" + getId());
     }
 
-
+    /**
+     * Get multi-test
+     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests/{testId}'
+     * @param utils - BlazeMeterUtils that contains logging and http setup
+     * @param id - multi-test Id
+     * @return MultiTest entity, which contains test ID and name (test label)
+     */
     public static MultiTest getMultiTest(BlazeMeterUtils utils, String id) throws IOException {
         Logger logger = utils.getLogger();
         logger.info("Get Multi Test id=" + id);

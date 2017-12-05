@@ -23,16 +23,18 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
-/*
-Corresponds to '.jmeter'/'.http'/'.followme'/'.http'/'.taurus' tests on server.
+/**
+ * Corresponds to '.jmeter' or '.http' or '.followme' or '.http' or '.taurus' tests on server.
  */
-
 public class SingleTest extends AbstractTest {
 
     public SingleTest(BlazeMeterUtils utils, String id, String name, String testType) {
         super(utils, id, name, testType);
     }
 
+    /**
+     * POST request to 'https://a.blazemeter.com/api/v4/tests/{testId}/start'
+     */
     @Override
     public Master start() throws IOException {
         logger.info("Start single test id=" + getId());
@@ -41,6 +43,9 @@ public class SingleTest extends AbstractTest {
         return master;
     }
 
+    /**
+     * POST request to 'https://a.blazemeter.com/api/v4/tests/{testId}/start-external'
+     */
     @Override
     public Master startExternal() throws IOException {
         logger.info("Start external single test id=" + getId());
@@ -49,6 +54,13 @@ public class SingleTest extends AbstractTest {
         return master;
     }
 
+    /**
+     * Get single test
+     * GET request to 'https://a.blazemeter.com/api/v4/tests/{testId}'
+     * @param utils - BlazeMeterUtils that contains logging and http setup
+     * @param id - test Id
+     * @return SingleTest entity, which contains test ID and name (test label)
+     */
     public static SingleTest getSingleTest(BlazeMeterUtils utils, String id) throws IOException {
         Logger logger = utils.getLogger();
         logger.info("Get Single Test id=" + id);
