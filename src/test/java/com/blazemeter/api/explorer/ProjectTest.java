@@ -123,9 +123,9 @@ public class ProjectTest {
             assertEquals("NEW_TEST", t.getName());
             assertEquals("multi", t.getTestType());
         }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?projectId=10, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?projectId=10&limit=10000&sort%5B%5D=name, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 291, logs.length());
+        assertEquals(logs, 319, logs.length());
         assertTrue(logs, logs.contains("Get list of multi tests for project id=10"));
     }
 
