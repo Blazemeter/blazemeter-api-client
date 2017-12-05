@@ -21,13 +21,22 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 
-/*
-Test which is ready to be started on server.
+/**
+ * Test which is ready to be started on server.
  */
 public abstract class AbstractTest extends BZAObject implements ITest {
 
+    /**
+     * Master, that will be created after test has been started
+     */
     protected Master master;
+    /**
+     * Signature, that will be created after test has been started
+     */
     protected String signature;
+    /**
+     * Type of test: it can be '.http', '.multi', '.multi-location', '.taurus', '.jmeter' etc.
+     */
     protected String testType;
 
     public AbstractTest(BlazeMeterUtils utils, String id, String name, String testType) {
