@@ -84,7 +84,7 @@ public class CiBuild {
 
     /**
      * Waits until test will be over on server
-     *Master object corresponds to master session which is created after test was started.
+     * Master object corresponds to master session which is created after test was started.
      * @throws InterruptedException IOException
      */
     public void waitForFinish(Master master) throws InterruptedException, IOException {

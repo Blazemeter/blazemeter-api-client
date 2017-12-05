@@ -14,8 +14,8 @@
 
 package com.blazemeter.ciworkflow;
 
-/*
-Returned as a result of CiBuild
+/**
+ * Returned as a result of CiBuild
  */
 public enum BuildResult {
     SUCCESS, FAILED, ERROR, ABORTED
