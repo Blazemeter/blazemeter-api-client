@@ -111,7 +111,7 @@ public class Master extends BZAObject {
      */
     public JSONArray stop() throws IOException {
         logger.info("Stop master id=" + getId());
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/terminate", encode(getId()));
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/stop", encode(getId()));
         RequestBody emptyBody = RequestBody.create(null, new byte[0]);
         return utils.execute(utils.createPost(uri, emptyBody)).getJSONArray("result");
     }
