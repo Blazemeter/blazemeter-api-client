@@ -14,6 +14,10 @@
 
 package com.blazemeter.api.logging;
 
+
+/**
+ * User notifier interface, that used in this library in work flows for notify user about main events
+ */
 public interface UserNotifier {
 
     void notifyAbout(String info);
