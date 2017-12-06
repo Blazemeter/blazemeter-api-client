@@ -16,38 +16,35 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
+import com.blazemeter.api.explorer.test.TestDetector;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
+import com.blazemeter.api.utils.BlazeMeterUtils;
 
 import java.io.IOException;
 
 public class CiBuild {
 
-    protected final AbstractTest test;
-
-    protected final String properties;
-
-    protected final String notes;
-
     protected final UserNotifier notifier;
-
     protected final Logger logger;
 
+    protected final BlazeMeterUtils utils;
+    protected final String testId;
+
+    protected final String properties;
+    protected final String notes;
     protected final CiPostProcess ciPostProcess;
 
     protected String publicReport;
 
-    public CiBuild(AbstractTest test, String properties, String notes,
-                   boolean isDownloadJtl, boolean isDownloadJunit,
-                   String junitPath, String jtlPath, String workspaceDir) {
-        this.test = test;
+    public CiBuild(BlazeMeterUtils utils, String testId, String properties, String notes, CiPostProcess ciPostProcess) {
+        this.utils = utils;
+        this.testId = testId;
         this.properties = properties;
         this.notes = notes;
-        this.notifier = this.test.getUtils().getNotifier();
-        this.logger = this.test.getUtils().getLogger();
-        this.ciPostProcess = new CiPostProcess(isDownloadJtl, isDownloadJunit,
-                junitPath, jtlPath, workspaceDir,
-                notifier, logger);
+        this.ciPostProcess = ciPostProcess;
+        this.notifier = utils.getNotifier();
+        this.logger = utils.getLogger();
     }
 
     /**
@@ -57,30 +54,59 @@ public class CiBuild {
      * @return BuildResult
      */
     public BuildResult execute() {
-        Master master = null;
         try {
-            notifier.notifyInfo("CiBuild is started.");
-            notifier.notifyInfo("TestId = " + test.getId());
-            notifier.notifyInfo("TestName = " + test.getName());
-            master = test.start();
-            publicReport = master.getPublicReport();
-            master.postNotes(notes);
-            master.postProperties(properties);
-            waitForFinish(master);
-            return this.ciPostProcess.execute(master);
-        } catch (InterruptedException ie) {
-            try {
-                logger.warn("Caught InterruptedException, execute postProcess. " + ie.getMessage());
-                return this.ciPostProcess.execute(master);
-            } catch (InterruptedException e) {
-                return BuildResult.ABORTED;
-            }
+            Master master = start();
+            return waitForFinishAndDoPostProcess(master);
         } catch (IOException e) {
             logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
             notifier.notifyError("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
             return BuildResult.FAILED;
         }
     }
+
+    private BuildResult waitForFinishAndDoPostProcess(Master master) throws IOException {
+        try {
+            waitForFinish(master);
+            return doPostProcess(master);
+        } catch (InterruptedException ex) {
+            logger.warn("Caught InterruptedException, execute postProcess. " + ex.getMessage());
+            doPostProcess(master);
+            // because build has been aborted
+            return BuildResult.ABORTED;
+        }
+    }
+
+
+    /**
+     * Start Test with 'testId' in BlazeMeter
+     * and the Post properties and notes to Master
+     * @return Master of started Test
+     */
+    public Master start() throws IOException {
+        notifier.notifyInfo("CiBuild is started.");
+        AbstractTest test = TestDetector.detectTest(utils, testId);
+        if (test == null) {
+            logger.error("Failed to detect test type. Test with id = " + testId + " not found.");
+            notifier.notifyError("Failed to detect test type. Test with id=" + testId + " not found.");
+            return null;
+        }
+
+        notifier.notifyInfo(String.format("Start test id : %s, name : %s", test.getId(), test.getName()));
+        return startTest(test);
+    }
+
+    private Master startTest(AbstractTest test) throws IOException {
+        Master master = test.start();
+        notifier.notifyInfo("Test has been started successfully. Master id=" + master.getId());
+
+        publicReport = master.getPublicReport();
+        notifier.notifyInfo("Test report will be available at " + publicReport);
+
+        master.postNotes(notes);
+        master.postProperties(properties);
+        return master;
+    }
+
 
     /**
      * Waits until test will be over on server
@@ -111,9 +137,19 @@ public class CiBuild {
         }
     }
 
+    /**
+     * Run Post process action on Master
+     */
+    public BuildResult doPostProcess(Master master) {
+        return ciPostProcess.execute(master);
+    }
 
-    public AbstractTest getTest() {
-        return test;
+    public BlazeMeterUtils getUtils() {
+        return utils;
+    }
+
+    public String getTestId() {
+        return testId;
     }
 
     public String getProperties() {

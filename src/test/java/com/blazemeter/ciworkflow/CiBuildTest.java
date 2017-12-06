@@ -67,11 +67,9 @@ public class CiBuildTest {
         response.put("result", result);
         emul.addEmul(response.toString());
 
-        AbstractTest test = new SingleTest(emul, "id", "name", "http");
         Master master = new Master(emul, "id", "name");
-        CiBuild ciBuild = new CiBuild(test, "", "",
-                false, false,
-                "", "", "");
+        CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        CiBuild ciBuild = new CiBuild(emul, "id", "", "", postProcess);
         ciBuild.waitForFinish(master);
         assertEquals(2, emul.getRequests().size());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}", emul.getRequests().get(0));
@@ -85,43 +83,38 @@ public class CiBuildTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
         setEmulator(emul);
-        AbstractTest test = new SingleTest(emul, "id", "name", "http");
-        CiBuild ciBuild = new CiBuild(test, "1=2", "",
-                false, false,
-                "", "", "");
+        CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        CiBuild ciBuild = new CiBuild(emul, "testId", "1=2", "", postProcess);
         ciBuild.execute();
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/id/start, tag=null}", emul.getRequests().get(0));
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(1));
+        assertEquals(11, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(1));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(2));
         assertEquals("http://a.blazemeter.com/app/?public-token=x1x1x1x1x1x1x1x11x1x1x1#/masters/responseMasterId/summary",
                 ciBuild.getPublicReport());
-        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(2));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/sessions, tag=null}", emul.getRequests().get(3));
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(4));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(5));
+        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(3));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/sessions, tag=null}", emul.getRequests().get(4));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(5));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(6));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(7));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(8));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(9));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(10));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(11));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(12));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(13));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(14));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(15));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(7));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(8));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(9));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(10));
         String logs = logger.getLogs().toString();
-        assertTrue(logs.contains("Start single test id=id"));
-        assertTrue(logs.contains("Get link to public report for master id=responseMasterId"));
-        assertTrue(logs.contains("Post notes to master id=responseMasterId"));
-        assertTrue(logs.contains("Get list of sessions for master id=responseMasterId"));
-        assertTrue(logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
-        assertTrue(logs.contains("Response: {\"result\":{\"progress\":70}}"));
-        assertTrue(logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertEquals(16, emul.getRequests().size());
-        assertEquals(logger.getLogs().toString(), 3569, logger.getLogs().length());
+        assertTrue(logs, logs.contains("Get Single Test id=testId"));
+        assertTrue(logs, logs.contains("Start single test id=testId"));
+        assertTrue(logs, logs.contains("Get link to public report for master id=responseMasterId"));
+        assertTrue(logs, logs.contains("Post notes to master id=responseMasterId"));
+        assertTrue(logs, logs.contains("Get list of sessions for master id=responseMasterId"));
+        assertTrue(logs, logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
+        assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
+        assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
+        assertEquals(logs, 2682, logger.getLogs().length());
     }
 
 
     private void setEmulator(BlazeMeterUtilsEmul emul) {
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
         emul.addEmul(SingleTestTest.generateResponseStartSingleTest());
 
         String token = "x1x1x1x1x1x1x1x11x1x1x1";
@@ -140,16 +133,14 @@ public class CiBuildTest {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        AbstractTest test = new SingleTest(emul, "id", "name", "http");
-        CiBuild ciBuild = new CiBuild(test, "1=2", "",
-                false, false,
-                "", "", "");
+        CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        CiBuild ciBuild = new CiBuild(emul, "id", "1=2", "", postProcess);
         BuildResult result = ciBuild.execute();
         assertEquals(BuildResult.FAILED, result);
         assertEquals(1, emul.getRequests().size());
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/id/start, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/id, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 234, logs.length());
+        assertEquals(logs, 272, logs.length());
         assertTrue(logs, logs.contains("Caught exception. Set Build status [FAILED]. Reason is:"));
     }
 
@@ -159,10 +150,11 @@ public class CiBuildTest {
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
         setEmulator(emul);
-        AbstractTest test = new SingleTest(emul, "id", "name", "http");
-        CiBuild ciBuild = new CiBuild(test, "props", "notes", false, false, "junit", "jtl", "pwd");
+        CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", postProcess);
 
-        assertEquals(test, ciBuild.getTest());
+        assertEquals("id", ciBuild.getTestId());
+        assertEquals(emul, ciBuild.getUtils());
         assertEquals("props", ciBuild.getProperties());
         assertEquals("notes", ciBuild.getNotes());
         assertNull(ciBuild.getPublicReport());
@@ -170,6 +162,5 @@ public class CiBuildTest {
         assertEquals("report", ciBuild.getPublicReport());
 
         assertNotNull(ciBuild.getCiPostProcess());
-
     }
 }
