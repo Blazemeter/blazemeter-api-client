@@ -17,11 +17,8 @@ package com.blazemeter.ciworkflow;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.MasterTest;
 import com.blazemeter.api.explorer.SessionTest;
-import com.blazemeter.api.explorer.test.AbstractTest;
-import com.blazemeter.api.explorer.test.SingleTest;
 import com.blazemeter.api.explorer.test.SingleTestTest;
 import com.blazemeter.api.logging.LoggerTest;
-import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
@@ -52,7 +49,7 @@ public class CiBuildTest {
     @Test
     public void testWaitForFinish() throws Exception {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         JSONObject result = new JSONObject();
@@ -80,7 +77,7 @@ public class CiBuildTest {
     @Test
     public void testExecute() throws Exception {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
         setEmulator(emul);
         CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
@@ -131,12 +128,14 @@ public class CiBuildTest {
     @Test
     public void testExecuteFailStart() throws Exception {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
         CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         CiBuild ciBuild = new CiBuild(emul, "id", "1=2", "", postProcess);
         BuildResult result = ciBuild.execute();
         assertEquals(BuildResult.FAILED, result);
+
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/id, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
@@ -147,9 +146,9 @@ public class CiBuildTest {
     @Test
     public void testGetters() throws Exception {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        setEmulator(emul);
+
         CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", postProcess);
 
@@ -163,4 +162,47 @@ public class CiBuildTest {
 
         assertNotNull(ciBuild.getCiPostProcess());
     }
+
+    @Test
+    public void testStartFailDetect() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
+        Master master = ciBuild.start();
+        assertNull(master);
+        assertEquals(2, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/id, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests/id, tag=null}", emul.getRequests().get(1));
+
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 870, logs.length());
+        assertTrue(logs, logs.contains("Failed to detect test type. Test with id=id not found."));
+        assertTrue(notifier.getLogs().toString(), notifier.getLogs().toString().contains("Failed to detect test type. Test with id = id not found."));
+    }
+
+    @Test
+    public void testExecuteFailDetect() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
+        BuildResult result = ciBuild.execute();
+        assertEquals(BuildResult.FAILED, result);
+        assertEquals(2, emul.getRequests().size());
+
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 898, logs.length());
+        assertTrue(logs, logs.contains("Set Build status [FAILED]."));
+        assertTrue(notifier.getLogs().toString(), notifier.getLogs().toString().contains("Set Build status [FAILED]."));
+    }
+
 }

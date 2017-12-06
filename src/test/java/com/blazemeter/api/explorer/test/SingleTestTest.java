@@ -142,4 +142,14 @@ public class SingleTestTest {
         response.put("result", result);
         return response.toString();
     }
+
+    public static String generateResponseGetSingleTest_NoSuchTest() {
+        JSONObject error = new JSONObject();
+        error.put("code", "999");
+        error.put("message", "test not found");
+
+        JSONObject response = new JSONObject();
+        response.put("error", error);
+        return response.toString();
+    }
 }
