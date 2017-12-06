@@ -101,7 +101,7 @@ public class CiPostProcess {
                 if (!errors.isEmpty()) {
                     notifier.notifyWarning("Having errors " + errors.toString());
                     logger.error("Having errors " + errors.toString());
-                    result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
+                    result = isErrorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
                 }
             }
             if (result.equals(BuildResult.SUCCESS)) {
@@ -115,19 +115,22 @@ public class CiPostProcess {
         return result;
     }
 
-    public boolean errorsFailed(JSONArray errors) {
+    public boolean isErrorsFailed(JSONArray errors) {
+        boolean errorsFailed = false;
         try {
             int l = errors.size();
             for (int i = 0; i < l; i++) {
-                boolean errorsFailed = errors.getJSONObject(i).getInt("code") == 0 |
+                errorsFailed = errors.getJSONObject(i).getInt("code") == 0 ||
                         errors.getJSONObject(i).getInt("code") == 70404;
-                return errorsFailed;
+                if (!errorsFailed) {
+                    return false;
+                }
             }
         } catch (JSONException je) {
             notifier.notifyWarning("Failed get errors from json: " + errors.toString() + " " + je);
             logger.error("Failed get errors from json: " + errors.toString(), je);
         }
-        return false;
+        return errorsFailed;
     }
 
     /**
