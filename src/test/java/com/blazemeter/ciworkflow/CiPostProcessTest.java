@@ -18,7 +18,6 @@ import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.MasterTest;
 import com.blazemeter.api.explorer.SessionTest;
 import com.blazemeter.api.logging.LoggerTest;
-import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONArray;
@@ -42,45 +41,27 @@ import static org.junit.Assert.fail;
 public class CiPostProcessTest {
 
     @Test
-    public void downloadSummaryFunc() {
+    public void testDownloadSummaryFunc() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
 
-        JSONObject funcReportEmul = new JSONObject();
-        funcReportEmul.put("testsCount", 1);
-        funcReportEmul.put("requestsCount", 1);
-        funcReportEmul.put("errorsCount", 1);
-        funcReportEmul.put("assertions", new JSONObject());
-        funcReportEmul.put("responseTime", new JSONObject());
-        funcReportEmul.put("isFailed", true);
-        funcReportEmul.put("failedCount", 1);
-        funcReportEmul.put("failedPercentage", 100);
-
-        JSONObject result = new JSONObject();
-        result.put("functionalSummary", funcReportEmul);
-
-        JSONObject response = new JSONObject();
-        response.put("result", result);
-        emul.addEmul(response.toString());
+        emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
 
         JSONObject summary = ciPostProcess.downloadSummary(master);
-        assertTrue(summary.size() == 8);
-        assertTrue(summary.getInt("testsCount") == 1);
-        assertTrue(summary.getInt("requestsCount") == 1);
-        assertTrue(summary.getInt("errorsCount") == 1);
-
+        assertEquals(8, summary.size());
+        assertEquals(1, summary.getInt("testsCount"));
+        assertEquals(1, summary.getInt("requestsCount"));
+        assertEquals(1, summary.getInt("errorsCount"));
     }
 
     @Test
-    public void createJunitFileException() {
+    public void testCreateJunitFileException() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+        UserNotifierTest notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         try {
             ciPostProcess.createJunitFile("", "./junit");
             File junit = new File("./junit");
@@ -93,11 +74,10 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void createJunitFileSuccess() {
+    public void testCreateJunitFileSuccess() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+        UserNotifierTest notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         try {
             ciPostProcess.createJunitFile("./junit", "./junit111");
             File junit = new File("./junit");
@@ -110,11 +90,10 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void unzipJtl() {
+    public void testUnzipJTL() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+        UserNotifierTest notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         try {
             File sampleJtl = new File("sample.jtl");
             sampleJtl.createNewFile();
@@ -143,12 +122,11 @@ public class CiPostProcessTest {
 
 
     @Test
-    public void saveJtl() {
+    public void testSaveJTL() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         emul.addEmul(MasterTest.generateResponseGetSessions());
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         try {
@@ -161,188 +139,179 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void downloadSummaryAgr() {
+    public void testDownloadSummaryAgr() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
+
         JSONObject result = new JSONObject();
         JSONObject response = new JSONObject();
         response.put("result", result);
         emul.addEmul(response.toString());
+        emul.addEmul(MasterTest.generateResponseGetSummary());
 
-        JSONObject summaryAgrEmul = new JSONObject();
-        summaryAgrEmul.put("first", 1437397105);
-        summaryAgrEmul.put("last", 1437397406);
-        summaryAgrEmul.put("min", 0);
-        summaryAgrEmul.put("max", 177);
-        summaryAgrEmul.put("tp90", 2);
-        summaryAgrEmul.put("tp90", 2);
-        summaryAgrEmul.put("failed", 1236);
-        summaryAgrEmul.put("hits", 2482);
-        summaryAgrEmul.put("avg", 1.47);
-
-        JSONArray sumArrray = new JSONArray();
-        sumArrray.add(summaryAgrEmul);
-
-        result = new JSONObject();
-        result.put("summary", sumArrray);
-
-        response = new JSONObject();
-        response.put("result", result);
-        emul.addEmul(response.toString());
         JSONObject summary = ciPostProcess.downloadSummary(master);
-        assertTrue(summary.size() == 7);
+        assertEquals(7, summary.size());
         assertTrue(summary.has("hits"));
-        assertTrue(summary.getInt("hits") == 2482);
-        emul.clean();
+        assertEquals(2482, summary.getInt("hits"));
     }
 
     @Test
-    public void errorsFailed() {
-
-        JSONArray e = new JSONArray();
-        JSONObject o = new JSONObject();
-        o.put("code", 70404);
-        e.add(o);
-
+    public void testIsErrorsFailed() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
-        assertTrue(ciPostProcess.errorsFailed(e));
+        UserNotifierTest notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
 
-        e = new JSONArray();
-        o = new JSONObject();
-        o.put("code", 0);
-        e.add(o);
+        JSONArray errors = new JSONArray();
+        JSONObject error = new JSONObject();
 
-        assertTrue(ciPostProcess.errorsFailed(e));
+        error.put("code", 70404);
+        errors.add(error);
+        assertTrue(ciPostProcess.isErrorsFailed(errors));
 
-        e = new JSONArray();
-        o = new JSONObject();
-        o.put("code", 111);
-        e.add(o);
+        errors.clear();
+        error.put("code", 0);
+        errors.add(error);
+        assertTrue(ciPostProcess.isErrorsFailed(errors));
 
-        assertFalse(ciPostProcess.errorsFailed(e));
+        errors.clear();
+        error.put("code", 111);
+        errors.add(error);
+        assertFalse(ciPostProcess.isErrorsFailed(errors));
 
-        e = new JSONArray();
-        assertFalse(ciPostProcess.errorsFailed(e));
-
+        errors.clear();
+        assertFalse(ciPostProcess.isErrorsFailed(errors));
     }
 
     @Test
-    public void validateCIStatusSuccess() {
+    public void testValidateCIStatusSuccess() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject result = new JSONObject();
-        JSONArray e = new JSONArray();
-        result.put("errors", e);
-        JSONArray f = new JSONArray();
-        result.put("failures", f);
-        JSONObject o = new JSONObject();
-        o.put("result", result);
-        emul.addEmul(o.toString());
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+        emul.addEmul(generateResponseCIStatusSuccess());
+
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
-        BuildResult r = ciPostProcess.validateCiStatus(master);
-        assertTrue(r.equals(BuildResult.SUCCESS));
-        emul.clean();
+        BuildResult buildResult = ciPostProcess.validateCiStatus(master);
+        assertEquals(BuildResult.SUCCESS, buildResult);
+    }
+
+    public static String generateResponseCIStatusSuccess() {
+        JSONArray errors = new JSONArray();
+        JSONArray fails = new JSONArray();
+
+        JSONObject result = new JSONObject();
+        result.put("errors", errors);
+        result.put("failures", fails);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
     }
 
     @Test
-    public void validateCIStatusFailure() {
+    public void testValidateCIStatusFailure() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject result = new JSONObject();
-        JSONArray e = new JSONArray();
-        result.put("errors", e);
-        JSONArray fa = new JSONArray();
-        JSONObject fo = new JSONObject();
-        fo.put("code", 61000);
-        fa.add(fo);
-        result.put("failures", fa);
-        JSONObject o = new JSONObject();
-        o.put("result", result);
-        emul.addEmul(o.toString());
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
-        Master master = new Master(emul, "id", "name");
-        BuildResult r = ciPostProcess.validateCiStatus(master);
-        assertTrue(r.equals(BuildResult.FAILED));
-        emul.clean();
+        emul.addEmul(generateResponseCIStatus_Failure_610000());
 
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+        BuildResult buildResult = ciPostProcess.validateCiStatus(master);
+        assertEquals(BuildResult.FAILED, buildResult);
+    }
+
+    public static String generateResponseCIStatus_Failure_610000() {
+        JSONObject fail = new JSONObject();
+        fail.put("code", 61000);
+
+        JSONArray errors = new JSONArray();
+        JSONArray failures = new JSONArray();
+        failures.add(fail);
+
+        JSONObject result = new JSONObject();
+        result.put("errors", errors);
+        result.put("failures", failures);
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
     }
 
     @Test
-    public void validateCIStatus70404Failure() {
+    public void testValidateCIStatus70404Failure() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject result = new JSONObject();
-        JSONArray ea = new JSONArray();
-        JSONObject eo = new JSONObject();
+        emul.addEmul(generateResponseCIStatus_Error_70404());
 
-        eo.put("code", 70404);
-        ea.add(eo);
-        result.put("errors", ea);
-
-        JSONArray fa = new JSONArray();
-        result.put("failures", fa);
-        JSONObject o = new JSONObject();
-        o.put("result", result);
-        emul.addEmul(o.toString());
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
-        BuildResult r = ciPostProcess.validateCiStatus(master);
-        assertTrue(r.equals(BuildResult.FAILED));
-        emul.clean();
+        BuildResult buildResult = ciPostProcess.validateCiStatus(master);
+        assertEquals(BuildResult.FAILED, buildResult);
+    }
 
+    public static String generateResponseCIStatus_Error_70404() {
+        JSONObject error = new JSONObject();
+        error.put("code", 70404);
+
+        JSONArray errors = new JSONArray();
+        errors.add(error);
+
+        JSONArray failures = new JSONArray();
+
+        JSONObject result = new JSONObject();
+        result.put("errors", errors);
+        result.put("failures", failures);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
     }
 
     @Test
-    public void validateCIStatusError() {
+    public void testValidateCIStatusError() {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
+        UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        JSONObject result = new JSONObject();
-        JSONArray ea = new JSONArray();
-        JSONObject eo = new JSONObject();
+        emul.addEmul(generateResponseCIStatus_Error_111());
 
-        eo.put("code", 111);
-        ea.add(eo);
-        result.put("errors", ea);
-
-        JSONArray fa = new JSONArray();
-        result.put("failures", fa);
-        JSONObject o = new JSONObject();
-        o.put("result", result);
-        emul.addEmul(o.toString());
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false,
-                "", "", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
-        BuildResult r = ciPostProcess.validateCiStatus(master);
-        assertTrue(r.equals(BuildResult.ERROR));
-        emul.clean();
+        BuildResult buildResult = ciPostProcess.validateCiStatus(master);
+        assertEquals(BuildResult.ERROR, buildResult);
+    }
 
+    public static String generateResponseCIStatus_Error_111() {
+        JSONObject error = new JSONObject();
+        error.put("code", 111);
+
+        JSONArray errors = new JSONArray();
+        errors.add(error);
+
+        JSONArray failures = new JSONArray();
+
+        JSONObject result = new JSONObject();
+        result.put("errors", errors);
+        result.put("failures", failures);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
     }
 
     @Test
     public void testGetters() throws Exception {
         LoggerTest logger = new LoggerTest();
-        UserNotifier notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true,
-                "junit", "jtl", "pwd", notifier, logger);
+        UserNotifierTest notifier = new UserNotifierTest();
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "pwd", notifier, logger);
 
         assertTrue(ciPostProcess.isDownloadJtl());
         assertTrue(ciPostProcess.isDownloadJunit());
