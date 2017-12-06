@@ -20,6 +20,8 @@ package com.blazemeter.api.logging;
  */
 public interface UserNotifier {
 
-    void notifyAbout(String info);
+    void notifyInfo(String info);
+    void notifyWarning(String warn);
+    void notifyError(String error);
 
 }

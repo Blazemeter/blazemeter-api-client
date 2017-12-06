@@ -53,7 +53,7 @@ public class TestsListFlow {
                 result.addAll(getTestsForAccount(account));
             }
         } catch (IOException ex) {
-            utils.getNotifier().notifyAbout("Failed to get accounts. Reason is: " + ex.getMessage());
+            utils.getNotifier().notifyError("Failed to get accounts. Reason is: " + ex.getMessage());
             utils.getLogger().error("Failed to get accounts. Reason is: " + ex.getMessage(), ex);
         }
         return result;
@@ -68,7 +68,7 @@ public class TestsListFlow {
                 result.addAll(getMultiTestsForWorkspace(workspace));
             }
         } catch (IOException e) {
-            utils.getNotifier().notifyAbout("Failed to get workspaces for account id =" + account.getId() + ". Reason is: " + e.getMessage());
+            utils.getNotifier().notifyError("Failed to get workspaces for account id =" + account.getId() + ". Reason is: " + e.getMessage());
             utils.getLogger().error("Failed to get workspaces for account id =" + account.getId() + ". Reason is: " + e.getMessage(), e);
         }
         return result;
@@ -78,7 +78,7 @@ public class TestsListFlow {
         try {
             return workspace.getSingleTests();
         } catch (IOException e) {
-            utils.getNotifier().notifyAbout("Failed to get single tests for workspace id =" + workspace.getId() + ". Reason is: " + e.getMessage());
+            utils.getNotifier().notifyError("Failed to get single tests for workspace id =" + workspace.getId() + ". Reason is: " + e.getMessage());
             utils.getLogger().error("Failed to get single tests for workspace id =" + workspace.getId() + ". Reason is: " + e.getMessage(), e);
         }
         return Collections.emptyList();
@@ -88,7 +88,7 @@ public class TestsListFlow {
         try {
             return workspace.getMultiTests();
         } catch (IOException e) {
-            utils.getNotifier().notifyAbout("Failed to get multi tests for workspace id =" + workspace.getId() + ". Reason is: " + e.getMessage());
+            utils.getNotifier().notifyError("Failed to get multi tests for workspace id =" + workspace.getId() + ". Reason is: " + e.getMessage());
             utils.getLogger().error("Failed to get multi tests for workspace id =" + workspace.getId() + ". Reason is: " + e.getMessage(), e);
         }
         return Collections.emptyList();

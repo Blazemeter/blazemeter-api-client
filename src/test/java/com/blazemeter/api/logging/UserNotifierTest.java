@@ -28,7 +28,17 @@ public class UserNotifierTest implements UserNotifier {
     }
 
     @Override
-    public void notifyAbout(String info) {
+    public void notifyInfo(String info) {
         logs.append(info).append("\r\n");
+    }
+
+    @Override
+    public void notifyWarning(String warn) {
+        logs.append(warn).append("\r\n");
+    }
+
+    @Override
+    public void notifyError(String error) {
+        logs.append(error).append("\r\n");
     }
 }
