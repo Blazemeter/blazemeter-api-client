@@ -80,7 +80,7 @@ public class CiPostProcess {
             saveJtl(master);
         }
         JSONObject summary = downloadSummary(master);
-        this.notifier.notifyAbout(summary.toString());
+        this.notifier.notifyInfo(summary.toString());
         return r;
     }
 
@@ -92,9 +92,9 @@ public class CiPostProcess {
             if (cis.has("failures")) {
                 failures = cis.getJSONArray("failures");
                 if (failures.size() > 0) {
-                    notifier.notifyAbout("Having failures " + failures.toString());
+                    notifier.notifyInfo("Having failures " + failures.toString());
                     result = BuildResult.FAILED;
-                    notifier.notifyAbout("Setting ci-status = " + result.name());
+                    notifier.notifyInfo("Setting ci-status = " + result.name());
                     return result;
                 }
             }
@@ -102,17 +102,17 @@ public class CiPostProcess {
             if (cis.has("errors")) {
                 errors = cis.getJSONArray("errors");
                 if (errors.size() > 0) {
-                    notifier.notifyAbout("Having errors " + errors.toString());
+                    notifier.notifyWarning("Having errors " + errors.toString());
                     logger.error("Having errors " + errors.toString());
                     result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
                 }
             }
             if (result.equals(BuildResult.SUCCESS)) {
-                notifier.notifyAbout("No errors/failures while validating CIStatus: setting " + result.name());
+                notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
                 logger.info("No errors/failures while validating CIStatus: setting " + result.name());
             }
         } catch (IOException e) {
-            notifier.notifyAbout("Error while getting CI status from server " + e.getMessage());
+            notifier.notifyError("Error while getting CI status from server " + e.getMessage());
             logger.error("Error while getting CI status from server ", e);
         }
         return result;
@@ -127,7 +127,7 @@ public class CiPostProcess {
                 return errorsFailed;
             }
         } catch (JSONException je) {
-            notifier.notifyAbout("Failed get errors from json: " + errors.toString() + " " + je);
+            notifier.notifyWarning("Failed get errors from json: " + errors.toString() + " " + je);
             logger.error("Failed get errors from json: " + errors.toString(), je);
             return false;
         }
@@ -145,7 +145,7 @@ public class CiPostProcess {
                     workspaceDir + File.separator + junitFileName);
             Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
         } catch (Exception e) {
-            notifier.notifyAbout("Failed to save junit report from master = " + master.getId() + " to disk.");
+            notifier.notifyWarning("Failed to save junit report from master = " + master.getId() + " to disk.");
             logger.error("Failed to save junit report from master = " + master.getId() + " to disk.", e);
         }
     }
@@ -161,9 +161,9 @@ public class CiPostProcess {
         } catch (Exception e) {
             junitFile = new File(workspaceJunitPath);
             junitFile.createNewFile();
-            notifier.notifyAbout("Failed to created a file " + junitPath);
+            notifier.notifyWarning("Failed to created a file " + junitPath);
             logger.error("Failed to created a file " + junitPath, e);
-            notifier.notifyAbout("Junit report will be saved to " + workspaceJunitPath);
+            notifier.notifyInfo("Junit report will be saved to " + workspaceJunitPath);
         }
         return junitFile;
     }
@@ -180,11 +180,11 @@ public class CiPostProcess {
                 try {
                     downloadUnzip(url);
                 } catch (Exception e) {
-                    logger.error("Failed to download&unzip jtl-report from " + url.getPath(), e);
+                    logger.error("Failed to download & unzip jtl-report from " + url.getPath(), e);
                 }
             }
         } catch (Exception e) {
-            notifier.notifyAbout("Unable to get JTLZIP from " + master.getId() + " " + e.getMessage());
+            notifier.notifyWarning("Unable to get JTLZIP from " + master.getId() + " " + e.getMessage());
             logger.error("Unable to get JTLZIP from " + master.getId() + " ", e);
         }
     }
@@ -192,7 +192,7 @@ public class CiPostProcess {
     public void downloadUnzip(URL url) {
         for (int i = 1; i < 4; i++) {
             try {
-                notifier.notifyAbout("Downloading JTLZIP from url=" + url.getPath() + " attemp # " + i);
+                notifier.notifyInfo("Downloading JTLZIP from url=" + url.getPath() + " attemp # " + i);
                 int conTo = (int) (10000 * Math.pow(3, i - 1));
                 URLConnection connection = url.openConnection();
                 connection.setConnectTimeout(conTo);
@@ -201,7 +201,7 @@ public class CiPostProcess {
                 unzipjtl(is);
                 break;
             } catch (Exception e) {
-                notifier.notifyAbout("Unable to get JTLZIP for sessionId=" + url.getPath() + ":check server for test artifacts" + e);
+                notifier.notifyWarning("Unable to get JTLZIP for sessionId=" + url.getPath() + ":check server for test artifacts" + e);
             }
         }
     }
@@ -237,24 +237,24 @@ public class CiPostProcess {
         int retries = 1;
         while (retries < 5) {
             try {
-                notifier.notifyAbout("Trying to get  functional summary from server, attempt# " + retries);
+                notifier.notifyInfo("Trying to get  functional summary from server, attempt# " + retries);
                 summary = master.getFunctionalReport();
             } catch (IOException e) {
-                notifier.notifyAbout("Failed to get functional summary for master " + e);
+                notifier.notifyWarning("Failed to get functional summary for master " + e);
             }
             if (summary != null && summary.size() > 0) {
-                notifier.notifyAbout("Got functional report from server");
+                notifier.notifyInfo("Got functional report from server");
                 return summary;
             } else {
                 try {
-                    notifier.notifyAbout("Trying to get  aggregate summary from server, attempt# " + retries);
+                    notifier.notifyInfo("Trying to get  aggregate summary from server, attempt# " + retries);
                     summary = master.getSummary();
                 } catch (Exception e) {
-                    notifier.notifyAbout("Failed to get aggregate summary for master " + e);
+                    notifier.notifyWarning("Failed to get aggregate summary for master " + e);
                     logger.error("Failed to get aggregate summary for master ", e);
                 }
                 if (summary != null && summary.size() > 0) {
-                    notifier.notifyAbout("Got aggregated report from server");
+                    notifier.notifyInfo("Got aggregated report from server");
                     return summary;
                 }
             }

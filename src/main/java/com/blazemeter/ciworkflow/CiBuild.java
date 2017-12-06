@@ -59,9 +59,9 @@ public class CiBuild {
     public BuildResult execute() {
         Master master = null;
         try {
-            notifier.notifyAbout("CiBuild is started.");
-            notifier.notifyAbout("TestId = " + test.getId());
-            notifier.notifyAbout("TestName = " + test.getName());
+            notifier.notifyInfo("CiBuild is started.");
+            notifier.notifyInfo("TestId = " + test.getId());
+            notifier.notifyInfo("TestName = " + test.getName());
             master = test.start();
             publicReport = master.getPublicReport();
             master.postNotes(notes);
@@ -77,7 +77,7 @@ public class CiBuild {
             }
         } catch (IOException e) {
             logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
-            notifier.notifyAbout("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
+            notifier.notifyError("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
             return BuildResult.FAILED;
         }
     }
@@ -100,12 +100,12 @@ public class CiBuild {
             long now = System.currentTimeMillis();
             long diffInSec = (now - start) / 1000;
             if (now - lastPrint > bzmMinute) {
-                notifier.notifyAbout("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
+                notifier.notifyInfo("BlazeMeter test# , masterId # " + master.getId() + " running from " + start + " - for " + diffInSec + " seconds");
                 lastPrint = now;
             }
             if (Thread.interrupted()) {
                 logger.warn("Job was stopped by user");
-                notifier.notifyAbout("Job was stopped by user");
+                notifier.notifyError("Job was stopped by user");
                 throw new InterruptedException("Job was stopped by user");
             }
         }
