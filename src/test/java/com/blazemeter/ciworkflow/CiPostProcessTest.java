@@ -67,18 +67,12 @@ public class CiPostProcessTest {
         response.put("result", result);
         emul.addEmul(response.toString());
 
-        try {
-            JSONObject summary = ciPostProcess.downloadSummary(master);
-            assertTrue(summary.size() == 8);
-            assertTrue(summary.getInt("testsCount") == 1);
-            assertTrue(summary.getInt("requestsCount") == 1);
-            assertTrue(summary.getInt("errorsCount") == 1);
+        JSONObject summary = ciPostProcess.downloadSummary(master);
+        assertTrue(summary.size() == 8);
+        assertTrue(summary.getInt("testsCount") == 1);
+        assertTrue(summary.getInt("requestsCount") == 1);
+        assertTrue(summary.getInt("errorsCount") == 1);
 
-        } catch (InterruptedException e) {
-            fail();
-        } finally {
-            emul.clean();
-        }
     }
 
     @Test
@@ -137,7 +131,7 @@ public class CiPostProcessTest {
             out.close();
             in.close();
             InputStream is = new FileInputStream(bzmZip);
-            ciPostProcess.unzipjtl(is);
+            ciPostProcess.unzipJTL(is);
             File bmKpi = new File("bm-kpis.jtl");
             assertTrue(bmKpi.exists());
             bmKpi.delete();
@@ -159,7 +153,7 @@ public class CiPostProcessTest {
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         try {
             Master master = new Master(emul, "id", "name");
-            ciPostProcess.saveJtl(master);
+            ciPostProcess.saveJTL(master);
             assertFalse(new File("bm-kpis.jtl").exists());
         } catch (Exception e) {
             fail();
@@ -199,16 +193,11 @@ public class CiPostProcessTest {
         response = new JSONObject();
         response.put("result", result);
         emul.addEmul(response.toString());
-        try {
-            JSONObject summary = ciPostProcess.downloadSummary(master);
-            assertTrue(summary.size() == 7);
-            assertTrue(summary.has("hits"));
-            assertTrue(summary.getInt("hits") == 2482);
-        } catch (InterruptedException e) {
-            fail();
-        } finally {
-            emul.clean();
-        }
+        JSONObject summary = ciPostProcess.downloadSummary(master);
+        assertTrue(summary.size() == 7);
+        assertTrue(summary.has("hits"));
+        assertTrue(summary.getInt("hits") == 2482);
+        emul.clean();
     }
 
     @Test
