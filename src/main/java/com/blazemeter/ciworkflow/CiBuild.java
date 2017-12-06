@@ -56,6 +56,11 @@ public class CiBuild {
     public BuildResult execute() {
         try {
             Master master = start();
+            if (master == null) {
+                logger.error("Set Build status [FAILED].");
+                notifier.notifyError("Set Build status [FAILED].");
+                return BuildResult.FAILED;
+            }
             return waitForFinishAndDoPostProcess(master);
         } catch (IOException e) {
             logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
@@ -86,8 +91,8 @@ public class CiBuild {
         notifier.notifyInfo("CiBuild is started.");
         AbstractTest test = TestDetector.detectTest(utils, testId);
         if (test == null) {
-            logger.error("Failed to detect test type. Test with id = " + testId + " not found.");
-            notifier.notifyError("Failed to detect test type. Test with id=" + testId + " not found.");
+            logger.error("Failed to detect test type. Test with id=" + testId + " not found.");
+            notifier.notifyError("Failed to detect test type. Test with id = " + testId + " not found.");
             return null;
         }
 
