@@ -57,4 +57,24 @@ public class BZAObjectTest {
         assertEquals("Cannot encode 123 to 'Wrong encoding' encoding\r\n" +
                 "Wrong encoding\r\n", logger.getLogs().toString());
     }
+
+    @Test
+    public void testAddParamsToUrl() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtils utils = new BlazeMeterUtils(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        BZAObject obj = new BZAObject(utils, "", "");
+
+        String url = BZM_ADDRESS;
+        String firstParam = obj.addParamToUrl(url, "param1", "value1");
+        assertEquals(url + "?param1=value1", firstParam);
+
+        url = firstParam;
+        String secondParam = obj.addParamToUrl(url, "param2", Boolean.FALSE);
+        assertEquals(url + "&param2=false", secondParam);
+
+        url = secondParam;
+        String noChanges = obj.addParamToUrl(url, "nullParam", null);
+        assertEquals(url, noChanges);
+    }
 }

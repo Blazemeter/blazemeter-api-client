@@ -73,9 +73,9 @@ public class UserTest {
             assertEquals("accountId", account.getId());
             assertEquals("accountName", account.getName());
         }
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/accounts?sort%5B%5D=name&limit=1000, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 222, logs.length());
+        assertEquals(logs, 249, logs.length());
         assertTrue(logs, logs.contains("Get list of accounts"));
     }
 

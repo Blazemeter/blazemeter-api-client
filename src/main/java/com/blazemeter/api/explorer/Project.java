@@ -60,23 +60,51 @@ public class Project extends BZAObject {
     }
 
     /**
-     * GET request to 'https://a.blazemeter.com/api/v4/tests??projectId={projectId}'
-     * @return list of Tests in current Project
+     * Get Single tests for Project
+     * limit = 10000, sorted by name
      */
     public List<SingleTest> getSingleTests() throws IOException {
+        return getSingleTests("10000", "name");
+    }
+
+    /**
+     * Get Single tests for Project
+     * GET request to 'https://a.blazemeter.com/api/v4/tests??projectId={projectId}'
+     *
+     * @param limit of tests count in returned list
+     * @param sort sort type: 'name', 'updated' or other
+     * @return list of Tests in current Project
+     */
+    public List<SingleTest> getSingleTests(String limit, String sort) throws IOException {
         logger.info("Get list of single tests for project id=" + getId());
         String uri = utils.getAddress() + "/api/v4/tests?projectId=" + encode(getId());
+        uri = addParamToUrl(uri, "sort%5B%5D", sort); // 'sort%5B%5D' == 'sort[]'
+        uri = addParamToUrl(uri, "limit", limit);
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractSingleTests(response.getJSONArray("result"));
     }
 
+
     /**
-     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests??projectId={projectId}'
-     * @return list of Multi-Tests in current Project
+     * Get Multi tests for Project
+     * limit = 10000, sorted by name
      */
     public List<MultiTest> getMultiTests() throws IOException {
+        return getMultiTests("10000", "name");
+    }
+
+    /**
+     * Get Multi Test for Project
+     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests??projectId={projectId}'
+     * @param limit of tests count in returned list
+     * @param sort sort type: 'name', 'updated' or other
+     * @return list of Multi-Tests in current Project
+     */
+    public List<MultiTest> getMultiTests(String limit, String sort) throws IOException {
         logger.info("Get list of multi tests for project id=" + getId());
         String uri = utils.getAddress() + "/api/v4/multi-tests?projectId=" + encode(getId());
+        uri = addParamToUrl(uri, "limit", limit);
+        uri = addParamToUrl(uri, "sort%5B%5D", sort); // 'sort%5B%5D' == 'sort[]'
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractMultiTests(response.getJSONArray("result"));
     }

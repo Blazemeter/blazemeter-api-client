@@ -32,19 +32,19 @@ Supported calls:
 |Terminate Session External|POST|/api/v4/sessions/{sessionId}/terminate-external|
 |**User**||||
 |Get User|GET|/api/v4/user|
-|Get Accounts|GET|/api/v4/accounts|
+|Get Accounts|GET|/api/v4/accounts?limit={limit}&sort[]={sort}|
 |**Workspace**||||
 |Create Project|POST|/api/v4/projects|
-|Get Projects|GET|/api/v4/projects?workspaceId={workspaceId}&limit=99999|
-|Get Single Tests|GET|/api/v4/tests?workspaceId={workspaceId}|
-|Get Multi Tests|GET|/api/v4/multi-tests?workspaceId={workspaceId}|
+|Get Projects|GET|/api/v4/projects?workspaceId={workspaceId}&limit={limit}&sort[]={sort}|
+|Get Single Tests|GET|/api/v4/tests?workspaceId={workspaceId}&limit={limit}&sort[]={sort}|
+|Get Multi Tests|GET|/api/v4/multi-tests?workspaceId={workspaceId}&limit={limit}&sort[]={sort}|
 |**Project**||||
 |Create Single Test|POST|/api/v4/tests|
-|Get Single Tests|GET|/api/v4/tests?projectId={projectId}|
-|Get Multi Tests|GET|/api/v4/multi-tests?projectId={projectId}|
+|Get Single Tests|GET|/api/v4/tests?projectId={projectId}&limit={limit}&sort[]={sort}|
+|Get Multi Tests|GET|/api/v4/multi-tests?projectId={projectId}&limit={limit}&sort[]={sort}|
 |**Account**||||
 |Create Workspace|POST|/api/v4/workspaces|
-|Get Workspaces |GET|/api/v4/workspaces?accountId={accountId}&enabled=true&limit=100|
+|Get Workspaces |GET|/api/v4/workspaces?accountId={accountId}&enabled={enabled}&limit={limit}|
 |**Single Test**||||
 |Get Test|GET|/api/v4/tests/{testId}|
 |Start |POST|/api/v4/tests{testId}/start|
