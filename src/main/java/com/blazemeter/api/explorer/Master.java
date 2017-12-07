@@ -20,6 +20,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class Master extends BZAObject {
 
     /**
      * POST request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/public-token'
+     *
      * @return public link to the report
      */
     public String getPublicReport() throws IOException {
@@ -53,6 +55,7 @@ public class Master extends BZAObject {
 
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/reports/thresholds?format=junit'
+     *
      * @return junit report as a string
      */
     public String getJUnitReport() throws IOException {
@@ -63,6 +66,7 @@ public class Master extends BZAObject {
 
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/sessions'
+     *
      * @return list of Sessions Id
      */
     public List<Session> getSessions() throws IOException {
@@ -85,6 +89,9 @@ public class Master extends BZAObject {
      * Step 2: Post properties to each session
      */
     public void postProperties(String properties) {
+        if (StringUtils.isBlank(properties)) {
+            logger.warn("Properties are empty, won't be sent to master = " + getId());
+        }
         logger.info("Post properties to master id=" + getId());
         try {
             List<Session> sessions = getSessions();
@@ -129,6 +136,7 @@ public class Master extends BZAObject {
 
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/status?events=false'
+     *
      * @return master status code
      */
     public int getStatus() throws IOException {
@@ -140,6 +148,7 @@ public class Master extends BZAObject {
 
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/reports/main/summary'
+     *
      * @return summary as JSON object
      */
     public JSONObject getSummary() throws IOException {
@@ -152,6 +161,7 @@ public class Master extends BZAObject {
 
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}'
+     *
      * @return functional report as JSON object
      */
     public JSONObject getFunctionalReport() throws IOException {
@@ -163,6 +173,7 @@ public class Master extends BZAObject {
 
     /**
      * PATCH request to 'https://a.blazemeter.com/api/v4/masters/{masterId}'
+     *
      * @return note which was applied to master if request was successful
      */
     public String postNotes(String note) throws IOException {
@@ -177,6 +188,7 @@ public class Master extends BZAObject {
 
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/ci-status'
+     *
      * @return ci-status as JSONObject
      */
     public JSONObject getCIStatus() throws IOException {
