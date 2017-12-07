@@ -84,35 +84,48 @@ public class CiPostProcess {
     }
 
     public BuildResult validateCiStatus(Master master) {
-        BuildResult result = BuildResult.SUCCESS;
+        BuildResult result = BuildResult.ERROR;
         try {
-            JSONObject cis = master.getCIStatus();
-            if (cis.has("failures")) {
-                JSONArray failures = cis.getJSONArray("failures");
-                if (!failures.isEmpty()) {
-                    notifier.notifyInfo("Having failures " + failures.toString());
-                    result = BuildResult.FAILED;
-                    notifier.notifyInfo("Setting ci-status = " + result.name());
-                    return result;
-                }
-            }
-            if (cis.has("errors")) {
-                JSONArray errors = cis.getJSONArray("errors");
-                if (!errors.isEmpty()) {
-                    notifier.notifyWarning("Having errors " + errors.toString());
-                    logger.error("Having errors " + errors.toString());
-                    result = isErrorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
-                }
-            }
-            if (result.equals(BuildResult.SUCCESS)) {
-                notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
-                logger.info("No errors/failures while validating CIStatus: setting " + result.name());
-            }
-        } catch (IOException e) {
+            JSONObject ciStatus = master.getCIStatus();
+            result = checkFailsAndError(ciStatus);
+        } catch (Exception e) {
             notifier.notifyError("Error while getting CI status from server " + e.getMessage());
             logger.error("Error while getting CI status from server ", e);
         }
+
+        if (result.equals(BuildResult.SUCCESS)) {
+            notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
+            logger.info("No errors/failures while validating CIStatus: setting " + result.name());
+        }
         return result;
+    }
+
+    private BuildResult checkFailsAndError(JSONObject ciStatus) {
+        if (ciStatus.has("failures")) {
+            JSONArray failures = ciStatus.getJSONArray("failures");
+            if (!failures.isEmpty()) {
+                return notifyAboutFailed(failures);
+            }
+        }
+        if (ciStatus.has("errors")) {
+            JSONArray errors = ciStatus.getJSONArray("errors");
+            if (!errors.isEmpty()) {
+                return notifyAboutErrors(errors);
+            }
+        }
+        return BuildResult.SUCCESS;
+    }
+
+    private BuildResult notifyAboutErrors(JSONArray errors) {
+        notifier.notifyWarning("Having errors " + errors.toString());
+        logger.error("Having errors " + errors.toString());
+        return isErrorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
+    }
+
+    private BuildResult notifyAboutFailed(JSONArray failures) {
+        notifier.notifyInfo("Having failures " + failures.toString());
+        notifier.notifyInfo("Setting ci-status = " + BuildResult.FAILED.name());
+        return BuildResult.FAILED;
     }
 
     public boolean isErrorsFailed(JSONArray errors) {
@@ -250,7 +263,7 @@ public class CiPostProcess {
         return new JSONObject();
     }
 
-    private JSONObject getSummary(Master master) {
+    protected JSONObject getSummary(Master master) {
         try {
             notifier.notifyInfo("Trying to get aggregate summary from server");
             return master.getSummary();
@@ -261,7 +274,7 @@ public class CiPostProcess {
         }
     }
 
-    private JSONObject getFunctionalReport(Master master) {
+    protected JSONObject getFunctionalReport(Master master) {
         try {
             notifier.notifyInfo("Trying to get functional summary from server");
             return master.getFunctionalReport();
