@@ -27,7 +27,10 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -95,20 +98,13 @@ public class CiPostProcessTest {
         UserNotifierTest notifier = new UserNotifierTest();
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         try {
-            File sampleJtl = new File("sample.jtl");
-            sampleJtl.createNewFile();
-            FileInputStream in = new FileInputStream(sampleJtl);
-            File bzmZip = new File("bzm.zip");
+            File bzmZip = File.createTempFile("bzm_zip", ".zip");
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(bzmZip));
             out.putNextEntry(new ZipEntry("sample.jtl"));
-            // buffer size
-            byte[] b = new byte[1024];
-            int count;
-            while ((count = in.read(b)) > 0) {
-                out.write(b, 0, count);
-            }
+            byte[] buffer = new byte[1024];
+            Arrays.fill(buffer, (byte) 7);
+            out.write(buffer);
             out.close();
-            in.close();
             InputStream is = new FileInputStream(bzmZip);
             ciPostProcess.unzipJTL(is);
             File bmKpi = new File("bm-kpis.jtl");
@@ -116,7 +112,8 @@ public class CiPostProcessTest {
             bmKpi.delete();
             bzmZip.delete();
         } catch (Exception e) {
-            fail();
+            e.printStackTrace();
+            fail(e.getMessage());
         }
     }
 
@@ -184,6 +181,14 @@ public class CiPostProcessTest {
 
         errors.clear();
         assertFalse(ciPostProcess.isErrorsFailed(errors));
+
+        errors.clear();
+        error.put("code", "xxx");
+        errors.add(error);
+        assertFalse(ciPostProcess.isErrorsFailed(errors));
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Failed get errors from json:"));
+        assertTrue(notifier.getLogs().toString(), notifier.getLogs().toString().contains("Failed get errors from json:"));
     }
 
     @Test
@@ -318,5 +323,144 @@ public class CiPostProcessTest {
         assertEquals("junit", ciPostProcess.getJunitPath());
         assertEquals("jtl", ciPostProcess.getJtlPath());
         assertEquals("pwd", ciPostProcess.getWorkspaceDir());
+    }
+
+
+    @Test
+    public void testFlow() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseCIStatusSuccess());
+        emul.addEmul("junit");
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReport());
+        emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "pwd", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        BuildResult result = ciPostProcess.execute(master);
+        assertEquals(BuildResult.SUCCESS, result);
+    }
+
+    @Test
+    public void testValidateCiStatusError() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "pwd", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        BuildResult result = ciPostProcess.validateCiStatus(master);
+        assertEquals(BuildResult.ERROR, result);
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 209, logs.length());
+        assertTrue(logs, logs.contains("Error while getting CI status from server"));
+        assertTrue(notifier.getLogs().toString(), notifier.getLogs().toString().contains("Error while getting CI status from server"));
+    }
+
+    @Test
+    public void testSaveJUnit() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        File junit = File.createTempFile("junit", ".xml");
+        String name = junit.getName();
+        name = name.substring(0, name.indexOf(".xml"));
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, junit.getParent(), "jtl", junit.getParent(), notifier, logger);
+        Master master = new Master(emul, name, "name");
+
+        try {
+            ciPostProcess.saveJunit(master);
+            String logs = logger.getLogs().toString();
+            assertTrue(logs, logs.contains("Failed to save junit report from master ="));
+        } catch (Throwable ex) {
+            fail(ex.getMessage());
+        }
+        logger.reset();
+
+        emul.addEmul("junit");
+        try {
+            ciPostProcess.saveJunit(master);
+        } catch (Throwable ex) {
+            fail(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testSaveJTLFail() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        try {
+            ciPostProcess.saveJTL(master);
+            String logs = logger.getLogs().toString();
+            assertTrue(logs, logs.contains("Unable to get JTL ZIP from"));
+        } catch (Throwable ex) {
+            fail(ex.getMessage());
+        }
+
+        logger.reset();
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReport());
+        ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger) {
+            @Override
+            public boolean downloadAndUnzipJTL(URL url) {
+                return false;
+            }
+        };
+        try {
+            ciPostProcess.saveJTL(master);
+            String logs = logger.getLogs().toString();
+            assertTrue(logs, logs.contains("Failed to download & unzip jtl-report from"));
+        } catch (Throwable ex) {
+            fail(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testDownloadAndUnzipJTL() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger) {
+            @Override
+            public void unzipJTL(InputStream inputStream) throws IOException {
+                throw new IOException("ooops");
+            }
+        };
+
+        boolean result = ciPostProcess.downloadAndUnzipJTL(new URL(BZM_ADDRESS));
+        assertFalse(result);
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Unable to get JTL zip for sessionId="));
+    }
+
+    @Test
+    public void testDownloadSummary() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        JSONObject summary = ciPostProcess.downloadSummary(master);
+        assertTrue(summary.isEmpty());
+        String logs = logger.getLogs().toString();
+        String notifiers = notifier.getLogs().toString();
+
+        assertTrue(notifiers, notifiers.contains("Trying to get functional summary from server"));
+        assertTrue(notifiers, notifiers.contains("Trying to get aggregate summary from server"));
+        assertTrue(logs, logs.contains("Failed to get aggregate summary for master"));
+        assertTrue(logs, logs.contains("Failed to get functional summary for master"));
     }
 }
