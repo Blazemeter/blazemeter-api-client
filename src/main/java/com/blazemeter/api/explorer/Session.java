@@ -71,6 +71,7 @@ public class Session extends BZAObject {
     public void postProperties(String properties) throws IOException {
         if (StringUtils.isBlank(properties)) {
             logger.warn("Properties are empty, won't be sent to session = " + getId());
+            return;
         }
         postProperties(convertProperties(properties));
     }

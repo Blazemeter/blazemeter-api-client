@@ -91,6 +91,7 @@ public class Master extends BZAObject {
     public void postProperties(String properties) {
         if (StringUtils.isBlank(properties)) {
             logger.warn("Properties are empty, won't be sent to master = " + getId());
+            return;
         }
         logger.info("Post properties to master id=" + getId());
         try {
