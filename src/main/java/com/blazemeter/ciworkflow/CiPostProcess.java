@@ -30,7 +30,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -71,67 +70,80 @@ public class CiPostProcess {
      *
      * @return BuildResult
      */
-    public BuildResult execute(Master master) throws InterruptedException {
-        BuildResult r = validateCiStatus(master);
-        if (this.isDownloadJunit) {
+    public BuildResult execute(Master master) {
+        BuildResult result = validateCiStatus(master);
+        if (isDownloadJunit) {
             saveJunit(master);
         }
-        if (this.isDownloadJtl) {
-            saveJtl(master);
+        if (isDownloadJtl) {
+            saveJTL(master);
         }
         JSONObject summary = downloadSummary(master);
-        this.notifier.notifyInfo(summary.toString());
-        return r;
+        notifier.notifyInfo(summary.toString());
+        return result;
     }
 
     public BuildResult validateCiStatus(Master master) {
-        BuildResult result = BuildResult.SUCCESS;
+        BuildResult result = BuildResult.ERROR;
         try {
-            JSONArray failures = null;
-            JSONObject cis = master.getCIStatus();
-            if (cis.has("failures")) {
-                failures = cis.getJSONArray("failures");
-                if (failures.size() > 0) {
-                    notifier.notifyInfo("Having failures " + failures.toString());
-                    result = BuildResult.FAILED;
-                    notifier.notifyInfo("Setting ci-status = " + result.name());
-                    return result;
-                }
-            }
-            JSONArray errors = null;
-            if (cis.has("errors")) {
-                errors = cis.getJSONArray("errors");
-                if (errors.size() > 0) {
-                    notifier.notifyWarning("Having errors " + errors.toString());
-                    logger.error("Having errors " + errors.toString());
-                    result = errorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
-                }
-            }
-            if (result.equals(BuildResult.SUCCESS)) {
-                notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
-                logger.info("No errors/failures while validating CIStatus: setting " + result.name());
-            }
-        } catch (IOException e) {
+            JSONObject ciStatus = master.getCIStatus();
+            result = checkFailsAndError(ciStatus);
+        } catch (Exception e) {
             notifier.notifyError("Error while getting CI status from server " + e.getMessage());
             logger.error("Error while getting CI status from server ", e);
+        }
+
+        if (result.equals(BuildResult.SUCCESS)) {
+            notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
+            logger.info("No errors/failures while validating CIStatus: setting " + result.name());
         }
         return result;
     }
 
-    public boolean errorsFailed(JSONArray errors) {
+    private BuildResult checkFailsAndError(JSONObject ciStatus) {
+        if (ciStatus.has("failures")) {
+            JSONArray failures = ciStatus.getJSONArray("failures");
+            if (!failures.isEmpty()) {
+                return notifyAboutFailed(failures);
+            }
+        }
+        if (ciStatus.has("errors")) {
+            JSONArray errors = ciStatus.getJSONArray("errors");
+            if (!errors.isEmpty()) {
+                return notifyAboutErrors(errors);
+            }
+        }
+        return BuildResult.SUCCESS;
+    }
+
+    private BuildResult notifyAboutErrors(JSONArray errors) {
+        notifier.notifyWarning("Having errors " + errors.toString());
+        logger.error("Having errors " + errors.toString());
+        return isErrorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
+    }
+
+    private BuildResult notifyAboutFailed(JSONArray failures) {
+        notifier.notifyInfo("Having failures " + failures.toString());
+        notifier.notifyInfo("Setting ci-status = " + BuildResult.FAILED.name());
+        return BuildResult.FAILED;
+    }
+
+    public boolean isErrorsFailed(JSONArray errors) {
+        boolean errorsFailed = false;
         try {
             int l = errors.size();
             for (int i = 0; i < l; i++) {
-                boolean errorsFailed = errors.getJSONObject(i).getInt("code") == 0 |
+                errorsFailed = errors.getJSONObject(i).getInt("code") == 0 ||
                         errors.getJSONObject(i).getInt("code") == 70404;
-                return errorsFailed;
+                if (!errorsFailed) {
+                    return false;
+                }
             }
         } catch (JSONException je) {
             notifier.notifyWarning("Failed get errors from json: " + errors.toString() + " " + je);
             logger.error("Failed get errors from json: " + errors.toString(), je);
-            return false;
         }
-        return false;
+        return errorsFailed;
     }
 
     /**
@@ -171,44 +183,47 @@ public class CiPostProcess {
     /**
      * Saves jtl report to hdd;
      */
-    public void saveJtl(Master master) {
+    public void saveJTL(Master master) {
         try {
-            List<Session> sessions = master.getSessions();
-            URL url;
-            for (Session s : sessions) {
-                url = new URL(s.getJTLReport());
-                try {
-                    downloadUnzip(url);
-                } catch (Exception e) {
-                    logger.error("Failed to download & unzip jtl-report from " + url.getPath(), e);
+            for (Session s : master.getSessions()) {
+                URL url = new URL(s.getJTLReport());
+                boolean isSuccess = downloadAndUnzipJTL(url);
+                if (!isSuccess) {
+                    logger.error("Failed to download & unzip jtl-report from " + url.getPath());
                 }
             }
         } catch (Exception e) {
-            notifier.notifyWarning("Unable to get JTLZIP from " + master.getId() + " " + e.getMessage());
-            logger.error("Unable to get JTLZIP from " + master.getId() + " ", e);
+            notifier.notifyWarning("Unable to get JTL ZIP from " + master.getId() + " " + e.getMessage());
+            logger.error("Unable to get JTL ZIP from " + master.getId() + " ", e);
         }
     }
 
-    public void downloadUnzip(URL url) {
+    /**
+     * @param url - for download JTL report
+     * @return true - if report has been successfully downloaded and unzip
+     */
+    public boolean downloadAndUnzipJTL(URL url) {
         for (int i = 1; i < 4; i++) {
             try {
-                notifier.notifyInfo("Downloading JTLZIP from url=" + url.getPath() + " attemp # " + i);
-                int conTo = (int) (10000 * Math.pow(3, i - 1));
+                notifier.notifyInfo("Downloading JTL zip from url=" + url.getPath() + " attemp # " + i);
+                int timeout = (int) (10000 * Math.pow(3, i - 1));
                 URLConnection connection = url.openConnection();
-                connection.setConnectTimeout(conTo);
+                connection.setConnectTimeout(timeout);
                 connection.setReadTimeout(30000);
-                InputStream is = connection.getInputStream();
-                unzipjtl(is);
-                break;
-            } catch (Exception e) {
-                notifier.notifyWarning("Unable to get JTLZIP for sessionId=" + url.getPath() + ":check server for test artifacts" + e);
+                InputStream inputStream = connection.getInputStream();
+                unzipJTL(inputStream);
+                return true;
+            } catch (IOException e) {
+                notifier.notifyWarning("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts " + e);
+                logger.error("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts ", e);
             }
         }
+        return false;
     }
 
-    public void unzipjtl(InputStream is) throws Exception {
-        ZipInputStream zis = new ZipInputStream(is);
-        byte[] buffer = new byte[1024];
+    public void unzipJTL(InputStream inputStream) throws IOException {
+        ZipInputStream zis = new ZipInputStream(inputStream);
+        byte[] buffer = new byte[4096];
         ZipEntry zipEntry = zis.getNextEntry();
         while (zipEntry != null) {
             String fileName = zipEntry.getName();
@@ -232,36 +247,42 @@ public class CiPostProcess {
      * Downloads summary.
      * It will be either functional or aggregate depending on server settings;
      */
-    public JSONObject downloadSummary(Master master) throws InterruptedException {
-        JSONObject summary = new JSONObject();
-        int retries = 1;
-        while (retries < 5) {
-            try {
-                notifier.notifyInfo("Trying to get  functional summary from server, attempt# " + retries);
-                summary = master.getFunctionalReport();
-            } catch (IOException e) {
-                notifier.notifyWarning("Failed to get functional summary for master " + e);
-            }
-            if (summary != null && summary.size() > 0) {
-                notifier.notifyInfo("Got functional report from server");
-                return summary;
-            } else {
-                try {
-                    notifier.notifyInfo("Trying to get  aggregate summary from server, attempt# " + retries);
-                    summary = master.getSummary();
-                } catch (Exception e) {
-                    notifier.notifyWarning("Failed to get aggregate summary for master " + e);
-                    logger.error("Failed to get aggregate summary for master ", e);
-                }
-                if (summary != null && summary.size() > 0) {
-                    notifier.notifyInfo("Got aggregated report from server");
-                    return summary;
-                }
-            }
-            Thread.sleep(5000);
-            retries++;
+    public JSONObject downloadSummary(Master master) {
+        JSONObject summary = getFunctionalReport(master);
+        if (summary != null && !summary.isEmpty()) {
+            notifier.notifyInfo("Got functional report from server");
+            return summary;
         }
-        return summary;
+
+        summary = getSummary(master);
+        if (summary != null && !summary.isEmpty()) {
+            notifier.notifyInfo("Got aggregated report from server");
+            return summary;
+        }
+
+        return new JSONObject();
+    }
+
+    protected JSONObject getSummary(Master master) {
+        try {
+            notifier.notifyInfo("Trying to get aggregate summary from server");
+            return master.getSummary();
+        } catch (Exception e) {
+            notifier.notifyWarning("Failed to get aggregate summary for master " + e);
+            logger.error("Failed to get aggregate summary for master ", e);
+            return null;
+        }
+    }
+
+    protected JSONObject getFunctionalReport(Master master) {
+        try {
+            notifier.notifyInfo("Trying to get functional summary from server");
+            return master.getFunctionalReport();
+        } catch (IOException e) {
+            notifier.notifyWarning("Failed to get functional summary for master " + e);
+            logger.error("Failed to get functional summary for master ", e);
+            return null;
+        }
     }
 
     public boolean isDownloadJtl() {
