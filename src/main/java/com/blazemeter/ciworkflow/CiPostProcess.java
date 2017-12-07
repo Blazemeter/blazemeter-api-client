@@ -193,8 +193,8 @@ public class CiPostProcess {
                 }
             }
         } catch (Exception e) {
-            notifier.notifyWarning("Unable to get JTLZIP from " + master.getId() + " " + e.getMessage());
-            logger.error("Unable to get JTLZIP from " + master.getId() + " ", e);
+            notifier.notifyWarning("Unable to get JTL ZIP from " + master.getId() + " " + e.getMessage());
+            logger.error("Unable to get JTL ZIP from " + master.getId() + " ", e);
         }
     }
 
