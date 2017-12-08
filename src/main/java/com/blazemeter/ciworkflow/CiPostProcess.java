@@ -153,7 +153,7 @@ public class CiPostProcess {
         try {
             String junitReport = master.getJUnitReport();
             String junitFileName = master.getId() + ".xml";
-            File junitReportDir = makeReportDir(junitReport);
+            File junitReportDir = makeReportDir(junitPath);
             File junitFile = new File(junitReportDir, junitFileName);
             junitFile.createNewFile();
             Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
@@ -172,7 +172,7 @@ public class CiPostProcess {
         try {
             for (Session s : master.getSessions()) {
                 URL url = new URL(s.getJTLReport());
-                boolean isSuccess = downloadAndUnzipJTL(url);
+                boolean isSuccess = downloadAndUnzipJTL(url, jtlPath + File.separator + s.getId());
                 if (!isSuccess) {
                     logger.error("Failed to download & unzip jtl-report from " + url.getPath());
                 }
@@ -187,7 +187,7 @@ public class CiPostProcess {
      * @param url - for download JTL report
      * @return true - if report has been successfully downloaded and unzip
      */
-    public boolean downloadAndUnzipJTL(URL url) {
+    public boolean downloadAndUnzipJTL(URL url, String jtlZipPath) {
         for (int i = 1; i < 4; i++) {
             try {
                 notifier.notifyInfo("Downloading JTL zip from url=" + url.getPath() + " attemp # " + i);
@@ -196,9 +196,10 @@ public class CiPostProcess {
                 connection.setConnectTimeout(timeout);
                 connection.setReadTimeout(30000);
                 InputStream inputStream = connection.getInputStream();
-                unzipJTL(inputStream);
+                File reportDir = makeReportDir(jtlZipPath);
+                unzipJTL(inputStream, reportDir);
                 return true;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 notifier.notifyWarning("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts " + e);
                 logger.error("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts ", e);
             }
@@ -212,13 +213,13 @@ public class CiPostProcess {
      * @param inputStream
      * @throws IOException
      */
-    public void unzipJTL(InputStream inputStream) throws IOException {
+    public void unzipJTL(InputStream inputStream, File reportDir) throws IOException {
         ZipInputStream zis = new ZipInputStream(inputStream);
         byte[] buffer = new byte[4096];
         ZipEntry zipEntry = zis.getNextEntry();
         while (zipEntry != null) {
             String fileName = zipEntry.getName();
-            File f = new File(fileName);
+            File f = new File(reportDir, fileName);
             FileOutputStream fos = new FileOutputStream(f);
             int len;
             while ((len = zis.read(buffer)) > 0) {
@@ -226,7 +227,7 @@ public class CiPostProcess {
             }
             fos.close();
             if (f.exists() && f.getName().equals("sample.jtl")) {
-                f.renameTo(new File("bm-kpis.jtl"));
+                f.renameTo(new File(reportDir, "bm-kpis.jtl"));
             }
             zipEntry = zis.getNextEntry();
         }

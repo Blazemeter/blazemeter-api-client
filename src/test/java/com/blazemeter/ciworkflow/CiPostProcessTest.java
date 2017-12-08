@@ -64,7 +64,7 @@ public class CiPostProcessTest {
     public void testUnzipJTL() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "re", System.getProperty("user.dir"), notifier, logger);
         try {
             File bzmZip = File.createTempFile("bzm_zip", ".zip");
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(bzmZip));
@@ -74,8 +74,9 @@ public class CiPostProcessTest {
             out.write(buffer);
             out.close();
             InputStream is = new FileInputStream(bzmZip);
-            ciPostProcess.unzipJTL(is);
-            File bmKpi = new File("bm-kpis.jtl");
+            File reportDir = ciPostProcess.makeReportDir(ciPostProcess.jtlPath);
+            ciPostProcess.unzipJTL(is, reportDir);
+            File bmKpi = new File(reportDir, "bm-kpis.jtl");
             assertTrue(bmKpi.exists());
             bmKpi.delete();
             bzmZip.delete();
@@ -527,7 +528,7 @@ public class CiPostProcessTest {
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger) {
             @Override
-            public boolean downloadAndUnzipJTL(URL url) {
+            public boolean downloadAndUnzipJTL(URL url, String jtlZipPath) {
                 return false;
             }
         };
@@ -547,12 +548,12 @@ public class CiPostProcessTest {
 
         CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger) {
             @Override
-            public void unzipJTL(InputStream inputStream) throws IOException {
+            public void unzipJTL(InputStream inputStream, File reportDir) throws IOException {
                 throw new IOException("ooops");
             }
         };
 
-        boolean result = ciPostProcess.downloadAndUnzipJTL(new URL(BZM_ADDRESS));
+        boolean result = ciPostProcess.downloadAndUnzipJTL(new URL(BZM_ADDRESS), "1");
         assertFalse(result);
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Unable to get JTL zip for sessionId="));
