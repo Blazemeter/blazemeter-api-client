@@ -116,6 +116,24 @@ public class CiBuild {
 
 
     /**
+     * Interrupt Build.
+     * @return true - if build has reports.
+     */
+    public boolean interrupt(Master master) throws IOException {
+        int statusCode = master.getStatus();
+        if (statusCode < 100 && statusCode != 0) {
+            master.terminate();
+            return false;
+        }
+        if (statusCode >= 100 || statusCode == -1 || statusCode == 0) {
+            master.stop();
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * Waits until test will be over on server
      * Master object corresponds to master session which is created after test was started.
      * @throws InterruptedException IOException
