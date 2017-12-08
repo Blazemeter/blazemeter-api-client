@@ -164,7 +164,6 @@ public class CiPostProcess {
     }
 
 
-
     /**
      * Saves jtl report to hdd;
      */
@@ -284,10 +283,8 @@ public class CiPostProcess {
     }
 
     public File makeReportDir(String reportDir) throws Exception {
-        File f;
-        if (reportDir.startsWith("/") | reportDir.matches("(^[a-zA-Z][:][\\\\].+)")) {
-            f = new File(reportDir);
-        } else {
+        File f = new File(reportDir);
+        if (!f.isAbsolute()) {
             f = new File(workspaceDir, reportDir);
         }
         boolean mkDir = false;
