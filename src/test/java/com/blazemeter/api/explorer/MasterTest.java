@@ -351,17 +351,22 @@ public class MasterTest {
 
         Master master = new Master(emul, "id", "name");
 
-        String note = master.postNotes("valid");
-        assertEquals(note, "valid");
+        String note = master.postNotes("valid\r\nmulti\r\nline");
+        assertEquals("valid\r\n" +
+                "multi\r\n" +
+                "line", note);
         assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/id, tag=null}", emul.getRequests().get(0));
+        assertEquals("[text={\"note\":\"valid\\\\r\\\\nmulti\\\\r\\\\nline\"}]", emul.getRequestsBody().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 167, logs.length());
+        assertEquals(logs, 184, logs.length());
         assertTrue(logs, logs.contains("Post notes to master id=id"));
     }
 
     public static String generateResponsePostNote() {
         JSONObject result = new JSONObject();
-        result.put("note", "valid");
+        result.put("note", "valid\r\n" +
+                "multi\r\n" +
+                "line");
 
         JSONObject response = new JSONObject();
         response.put("result", result);
