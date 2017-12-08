@@ -21,6 +21,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -68,6 +69,10 @@ public class Session extends BZAObject {
      * POST request to 'https://a.blazemeter.com/api/v4/sessions/{sessionId}/properties?target=all'
      */
     public void postProperties(String properties) throws IOException {
+        if (StringUtils.isBlank(properties)) {
+            logger.warn("Properties are empty, won't be sent to session = " + getId());
+            return;
+        }
         postProperties(convertProperties(properties));
     }
 

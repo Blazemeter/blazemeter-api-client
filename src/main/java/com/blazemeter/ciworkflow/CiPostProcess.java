@@ -169,9 +169,11 @@ public class CiPostProcess {
     public File createJunitFile(String junitPath, String workspaceJunitPath) throws Exception {
         File junitFile = new File(junitPath);
         try {
+            junitFile.getParentFile().mkdirs();
             junitFile.createNewFile();
         } catch (Exception e) {
-            junitFile = new File(workspaceJunitPath);
+            junitFile = new File(workspaceJunitPath, junitFile.getName());
+            junitFile.getParentFile().mkdirs();
             junitFile.createNewFile();
             notifier.notifyWarning("Failed to created a file " + junitPath);
             logger.error("Failed to created a file " + junitPath, e);

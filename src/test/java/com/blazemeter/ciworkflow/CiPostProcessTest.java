@@ -66,11 +66,23 @@ public class CiPostProcessTest {
         UserNotifierTest notifier = new UserNotifierTest();
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         try {
-            ciPostProcess.createJunitFile("", "./junit");
-            File junit = new File("./junit");
-            assertTrue(junit.exists());
-            junit.delete();
+            String junitFilePath = File.separator + "id.xml";
+            String junitWSPath = "./junit";
+
+            File junitWSReport = new File(junitWSPath, "id.xml");
+            junitWSReport.delete();
+            junitWSReport.getParentFile().delete();
+            assertFalse(junitWSReport.getParentFile().exists());
+
+            ciPostProcess.createJunitFile(junitFilePath, junitWSPath);
+
+            File junit = new File(junitFilePath);
             assertFalse(junit.exists());
+
+            assertTrue(junitWSReport.exists());
+            junitWSReport.delete();
+            junitWSReport.getParentFile().delete();
+            assertFalse(junitWSReport.getParentFile().exists());
         } catch (Exception e) {
             fail();
         }
@@ -82,11 +94,14 @@ public class CiPostProcessTest {
         UserNotifierTest notifier = new UserNotifierTest();
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         try {
-            ciPostProcess.createJunitFile("./junit", "./junit111");
-            File junit = new File("./junit");
+            String junitFilePath = "./t" + File.separator + "id.xml";
+            ciPostProcess.createJunitFile(junitFilePath, "./junit");
+            File junit = new File(junitFilePath);
             assertTrue(junit.exists());
             junit.delete();
             assertFalse(junit.exists());
+            junit.getParentFile().delete();
+            assertFalse(junit.getParentFile().exists());
         } catch (Exception e) {
             fail();
         }
@@ -343,6 +358,11 @@ public class CiPostProcessTest {
 
         BuildResult result = ciPostProcess.execute(master);
         assertEquals(BuildResult.SUCCESS, result);
+        File junit = new File("./junit", "id.xml");
+        junit.delete();
+        junit.getParentFile().delete();
+        assertFalse(junit.exists());
+        assertFalse(junit.getParentFile().exists());
     }
 
     @Test
@@ -389,6 +409,8 @@ public class CiPostProcessTest {
         } catch (Throwable ex) {
             fail(ex.getMessage());
         }
+        junit.delete();
+        assertFalse(junit.exists());
     }
 
     @Test
