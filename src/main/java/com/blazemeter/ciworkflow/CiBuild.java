@@ -134,7 +134,7 @@ public class CiBuild {
             long now = System.currentTimeMillis();
             long diffInSec = (now - start) / 1000;
             if (now - lastPrint > bzmMinute) {
-                notifier.notifyInfo("BlazeMeter test# , masterId # " + master.getId() + " running from " + startTime.getTime().toString() + " - for " + diffInSec + " seconds");
+                notifier.notifyInfo("BlazeMeter test # " + testId + ", masterId # " + master.getId() + " running from " + startTime.getTime().toString() + " - for " + diffInSec + " seconds");
                 lastPrint = now;
             }
             if (Thread.interrupted()) {
