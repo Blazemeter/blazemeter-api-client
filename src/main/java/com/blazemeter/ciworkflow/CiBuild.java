@@ -120,16 +120,16 @@ public class CiBuild {
      * @return true - if build has reports.
      */
     public boolean interrupt(Master master) throws IOException {
+        boolean hasReports = false;
         int statusCode = master.getStatus();
         if (statusCode < 100 && statusCode != 0) {
             master.terminate();
-            return false;
         }
         if (statusCode >= 100 || statusCode == -1 || statusCode == 0) {
             master.stop();
-            return true;
+            hasReports = true;
         }
-        return false;
+        return hasReports;
     }
 
 

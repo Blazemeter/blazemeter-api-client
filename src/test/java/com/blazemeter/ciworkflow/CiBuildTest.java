@@ -29,6 +29,7 @@ import org.junit.Test;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -205,4 +206,24 @@ public class CiBuildTest {
         assertTrue(notifier.getLogs().toString(), notifier.getLogs().toString().contains("Set Build status [FAILED]."));
     }
 
+
+    @Test
+    public void testInterrupt() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
+        Master master = new Master(emul, "id", "name");
+
+        emul.addEmul(MasterTest.generateResponseGetStatus(70));
+        emul.addEmul(MasterTest.generateResponseTerminateMaster());
+        boolean interrupt = ciBuild.interrupt(master);
+        assertFalse(interrupt);
+
+        emul.addEmul(MasterTest.generateResponseGetStatus(110));
+        emul.addEmul(MasterTest.generateResponseStopMaster());
+        interrupt = ciBuild.interrupt(master);
+        assertTrue(interrupt);
+    }
 }
