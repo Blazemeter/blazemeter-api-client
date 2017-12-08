@@ -311,6 +311,11 @@ public class CiPostProcessTest {
 
         BuildResult result = ciPostProcess.execute(master);
         assertEquals(BuildResult.SUCCESS, result);
+        File junit = new File("./junit", "id.xml");
+        junit.delete();
+        junit.getParentFile().delete();
+        assertFalse(junit.exists());
+        assertFalse(junit.getParentFile().exists());
     }
 
     @Test
@@ -496,6 +501,8 @@ public class CiPostProcessTest {
         } catch (Throwable ex) {
             fail(ex.getMessage());
         }
+        junit.delete();
+        assertFalse(junit.exists());
     }
 
     @Test

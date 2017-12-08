@@ -47,6 +47,22 @@ public class SessionTest {
         assertTrue(logs, logs.contains("Post properties to session id=id"));
     }
 
+    @Test
+    public void testPostPropertiesEmpty() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponsePostProperties());
+
+        Session session = new Session(emul, "id", "name", "userId", "testId", "sign");
+        session.postProperties("");
+        String logs = logger.getLogs().toString();
+        assertEquals(0, emul.getRequests().size());
+        assertEquals(logs, 53, logs.length());
+        assertTrue(logs, logs.contains("Properties are empty, won't be sent to session = "));
+    }
+
     public static String generateResponsePostProperties() {
         JSONObject property = new JSONObject();
         property.put("key", "url");

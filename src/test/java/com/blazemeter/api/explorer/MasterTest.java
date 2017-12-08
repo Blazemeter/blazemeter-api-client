@@ -404,6 +404,23 @@ public class MasterTest {
     }
 
     @Test
+    public void testPostPropertiesEmpty() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponsePostProperties());
+
+        Master master = new Master(emul, "id", "name");
+        master.postProperties("");
+        assertEquals(0, emul.getRequests().size());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 52, logs.length());
+        assertTrue(logs, logs.contains("Properties are empty, won't be sent to master = "));
+    }
+
+    @Test
     public void testPostPropertiesFailGetSessions() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
