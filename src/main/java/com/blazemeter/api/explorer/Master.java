@@ -181,8 +181,8 @@ public class Master extends BZAObject {
         logger.info("Post notes to master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s", encode(getId()));
         // Hack to escape '\r\n' chars..
-        String noteEscape = StringEscapeUtils.escapeJson("{'note':'" + note + "'}");
-        RequestBody body = RequestBody.create(MediaType.parse("text/plain; charset=ISO-8859-1"), noteEscape);
+        JSONObject noteEscape = JSONObject.fromObject(StringEscapeUtils.escapeJson("{'note':'" + note + "'}"));
+        RequestBody body = RequestBody.create(MediaType.parse("text/plain; charset=ISO-8859-1"), noteEscape.toString());
         JSONObject result = utils.execute(utils.createPatch(uri, body)).getJSONObject("result");
         return result.getString("note");
     }

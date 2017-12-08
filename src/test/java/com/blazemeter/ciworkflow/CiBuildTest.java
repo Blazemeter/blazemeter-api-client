@@ -107,7 +107,7 @@ public class CiBuildTest {
         assertTrue(logs, logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertEquals(logs, 2682, logger.getLogs().length());
+        assertEquals(logs, 2699, logger.getLogs().length());
     }
 
 

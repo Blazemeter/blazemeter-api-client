@@ -18,6 +18,7 @@ import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 import net.sf.json.JSONObject;
 import okhttp3.Request;
+import okio.Buffer;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -31,6 +32,7 @@ public class BlazeMeterUtilsEmul extends BlazeMeterUtils {
 
     private LinkedList<String> responses = new LinkedList<>();
     private LinkedList<String> requests = new LinkedList<>();
+    private LinkedList<String> requestsBody = new LinkedList<>();
 
     public BlazeMeterUtilsEmul(String apiKeyId, String apiKeySecret, String address, String dataAddress, UserNotifier notifier, Logger logger) {
         super(apiKeyId, apiKeySecret, address, dataAddress, notifier, logger);
@@ -52,6 +54,10 @@ public class BlazeMeterUtilsEmul extends BlazeMeterUtils {
         return requests;
     }
 
+    public LinkedList<String> getRequestsBody() {
+        return requestsBody;
+    }
+
     @Override
     public JSONObject execute(Request request) throws IOException {
         extractBody(request);
@@ -66,6 +72,11 @@ public class BlazeMeterUtilsEmul extends BlazeMeterUtils {
 
     public void extractBody(Request request) throws IOException {
         requests.add(request.toString());
+        if (request.body() != null) {
+            Buffer buffer = new Buffer();
+            request.body().writeTo(buffer);
+            requestsBody.add(buffer.toString());
+        }
     }
 
     public String getResponse(Object request) throws IOException {
