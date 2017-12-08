@@ -153,8 +153,9 @@ public class CiPostProcess {
         try {
             String junitReport = master.getJUnitReport();
             String junitFileName = master.getId() + ".xml";
-            File junitFile = createJunitFile(junitPath + File.separator + junitFileName,
-                    workspaceDir + File.separator + junitFileName);
+            File junitReportDir = makeReportDir(junitReport);
+            File junitFile = new File(junitReportDir, junitFileName);
+            junitFile.createNewFile();
             Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
         } catch (Exception e) {
             notifier.notifyWarning("Failed to save junit report from master = " + master.getId() + " to disk.");
@@ -163,22 +164,6 @@ public class CiPostProcess {
     }
 
 
-    /**
-     * Created file for saving junit report
-     */
-    public File createJunitFile(String junitPath, String workspaceJunitPath) throws Exception {
-        File junitFile = new File(junitPath);
-        try {
-            junitFile.createNewFile();
-        } catch (Exception e) {
-            junitFile = new File(workspaceJunitPath);
-            junitFile.createNewFile();
-            notifier.notifyWarning("Failed to created a file " + junitPath);
-            logger.error("Failed to created a file " + junitPath, e);
-            notifier.notifyInfo("Junit report will be saved to " + workspaceJunitPath);
-        }
-        return junitFile;
-    }
 
     /**
      * Saves jtl report to hdd;
@@ -221,6 +206,12 @@ public class CiPostProcess {
         return false;
     }
 
+    /**
+     * Unzips archive with JTL from InputStream
+     *
+     * @param inputStream
+     * @throws IOException
+     */
     public void unzipJTL(InputStream inputStream) throws IOException {
         ZipInputStream zis = new ZipInputStream(inputStream);
         byte[] buffer = new byte[4096];
@@ -274,6 +265,12 @@ public class CiPostProcess {
         }
     }
 
+    /**
+     * Requests functional report from master
+     *
+     * @param master
+     * @return
+     */
     protected JSONObject getFunctionalReport(Master master) {
         try {
             notifier.notifyInfo("Trying to get functional summary from server");
@@ -283,6 +280,28 @@ public class CiPostProcess {
             logger.error("Failed to get functional summary for master ", e);
             return null;
         }
+    }
+
+    public File makeReportDir(String reportDir) throws Exception {
+        File f;
+        if (reportDir.startsWith("/") | reportDir.matches("(^[a-zA-Z][:][\\\\].+)")) {
+            f = new File(reportDir);
+        } else {
+            f = new File(workspaceDir, reportDir);
+        }
+        boolean mkDir = false;
+        try {
+            mkDir = f.mkdirs();
+        } catch (Exception e) {
+            throw new Exception("Failed to find filepath to " + f.getAbsolutePath());
+        } finally {
+            if (!mkDir) {
+                f = new File(workspaceDir, reportDir);
+                f.mkdirs();
+                notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
+            }
+        }
+        return f.getCanonicalFile();
     }
 
     public boolean isDownloadJtl() {

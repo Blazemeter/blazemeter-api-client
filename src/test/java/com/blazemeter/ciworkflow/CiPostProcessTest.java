@@ -61,38 +61,6 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testCreateJunitFileException() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        try {
-            ciPostProcess.createJunitFile("", "./junit");
-            File junit = new File("./junit");
-            assertTrue(junit.exists());
-            junit.delete();
-            assertFalse(junit.exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testCreateJunitFileSuccess() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        try {
-            ciPostProcess.createJunitFile("./junit", "./junit111");
-            File junit = new File("./junit");
-            assertTrue(junit.exists());
-            junit.delete();
-            assertFalse(junit.exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
     public void testUnzipJTL() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
@@ -360,6 +328,145 @@ public class CiPostProcessTest {
         assertEquals(logs, 209, logs.length());
         assertTrue(logs, logs.contains("Error while getting CI status from server"));
         assertTrue(notifier.getLogs().toString(), notifier.getLogs().toString().contains("Error while getting CI status from server"));
+    }
+
+
+    @Test
+    public void testMakeReportDir() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "report";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath);
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+            junitReportDir.getParentFile().delete();
+            assert !junitReportDir.getParentFile().exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testMakeReportDirRoot() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "/report";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath.substring(1));
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+            junitReportDir.getParentFile().delete();
+            assert !junitReportDir.getParentFile().exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testMakeReportDirParent() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "../report";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getParentFile().equals(wdf.getParentFile());
+            assert junitReportDir.getName().equals(reportPath.substring(3));
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testMakeReportDirParentMiddle() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "report/../t";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getParentFile().equals(wdf);
+            assert junitReportDir.getName().equals(reportPath.substring(10));
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testMakeReportCurrent() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "report";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath);
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+            junitReportDir.getParentFile().delete();
+            assert !junitReportDir.getParentFile().exists();
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
