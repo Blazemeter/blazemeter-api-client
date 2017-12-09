@@ -61,57 +61,10 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testCreateJunitFileException() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        try {
-            String junitFilePath = File.separator + "id.xml";
-            String junitWSPath = "./junit";
-
-            File junitWSReport = new File(junitWSPath, "id.xml");
-            junitWSReport.delete();
-            junitWSReport.getParentFile().delete();
-            assertFalse(junitWSReport.getParentFile().exists());
-
-            ciPostProcess.createJunitFile(junitFilePath, junitWSPath);
-
-            File junit = new File(junitFilePath);
-            assertFalse(junit.exists());
-
-            assertTrue(junitWSReport.exists());
-            junitWSReport.delete();
-            junitWSReport.getParentFile().delete();
-            assertFalse(junitWSReport.getParentFile().exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testCreateJunitFileSuccess() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        try {
-            String junitFilePath = "./t" + File.separator + "id.xml";
-            ciPostProcess.createJunitFile(junitFilePath, "./junit");
-            File junit = new File(junitFilePath);
-            assertTrue(junit.exists());
-            junit.delete();
-            assertFalse(junit.exists());
-            junit.getParentFile().delete();
-            assertFalse(junit.getParentFile().exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
     public void testUnzipJTL() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "re", System.getProperty("user.dir"), notifier, logger);
         try {
             File bzmZip = File.createTempFile("bzm_zip", ".zip");
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(bzmZip));
@@ -121,8 +74,9 @@ public class CiPostProcessTest {
             out.write(buffer);
             out.close();
             InputStream is = new FileInputStream(bzmZip);
-            ciPostProcess.unzipJTL(is);
-            File bmKpi = new File("bm-kpis.jtl");
+            File reportDir = ciPostProcess.makeReportDir(ciPostProcess.jtlPath);
+            ciPostProcess.unzipJTL(is, reportDir);
+            File bmKpi = new File(reportDir, "bm-kpis.jtl");
             assertTrue(bmKpi.exists());
             bmKpi.delete();
             bzmZip.delete();
@@ -382,6 +336,145 @@ public class CiPostProcessTest {
         assertTrue(notifier.getLogs().toString(), notifier.getLogs().toString().contains("Error while getting CI status from server"));
     }
 
+
+    @Test
+    public void testMakeReportDir() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "report";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath);
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+            junitReportDir.getParentFile().delete();
+            assert !junitReportDir.getParentFile().exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testMakeReportDirRoot() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "/report";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath.substring(1));
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+            junitReportDir.getParentFile().delete();
+            assert !junitReportDir.getParentFile().exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testMakeReportDirParent() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "../report";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getParentFile().equals(wdf.getParentFile());
+            assert junitReportDir.getName().equals(reportPath.substring(3));
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testMakeReportDirParentMiddle() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "report/../t";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getParentFile().equals(wdf);
+            assert junitReportDir.getName().equals(reportPath.substring(10));
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testMakeReportCurrent() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "report";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath);
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+            junitReportDir.getParentFile().delete();
+            assert !junitReportDir.getParentFile().exists();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
     @Test
     public void testSaveJUnit() throws Exception {
         LoggerTest logger = new LoggerTest();
@@ -435,7 +528,7 @@ public class CiPostProcessTest {
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger) {
             @Override
-            public boolean downloadAndUnzipJTL(URL url) {
+            public boolean downloadAndUnzipJTL(URL url, String jtlZipPath) {
                 return false;
             }
         };
@@ -455,12 +548,12 @@ public class CiPostProcessTest {
 
         CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger) {
             @Override
-            public void unzipJTL(InputStream inputStream) throws IOException {
+            public void unzipJTL(InputStream inputStream, File reportDir) throws IOException {
                 throw new IOException("ooops");
             }
         };
 
-        boolean result = ciPostProcess.downloadAndUnzipJTL(new URL(BZM_ADDRESS));
+        boolean result = ciPostProcess.downloadAndUnzipJTL(new URL(BZM_ADDRESS), "1");
         assertFalse(result);
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Unable to get JTL zip for sessionId="));
