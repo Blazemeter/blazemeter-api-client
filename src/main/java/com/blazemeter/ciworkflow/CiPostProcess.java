@@ -21,6 +21,7 @@ import com.blazemeter.api.logging.UserNotifier;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -283,7 +284,12 @@ public class CiPostProcess {
     }
 
     public File makeReportDir(String reportDir) throws Exception {
-        File f = new File(reportDir);
+        File f;
+        if (StringUtils.isBlank(reportDir)) {
+            f = new File(workspaceDir);
+        } else {
+            f = new File(reportDir);
+        }
         if (!f.isAbsolute()) {
             f = new File(workspaceDir, reportDir);
         }
