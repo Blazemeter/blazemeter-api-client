@@ -287,13 +287,12 @@ public class CiPostProcess {
         if (!f.isAbsolute()) {
             f = new File(workspaceDir, reportDir);
         }
-        boolean mkDir = false;
         try {
-            mkDir = f.mkdirs();
+            f.mkdirs();
         } catch (Exception e) {
             throw new Exception("Failed to find filepath to " + f.getAbsolutePath());
         } finally {
-            if (!mkDir) {
+            if (!f.exists()) {
                 f = new File(workspaceDir, reportDir);
                 f.mkdirs();
                 notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
