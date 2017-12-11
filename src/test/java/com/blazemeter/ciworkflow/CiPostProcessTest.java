@@ -169,8 +169,7 @@ public class CiPostProcessTest {
         emul.addEmul(generateResponseCIStatusSuccess());
 
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        Master master = new Master(emul, "id", "name");
-        BuildResult buildResult = ciPostProcess.validateCiStatus(master);
+        BuildResult buildResult = ciPostProcess.validateCiStatus(JSONObject.fromObject(generateResponseCIStatusSuccess()));
         assertEquals(BuildResult.SUCCESS, buildResult);
     }
 
@@ -191,13 +190,9 @@ public class CiPostProcessTest {
     public void testValidateCIStatusFailure() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
-        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-
-        emul.addEmul(generateResponseCIStatus_Failure_610000());
 
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        Master master = new Master(emul, "id", "name");
-        BuildResult buildResult = ciPostProcess.validateCiStatus(master);
+        BuildResult buildResult = ciPostProcess.validateCiStatus(JSONObject.fromObject(generateResponseCIStatus_Failure_610000()).getJSONObject("result"));
         assertEquals(BuildResult.FAILED, buildResult);
     }
 
@@ -221,13 +216,8 @@ public class CiPostProcessTest {
     public void testValidateCIStatus70404Failure() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
-        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-
-        emul.addEmul(generateResponseCIStatus_Error_70404());
-
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        Master master = new Master(emul, "id", "name");
-        BuildResult buildResult = ciPostProcess.validateCiStatus(master);
+        BuildResult buildResult = ciPostProcess.validateCiStatus(JSONObject.fromObject(generateResponseCIStatus_Error_70404()).getJSONObject("result"));
         assertEquals(BuildResult.FAILED, buildResult);
     }
 
@@ -253,13 +243,8 @@ public class CiPostProcessTest {
     public void testValidateCIStatusError() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
-        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-
-        emul.addEmul(generateResponseCIStatus_Error_111());
-
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        Master master = new Master(emul, "id", "name");
-        BuildResult buildResult = ciPostProcess.validateCiStatus(master);
+        BuildResult buildResult = ciPostProcess.validateCiStatus(JSONObject.fromObject(generateResponseCIStatus_Error_111()).getJSONObject("result"));
         assertEquals(BuildResult.ERROR, buildResult);
     }
 
@@ -302,6 +287,7 @@ public class CiPostProcessTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         emul.addEmul(generateResponseCIStatusSuccess());
+        emul.addEmul(MasterTest.generateResponseGetStatus(140));
         emul.addEmul("junit");
         emul.addEmul(MasterTest.generateResponseGetSessions());
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
@@ -318,24 +304,6 @@ public class CiPostProcessTest {
         assertFalse(junit.exists());
         assertFalse(junit.getParentFile().exists());
     }
-
-    @Test
-    public void testValidateCiStatusError() throws Exception {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "pwd", notifier, logger);
-        Master master = new Master(emul, "id", "name");
-
-        BuildResult result = ciPostProcess.validateCiStatus(master);
-        assertEquals(BuildResult.ERROR, result);
-        String logs = logger.getLogs().toString();
-        assertEquals(logs, 209, logs.length());
-        assertTrue(logs, logs.contains("Error while getting CI status from server"));
-        assertTrue(notifier.getLogs().toString(), notifier.getLogs().toString().contains("Error while getting CI status from server"));
-    }
-
 
     @Test
     public void testMakeReportDir() {
@@ -577,5 +545,39 @@ public class CiPostProcessTest {
         assertTrue(notifiers, notifiers.contains("Trying to get aggregate summary from server"));
         assertTrue(logs, logs.contains("Failed to get aggregate summary for master"));
         assertTrue(logs, logs.contains("Failed to get functional summary for master"));
+    }
+
+    @Test
+    public void testHasReportsWhenSessionHasNoData() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        emul.addEmul(generateResponseCIStatus_Error_70404());
+        BuildResult result = ciPostProcess.execute(master);
+        assertEquals(BuildResult.FAILED, result);
+
+        String logs = logger.getLogs().toString();
+        assertFalse(logs, logs.contains("Get JUnit report for master"));
+        assertFalse(logs, logs.contains("Get JTL report for session"));
+        assertFalse(logs, logs.contains("Got functional report from server"));
+        assertFalse(logs, logs.contains("Got aggregated report from server"));
+        assertEquals(logs, 236, logs.length());
+    }
+
+    @Test
+    public void testExecuteFailed() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        BuildResult result = ciPostProcess.execute(master);
+        assertEquals(BuildResult.FAILED, result);
     }
 }

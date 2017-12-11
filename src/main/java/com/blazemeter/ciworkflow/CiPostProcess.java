@@ -71,27 +71,45 @@ public class CiPostProcess {
      * @return BuildResult
      */
     public BuildResult execute(Master master) {
-        BuildResult result = validateCiStatus(master);
-        if (isDownloadJunit) {
-            saveJunit(master);
-        }
-        if (isDownloadJtl) {
-            saveJTL(master);
-        }
-        JSONObject summary = downloadSummary(master);
-        notifier.notifyInfo(summary.toString());
-        return result;
-    }
-
-    public BuildResult validateCiStatus(Master master) {
-        BuildResult result = BuildResult.ERROR;
         try {
             JSONObject ciStatus = master.getCIStatus();
-            result = checkFailsAndError(ciStatus);
+            BuildResult result = validateCiStatus(ciStatus);
+            boolean hasReports = checkErrorCode(ciStatus);
+            if (hasReports) {
+                if (isDownloadJunit) {
+                    saveJunit(master);
+                }
+                if (isDownloadJtl) {
+                    saveJTL(master);
+                }
+                JSONObject summary = downloadSummary(master);
+                notifier.notifyInfo(summary.toString());
+            }
+            return result;
         } catch (Exception e) {
             notifier.notifyError("Error while getting CI status from server " + e.getMessage());
             logger.error("Error while getting CI status from server ", e);
+            return BuildResult.FAILED;
         }
+    }
+
+    private boolean checkErrorCode(JSONObject ciStatus) {
+        if (ciStatus.has("errors")) {
+            JSONArray errors = ciStatus.getJSONArray("errors");
+            if (!errors.isEmpty()) {
+                for (int i = 0; i < errors.size(); i++) {
+                    if (errors.getJSONObject(i).getInt("code") == 70404) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+
+    public BuildResult validateCiStatus(JSONObject ciStatus) {
+        BuildResult result = checkFailsAndError(ciStatus);
 
         if (result.equals(BuildResult.SUCCESS)) {
             notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
