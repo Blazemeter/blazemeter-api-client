@@ -156,8 +156,11 @@ public class Master extends BZAObject {
         logger.info("Get summary for master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/reports/main/summary", encode(getId()));
         JSONObject result = utils.execute(utils.createGet(uri)).getJSONObject("result");
-        JSONObject summary = result.getJSONArray("summary").getJSONObject(0);
-        return extractSummary(summary);
+        JSONArray summary = result.getJSONArray("summary");
+        if (!summary.isEmpty()) {
+            return extractSummary(summary.getJSONObject(0));
+        }
+        return new JSONObject();
     }
 
     /**
