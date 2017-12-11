@@ -77,7 +77,10 @@ public class CiBuild {
             return doPostProcess(master);
         } catch (InterruptedException ex) {
             logger.warn("Caught InterruptedException, execute postProcess. " + ex.getMessage());
-            doPostProcess(master);
+            boolean hasReports = interrupt(master);
+            if (hasReports) {
+                doPostProcess(master);
+            }
             // because build has been aborted
             return BuildResult.ABORTED;
         }
