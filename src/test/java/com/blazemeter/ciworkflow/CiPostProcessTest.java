@@ -334,6 +334,33 @@ public class CiPostProcessTest {
     }
 
     @Test
+    public void testMakeReportDirEmpty() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
+        String reportPath = "";
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
+        try {
+            File wdf = new File(workingDir);
+            if (wdf.exists()) {
+                for (File f : wdf.listFiles()) {
+                    f.delete();
+                }
+                wdf.delete();
+            }
+            assert !wdf.exists();
+            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
+            assert junitReportDir.exists();
+            assert junitReportDir.getAbsolutePath().equals(workingDir);
+            junitReportDir.delete();
+            assert !junitReportDir.exists();
+            junitReportDir.getParentFile().delete();
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
     public void testMakeReportDirRoot() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
