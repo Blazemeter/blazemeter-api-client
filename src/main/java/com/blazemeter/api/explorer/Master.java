@@ -181,6 +181,10 @@ public class Master extends BZAObject {
      * @return note which was applied to master if request was successful
      */
     public String postNotes(String note) throws IOException {
+        if (StringUtils.isBlank(note)) {
+            logger.warn("Cannot send null or empty notes");
+            return StringUtils.EMPTY;
+        }
         logger.info("Post notes to master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s", encode(getId()));
         // Hack to escape '\r\n' chars..

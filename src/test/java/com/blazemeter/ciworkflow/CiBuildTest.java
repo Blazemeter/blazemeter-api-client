@@ -82,7 +82,7 @@ public class CiBuildTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
         setEmulator(emul);
         CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        CiBuild ciBuild = new CiBuild(emul, "testId", "1=2", "", postProcess);
+        CiBuild ciBuild = new CiBuild(emul, "testId", "1=2", "i", postProcess);
         ciBuild.execute();
         assertEquals(11, emul.getRequests().size());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(0));
