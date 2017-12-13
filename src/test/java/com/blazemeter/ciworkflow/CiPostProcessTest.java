@@ -352,14 +352,14 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath);
+            assertTrue(junitReportDir.exists());
+            assertEquals(workingDir + File.separator + reportPath, junitReportDir.getAbsolutePath());
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
             junitReportDir.getParentFile().delete();
-            assert !junitReportDir.getParentFile().exists();
+            assertFalse(junitReportDir.getParentFile().exists());
         } catch (Exception e) {
             fail();
         }
@@ -380,12 +380,12 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getAbsolutePath().equals(workingDir);
+            assertTrue(junitReportDir.exists());
+            assertEquals(workingDir, junitReportDir.getAbsolutePath());
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
             junitReportDir.getParentFile().delete();
         } catch (Exception e) {
             fail();
@@ -407,14 +407,14 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath.substring(1));
+            assertTrue(junitReportDir.exists());
+            assertEquals(workingDir + File.separator + reportPath.substring(1), junitReportDir.getAbsolutePath());
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
             junitReportDir.getParentFile().delete();
-            assert !junitReportDir.getParentFile().exists();
+            assertFalse(junitReportDir.getParentFile().exists());
         } catch (Exception e) {
             fail();
         }
@@ -435,13 +435,13 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getParentFile().equals(wdf.getParentFile());
-            assert junitReportDir.getName().equals(reportPath.substring(3));
+            assertTrue(junitReportDir.exists());
+            assertTrue(junitReportDir.getParentFile().equals(wdf.getParentFile()));
+            assertTrue(junitReportDir.getName().equals(reportPath.substring(3)));
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
         } catch (Exception e) {
             fail();
         }
@@ -462,13 +462,13 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getParentFile().equals(wdf);
-            assert junitReportDir.getName().equals(reportPath.substring(10));
+            assertTrue(junitReportDir.exists());
+            assertTrue(junitReportDir.getParentFile().equals(wdf));
+            assertTrue(junitReportDir.getName().equals(reportPath.substring(10)));
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
         } catch (Exception e) {
             fail();
         }
@@ -489,14 +489,14 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath);
+            assertTrue(junitReportDir.exists());
+            assertEquals(workingDir + File.separator + reportPath, junitReportDir.getAbsolutePath());
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
             junitReportDir.getParentFile().delete();
-            assert !junitReportDir.getParentFile().exists();
+            assertFalse(junitReportDir.getParentFile().exists());
         } catch (Exception e) {
             fail();
         }

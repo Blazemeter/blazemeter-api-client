@@ -18,6 +18,7 @@ import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
+import com.google.common.io.Files;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -29,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -158,7 +157,7 @@ public class CiPostProcess {
             File junitFile = new File(junitReportDir, junitFileName);
             junitFile.createNewFile();
             notifier.notifyInfo("Saving junit report " + junitFile);
-            Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
+            Files.write(junitReport.getBytes(), junitFile);
         } catch (Exception e) {
             notifier.notifyWarning("Failed to save junit report from master = " + master.getId() + " to disk.");
             logger.error("Failed to save junit report from master = " + master.getId() + " to disk.", e);
@@ -285,33 +284,30 @@ public class CiPostProcess {
     }
 
     public File makeReportDir(String reportDir) throws Exception {
-        File f;
-        File workspaceDir;
         String reportDirNoNull = reportDir.replace("null" + File.separator, "");
-        if (this.workspaceDir == null) {
-            workspaceDir = File.createTempFile(reportDirNoNull, reportDirNoNull);
-        } else {
-            workspaceDir = new File(this.workspaceDir);
-        }
-        if (StringUtils.isBlank(reportDirNoNull)) {
-            f = workspaceDir;
-        } else {
-            f = new File(reportDirNoNull);
-        }
+        File workspaceDir = this.workspaceDir == null ? Files.createTempDir() : new File(this.workspaceDir);
+        File f = StringUtils.isBlank(reportDirNoNull) ? workspaceDir : new File(reportDirNoNull);
         if (!f.isAbsolute()) {
             f = new File(workspaceDir, reportDirNoNull);
         }
+        notifier.notifyInfo("Trying to make path to " + f.getCanonicalPath());
+        logger.debug("Trying to make path to " + f.getCanonicalPath());
         try {
             f.mkdirs();
         } catch (Exception e) {
             throw new Exception("Failed to find filepath to " + f.getAbsolutePath());
         } finally {
             if (!f.exists()) {
+                notifier.notifyInfo(f.getCanonicalPath() + " is not created.");
+                logger.debug(f.getCanonicalPath() + " is not created.");
                 f = new File(workspaceDir, reportDirNoNull);
+                notifier.notifyInfo("Trying to set workspace " + f.getAbsolutePath() + " as report path");
+                logger.debug("Trying to set workspace " + f.getAbsolutePath() + " as report path");
                 f.mkdirs();
             }
         }
         notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
+        logger.debug("Resolving path into " + f.getCanonicalPath());
         return f.getCanonicalFile();
     }
 
