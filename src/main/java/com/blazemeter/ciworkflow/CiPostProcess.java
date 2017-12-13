@@ -302,13 +302,12 @@ public class CiPostProcess {
     }
 
     public File makeReportDir(String reportDir) throws Exception {
-        String reportDirNoNull = reportDir.replace("null" + File.separator, "");
         File workspaceDir = this.workspaceDir == null ? Files.createTempDir() : new File(this.workspaceDir);
+        String reportDirNoNull = reportDir == null ? workspaceDir.getAbsolutePath() : reportDir.replace("null" + File.separator, "");
         File f = StringUtils.isBlank(reportDirNoNull) ? workspaceDir : new File(reportDirNoNull);
         if (!f.isAbsolute()) {
             f = new File(workspaceDir, reportDirNoNull);
         }
-        notifier.notifyInfo("Trying to make path to " + f.getCanonicalPath());
         logger.debug("Trying to make path to " + f.getCanonicalPath());
         try {
             f.mkdirs();
@@ -316,10 +315,8 @@ public class CiPostProcess {
             throw new Exception("Failed to find filepath to " + f.getAbsolutePath());
         } finally {
             if (!f.exists()) {
-                notifier.notifyInfo(f.getCanonicalPath() + " is not created.");
                 logger.debug(f.getCanonicalPath() + " is not created.");
                 f = new File(workspaceDir, reportDirNoNull);
-                notifier.notifyInfo("Trying to set workspace " + f.getAbsolutePath() + " as report path");
                 logger.debug("Trying to set workspace " + f.getAbsolutePath() + " as report path");
                 f.mkdirs();
             }
