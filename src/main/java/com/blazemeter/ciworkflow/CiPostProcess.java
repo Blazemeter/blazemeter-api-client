@@ -18,6 +18,7 @@ import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
+import com.google.common.io.Files;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -29,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -54,13 +53,13 @@ public class CiPostProcess {
 
     private final Logger logger;
 
-    public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit,
-                         String junitPath, String jtlPath, String workspaceDir,
+    public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
+                         String junitPath, String workspaceDir,
                          UserNotifier notifier, Logger logger) {
         this.isDownloadJtl = isDownloadJtl;
         this.isDownloadJunit = isDownloadJunit;
-        this.junitPath = junitPath;
         this.jtlPath = jtlPath;
+        this.junitPath = junitPath;
         this.workspaceDir = workspaceDir;
         this.notifier = notifier;
         this.logger = logger;
@@ -175,7 +174,8 @@ public class CiPostProcess {
             File junitReportDir = makeReportDir(junitPath);
             File junitFile = new File(junitReportDir, junitFileName);
             junitFile.createNewFile();
-            Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
+            notifier.notifyInfo("Saving junit report " + junitFile);
+            Files.write(junitReport.getBytes(), junitFile);
         } catch (Exception e) {
             notifier.notifyWarning("Failed to save junit report from master = " + master.getId() + " to disk.");
             logger.error("Failed to save junit report from master = " + master.getId() + " to disk.", e);
@@ -208,13 +208,13 @@ public class CiPostProcess {
     public boolean downloadAndUnzipJTL(URL url, String jtlZipPath) {
         for (int i = 1; i < 4; i++) {
             try {
-                notifier.notifyInfo("Downloading JTL zip from url=" + url.getPath() + " attemp # " + i);
                 int timeout = (int) (10000 * Math.pow(3, i - 1));
                 URLConnection connection = url.openConnection();
                 connection.setConnectTimeout(timeout);
                 connection.setReadTimeout(30000);
                 InputStream inputStream = connection.getInputStream();
                 File reportDir = makeReportDir(jtlZipPath);
+                notifier.notifyInfo("Downloading jtl zip to " + reportDir);
                 unzipJTL(inputStream, reportDir);
                 return true;
             } catch (Exception e) {
@@ -302,26 +302,30 @@ public class CiPostProcess {
     }
 
     public File makeReportDir(String reportDir) throws Exception {
-        File f;
-        if (StringUtils.isBlank(reportDir)) {
-            f = new File(workspaceDir);
-        } else {
-            f = new File(reportDir);
-        }
+        String reportDirNoNull = reportDir.replace("null" + File.separator, "");
+        File workspaceDir = this.workspaceDir == null ? Files.createTempDir() : new File(this.workspaceDir);
+        File f = StringUtils.isBlank(reportDirNoNull) ? workspaceDir : new File(reportDirNoNull);
         if (!f.isAbsolute()) {
-            f = new File(workspaceDir, reportDir);
+            f = new File(workspaceDir, reportDirNoNull);
         }
+        notifier.notifyInfo("Trying to make path to " + f.getCanonicalPath());
+        logger.debug("Trying to make path to " + f.getCanonicalPath());
         try {
             f.mkdirs();
         } catch (Exception e) {
             throw new Exception("Failed to find filepath to " + f.getAbsolutePath());
         } finally {
             if (!f.exists()) {
-                f = new File(workspaceDir, reportDir);
+                notifier.notifyInfo(f.getCanonicalPath() + " is not created.");
+                logger.debug(f.getCanonicalPath() + " is not created.");
+                f = new File(workspaceDir, reportDirNoNull);
+                notifier.notifyInfo("Trying to set workspace " + f.getAbsolutePath() + " as report path");
+                logger.debug("Trying to set workspace " + f.getAbsolutePath() + " as report path");
                 f.mkdirs();
-                notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
             }
         }
+        notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
+        logger.debug("Resolving path into " + f.getCanonicalPath());
         return f.getCanonicalFile();
     }
 

@@ -64,7 +64,7 @@ public class CiPostProcessTest {
     public void testUnzipJTL() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "re", System.getProperty("user.dir"), notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "re", "", System.getProperty("user.dir"), notifier, logger);
         try {
             File bzmZip = File.createTempFile("bzm_zip", ".zip");
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(bzmZip));
@@ -270,7 +270,7 @@ public class CiPostProcessTest {
     public void testGetters() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "pwd", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "pwd", notifier, logger);
 
         assertTrue(ciPostProcess.isDownloadJtl());
         assertTrue(ciPostProcess.isDownloadJunit());
@@ -293,7 +293,7 @@ public class CiPostProcessTest {
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
 
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "pwd", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "pwd", notifier, logger);
         Master master = new Master(emul, "id", "name");
 
         BuildResult result = ciPostProcess.execute(master);
@@ -320,14 +320,14 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath);
+            assertTrue(junitReportDir.exists());
+            assertEquals(workingDir + File.separator + reportPath, junitReportDir.getAbsolutePath());
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
             junitReportDir.getParentFile().delete();
-            assert !junitReportDir.getParentFile().exists();
+            assertFalse(junitReportDir.getParentFile().exists());
         } catch (Exception e) {
             fail();
         }
@@ -348,17 +348,18 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getAbsolutePath().equals(workingDir);
+            assertTrue(junitReportDir.exists());
+            assertEquals(workingDir, junitReportDir.getAbsolutePath());
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
             junitReportDir.getParentFile().delete();
         } catch (Exception e) {
             fail();
         }
     }
+
 
     @Test
     public void testMakeReportDirRoot() {
@@ -375,14 +376,14 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath.substring(1));
+            assertTrue(junitReportDir.exists());
+            assertEquals(workingDir + File.separator + reportPath.substring(1), junitReportDir.getAbsolutePath());
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
             junitReportDir.getParentFile().delete();
-            assert !junitReportDir.getParentFile().exists();
+            assertFalse(junitReportDir.getParentFile().exists());
         } catch (Exception e) {
             fail();
         }
@@ -403,13 +404,13 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getParentFile().equals(wdf.getParentFile());
-            assert junitReportDir.getName().equals(reportPath.substring(3));
+            assertTrue(junitReportDir.exists());
+            assertTrue(junitReportDir.getParentFile().equals(wdf.getParentFile()));
+            assertTrue(junitReportDir.getName().equals(reportPath.substring(3)));
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
         } catch (Exception e) {
             fail();
         }
@@ -430,13 +431,13 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getParentFile().equals(wdf);
-            assert junitReportDir.getName().equals(reportPath.substring(10));
+            assertTrue(junitReportDir.exists());
+            assertTrue(junitReportDir.getParentFile().equals(wdf));
+            assertTrue(junitReportDir.getName().equals(reportPath.substring(10)));
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
         } catch (Exception e) {
             fail();
         }
@@ -457,14 +458,14 @@ public class CiPostProcessTest {
                 }
                 wdf.delete();
             }
-            assert !wdf.exists();
+            assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assert junitReportDir.exists();
-            assert junitReportDir.getAbsolutePath().equals(workingDir + File.separator + reportPath);
+            assertTrue(junitReportDir.exists());
+            assertEquals(workingDir + File.separator + reportPath, junitReportDir.getAbsolutePath());
             junitReportDir.delete();
-            assert !junitReportDir.exists();
+            assertFalse(junitReportDir.exists());
             junitReportDir.getParentFile().delete();
-            assert !junitReportDir.getParentFile().exists();
+            assertFalse(junitReportDir.getParentFile().exists());
         } catch (Exception e) {
             fail();
         }
@@ -479,7 +480,7 @@ public class CiPostProcessTest {
         File junit = File.createTempFile("junit", ".xml");
         String name = junit.getName();
         name = name.substring(0, name.indexOf(".xml"));
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, junit.getParent(), "jtl", junit.getParent(), notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", junit.getParent(), junit.getParent(), notifier, logger);
         Master master = new Master(emul, name, "name");
 
         try {
@@ -507,7 +508,7 @@ public class CiPostProcessTest {
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
 
         try {
@@ -521,7 +522,7 @@ public class CiPostProcessTest {
         logger.reset();
         emul.addEmul(MasterTest.generateResponseGetSessions());
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
-        ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger) {
+        ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "", notifier, logger) {
             @Override
             public boolean downloadAndUnzipJTL(URL url, String jtlZipPath) {
                 return false;
@@ -541,7 +542,7 @@ public class CiPostProcessTest {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
 
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger) {
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "", notifier, logger) {
             @Override
             public void unzipJTL(InputStream inputStream, File reportDir) throws IOException {
                 throw new IOException("ooops");
@@ -560,7 +561,7 @@ public class CiPostProcessTest {
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
 
         JSONObject summary = ciPostProcess.downloadSummary(master);
@@ -580,7 +581,7 @@ public class CiPostProcessTest {
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
 
         emul.addEmul(generateResponseCIStatus_Error_70404());
@@ -601,10 +602,31 @@ public class CiPostProcessTest {
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "junit", "jtl", "", notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "", notifier, logger);
         Master master = new Master(emul, "id", "name");
 
         BuildResult result = ciPostProcess.execute(master);
         assertEquals(BuildResult.FAILED, result);
+    }
+
+    @Test
+    public void testJtlPathNullInTheMiddle() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(MasterTest.generateResponseGetCIStatus());
+        emul.addEmul("junit report");
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReport());
+        emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, null, null, System.getProperty("user.dir") + File.separator +
+                "job/logs/100", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+        ciPostProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+        assertTrue(notifiers, notifiers.contains("job/logs/100/r-v3-1234567890qwerty"));
+        assertFalse(notifiers, notifiers.contains("job/logs/100/null/r-v3-1234567890qwerty"));
     }
 }
