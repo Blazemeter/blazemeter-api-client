@@ -362,6 +362,21 @@ public class MasterTest {
         assertTrue(logs, logs.contains("Post notes to master id=id"));
     }
 
+    @Test
+    public void testPostNullNote() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        Master master = new Master(emul, "id", "name");
+
+        String note = master.postNotes(null);
+        assertEquals("", note);
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 33, logs.length());
+        assertTrue(logs, logs.contains("Cannot send null or empty notes"));
+    }
+
     public static String generateResponsePostNote() {
         JSONObject result = new JSONObject();
         result.put("note", "valid\r\n" +
