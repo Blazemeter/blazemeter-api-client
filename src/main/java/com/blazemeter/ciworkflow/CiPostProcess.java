@@ -53,13 +53,13 @@ public class CiPostProcess {
 
     private final Logger logger;
 
-    public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit,
-                         String junitPath, String jtlPath, String workspaceDir,
+    public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
+                         String junitPath, String workspaceDir,
                          UserNotifier notifier, Logger logger) {
         this.isDownloadJtl = isDownloadJtl;
         this.isDownloadJunit = isDownloadJunit;
-        this.junitPath = junitPath;
         this.jtlPath = jtlPath;
+        this.junitPath = junitPath;
         this.workspaceDir = workspaceDir;
         this.notifier = notifier;
         this.logger = logger;
