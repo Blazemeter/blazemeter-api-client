@@ -605,4 +605,25 @@ public class CiPostProcessTest {
         assertTrue(logs, logs.contains("Failed to get aggregate summary for master"));
         assertTrue(logs, logs.contains("Failed to get functional summary for master"));
     }
+
+    @Test
+    public void testJtlPathNullInTheMiddle() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(MasterTest.generateResponseGetCIStatus());
+        emul.addEmul("junit report");
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReport());
+        emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, null, null, System.getProperty("user.dir") + File.separator +
+                "job/logs/100", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+        ciPostProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+        assertTrue(notifiers, notifiers.contains("job/logs/100/r-v3-1234567890qwerty"));
+        assertFalse(notifiers, notifiers.contains("job/logs/100/null/r-v3-1234567890qwerty"));
+    }
 }

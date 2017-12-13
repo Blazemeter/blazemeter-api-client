@@ -286,13 +286,20 @@ public class CiPostProcess {
 
     public File makeReportDir(String reportDir) throws Exception {
         File f;
-        if (StringUtils.isBlank(reportDir)) {
-            f = new File(workspaceDir);
+        File workspaceDir;
+        String reportDirNoNull = reportDir.replace("null" + File.separator, "");
+        if (this.workspaceDir == null) {
+            workspaceDir = File.createTempFile(reportDirNoNull, reportDirNoNull);
         } else {
-            f = new File(reportDir);
+            workspaceDir = new File(this.workspaceDir);
+        }
+        if (StringUtils.isBlank(reportDirNoNull)) {
+            f = workspaceDir;
+        } else {
+            f = new File(reportDirNoNull);
         }
         if (!f.isAbsolute()) {
-            f = new File(workspaceDir, reportDir);
+            f = new File(workspaceDir, reportDirNoNull);
         }
         try {
             f.mkdirs();
@@ -300,11 +307,11 @@ public class CiPostProcess {
             throw new Exception("Failed to find filepath to " + f.getAbsolutePath());
         } finally {
             if (!f.exists()) {
-                f = new File(workspaceDir, reportDir);
+                f = new File(workspaceDir, reportDirNoNull);
                 f.mkdirs();
-                notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
             }
         }
+        notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
         return f.getCanonicalFile();
     }
 
