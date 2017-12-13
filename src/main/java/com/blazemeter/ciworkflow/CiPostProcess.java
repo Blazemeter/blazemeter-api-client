@@ -157,6 +157,7 @@ public class CiPostProcess {
             File junitReportDir = makeReportDir(junitPath);
             File junitFile = new File(junitReportDir, junitFileName);
             junitFile.createNewFile();
+            notifier.notifyInfo("Saving junit report " + junitFile);
             Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
         } catch (Exception e) {
             notifier.notifyWarning("Failed to save junit report from master = " + master.getId() + " to disk.");
@@ -190,13 +191,13 @@ public class CiPostProcess {
     public boolean downloadAndUnzipJTL(URL url, String jtlZipPath) {
         for (int i = 1; i < 4; i++) {
             try {
-                notifier.notifyInfo("Downloading JTL zip from url=" + url.getPath() + " attemp # " + i);
                 int timeout = (int) (10000 * Math.pow(3, i - 1));
                 URLConnection connection = url.openConnection();
                 connection.setConnectTimeout(timeout);
                 connection.setReadTimeout(30000);
                 InputStream inputStream = connection.getInputStream();
                 File reportDir = makeReportDir(jtlZipPath);
+                notifier.notifyInfo("Downloading jtl zip to " + reportDir);
                 unzipJTL(inputStream, reportDir);
                 return true;
             } catch (Exception e) {
