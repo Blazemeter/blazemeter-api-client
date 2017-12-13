@@ -303,10 +303,9 @@ public class CiPostProcess {
 
     public File makeReportDir(String reportDir) throws Exception {
         File workspaceDir = this.workspaceDir == null ? Files.createTempDir() : new File(this.workspaceDir);
-        String reportDirNoNull = reportDir == null ? workspaceDir.getAbsolutePath() : reportDir.replace("null" + File.separator, "");
-        File f = StringUtils.isBlank(reportDirNoNull) ? workspaceDir : new File(reportDirNoNull);
+        File f = StringUtils.isBlank(reportDir) ? workspaceDir : new File(reportDir);
         if (!f.isAbsolute()) {
-            f = new File(workspaceDir, reportDirNoNull);
+            f = new File(workspaceDir, reportDir);
         }
         logger.debug("Trying to make path to " + f.getCanonicalPath());
         try {
@@ -316,7 +315,7 @@ public class CiPostProcess {
         } finally {
             if (!f.exists()) {
                 logger.debug(f.getCanonicalPath() + " is not created.");
-                f = new File(workspaceDir, reportDirNoNull);
+                f = new File(workspaceDir, reportDir);
                 logger.debug("Trying to set workspace " + f.getAbsolutePath() + " as report path");
                 f.mkdirs();
             }
