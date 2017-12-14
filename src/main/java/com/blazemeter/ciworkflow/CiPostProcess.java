@@ -189,13 +189,15 @@ public class CiPostProcess {
         try {
             File jtlReportsDir = mkdirs(workspaceDir, jtlPath);
             for (Session session : master.getSessions()) {
-                URL url = new URL(session.getJTLReport());
-                File reportDir = new File(jtlReportsDir, session.getId());
-                reportDir.mkdirs();
-                boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
-                notifier.notifyInfo("Saving jtl report " + reportDir.getAbsolutePath());
-                if (!isSuccess) {
-                    logger.error("Failed to download & unzip jtl-report from " + url.getPath());
+                if (session.getJTLReport() != null) {
+                    URL url = new URL(session.getJTLReport());
+                    File reportDir = new File(jtlReportsDir, session.getId());
+                    reportDir.mkdirs();
+                    boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
+                    notifier.notifyInfo("Saving jtl report " + reportDir.getAbsolutePath());
+                    if (!isSuccess) {
+                        logger.error("Failed to download & unzip jtl-report from " + url.getPath());
+                    }
                 }
             }
         } catch (Exception e) {
