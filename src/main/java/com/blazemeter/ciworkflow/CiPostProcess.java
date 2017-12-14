@@ -18,7 +18,6 @@ import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
-import com.google.common.io.Files;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -30,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -175,7 +176,7 @@ public class CiPostProcess {
             File junitFile = new File(junitReportDir, junitFileName);
             junitFile.createNewFile();
             notifier.notifyInfo("Saving junit report " + junitFile);
-            Files.write(junitReport.getBytes(), junitFile);
+            Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
         } catch (Exception e) {
             notifier.notifyWarning("Failed to save junit report from master = " + master.getId() + " to disk.");
             logger.error("Failed to save junit report from master = " + master.getId() + " to disk.", e);
@@ -302,7 +303,7 @@ public class CiPostProcess {
     }
 
     public File makeReportDir(String reportDir) throws Exception {
-        File workspaceDir = this.workspaceDir == null ? Files.createTempDir() : new File(this.workspaceDir);
+        File workspaceDir = this.workspaceDir == null ? createTmpDir() : new File(this.workspaceDir);
         File f = StringUtils.isBlank(reportDir) ? workspaceDir : new File(reportDir);
         if (!f.isAbsolute()) {
             f = new File(workspaceDir, f.getName());
@@ -323,6 +324,20 @@ public class CiPostProcess {
         notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
         logger.debug("Resolving path into " + f.getCanonicalPath());
         return f.getCanonicalFile();
+    }
+
+    public static File createTmpDir() throws IOException {
+        final File temp = File.createTempFile("bzm_tmp", Long.toString(System.nanoTime()));
+
+        if (!(temp.delete())) {
+            throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
+        }
+
+        if (!(temp.mkdir())) {
+            throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
+        }
+
+        return (temp);
     }
 
     public boolean isDownloadJtl() {
