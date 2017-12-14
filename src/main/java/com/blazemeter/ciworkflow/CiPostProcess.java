@@ -189,8 +189,9 @@ public class CiPostProcess {
         try {
             File jtlReportsDir = mkdirs(workspaceDir, jtlPath);
             for (Session session : master.getSessions()) {
-                if (session.getJTLReport() != null) {
-                    URL url = new URL(session.getJTLReport());
+                String reportUrl = session.getJTLReport();
+                if (reportUrl != null) {
+                    URL url = new URL(reportUrl);
                     File reportDir = new File(jtlReportsDir, session.getId());
                     reportDir.mkdirs();
                     boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
