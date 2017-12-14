@@ -407,7 +407,6 @@ public class CiPostProcessTest {
             assertFalse(wdf.exists());
             File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
             assertTrue(junitReportDir.exists());
-            assertTrue(junitReportDir.getParentFile().equals(wdf.getParentFile()));
             assertTrue(junitReportDir.getName().equals(reportPath.substring(3)));
             junitReportDir.delete();
             assertFalse(junitReportDir.exists());
@@ -607,5 +606,26 @@ public class CiPostProcessTest {
 
         BuildResult result = ciPostProcess.execute(master);
         assertEquals(BuildResult.FAILED, result);
+    }
+
+    @Test
+    public void testJtlPathNullInTheMiddle() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(MasterTest.generateResponseGetCIStatus());
+        emul.addEmul("junit report");
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReport());
+        emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
+
+        CiPostProcess ciPostProcess = new CiPostProcess(true, true, null, null, System.getProperty("user.dir") + File.separator +
+                "job/logs/100", notifier, logger);
+        Master master = new Master(emul, "id", "name");
+        ciPostProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+        assertTrue(notifiers, notifiers.contains("job/logs/100/r-v3-1234567890qwerty"));
+        assertFalse(notifiers, notifiers.contains("job/logs/100/null/r-v3-1234567890qwerty"));
     }
 }

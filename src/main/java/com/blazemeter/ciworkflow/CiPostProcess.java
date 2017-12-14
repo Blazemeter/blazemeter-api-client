@@ -305,7 +305,7 @@ public class CiPostProcess {
         File workspaceDir = this.workspaceDir == null ? Files.createTempDir() : new File(this.workspaceDir);
         File f = StringUtils.isBlank(reportDir) ? workspaceDir : new File(reportDir);
         if (!f.isAbsolute()) {
-            f = new File(workspaceDir, reportDir);
+            f = new File(workspaceDir, f.getName());
         }
         logger.debug("Trying to make path to " + f.getCanonicalPath());
         try {
