@@ -171,11 +171,9 @@ public class CiPostProcess {
     public void saveJunit(Master master) {
         try {
             String junitReport = master.getJUnitReport();
-            String junitFileName = master.getId() + ".xml";
-            File junitReportDir = makeReportDir(junitPath);
-            File junitFile = new File(junitReportDir, junitFileName);
-            junitFile.createNewFile();
-            notifier.notifyInfo("Saving junit report " + junitFile);
+            File junitReportDir = mkdirs(workspaceDir, junitPath);
+            File junitFile = createReportFile(junitReportDir, master.getId() + ".xml");
+            notifier.notifyInfo("Saving junit report " + junitFile.getAbsolutePath());
             Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
         } catch (Exception e) {
             notifier.notifyWarning("Failed to save junit report from master = " + master.getId() + " to disk.");
@@ -189,9 +187,13 @@ public class CiPostProcess {
      */
     public void saveJTL(Master master) {
         try {
-            for (Session s : master.getSessions()) {
-                URL url = new URL(s.getJTLReport());
-                boolean isSuccess = downloadAndUnzipJTL(url, jtlPath + File.separator + s.getId());
+            File jtlReportsDir = mkdirs(workspaceDir, jtlPath);
+            for (Session session : master.getSessions()) {
+                URL url = new URL(session.getJTLReport());
+                File reportDir = new File(jtlReportsDir, session.getId());
+                reportDir.mkdirs();
+                boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
+                notifier.notifyInfo("Saving jtl report " + reportDir.getAbsolutePath());
                 if (!isSuccess) {
                     logger.error("Failed to download & unzip jtl-report from " + url.getPath());
                 }
@@ -206,7 +208,7 @@ public class CiPostProcess {
      * @param url - for download JTL report
      * @return true - if report has been successfully downloaded and unzip
      */
-    public boolean downloadAndUnzipJTL(URL url, String jtlZipPath) {
+    public boolean downloadAndUnzipJTL(URL url, File reportDir) {
         for (int i = 1; i < 4; i++) {
             try {
                 int timeout = (int) (10000 * Math.pow(3, i - 1));
@@ -214,8 +216,6 @@ public class CiPostProcess {
                 connection.setConnectTimeout(timeout);
                 connection.setReadTimeout(30000);
                 InputStream inputStream = connection.getInputStream();
-                File reportDir = makeReportDir(jtlZipPath);
-                notifier.notifyInfo("Downloading jtl zip to " + reportDir);
                 unzipJTL(inputStream, reportDir);
                 return true;
             } catch (Exception e) {
@@ -237,16 +237,15 @@ public class CiPostProcess {
         byte[] buffer = new byte[4096];
         ZipEntry zipEntry = zis.getNextEntry();
         while (zipEntry != null) {
-            String fileName = zipEntry.getName();
-            File f = new File(reportDir, fileName);
-            FileOutputStream fos = new FileOutputStream(f);
+            File report = new File(reportDir, zipEntry.getName());
+            FileOutputStream fos = new FileOutputStream(report);
             int len;
             while ((len = zis.read(buffer)) > 0) {
                 fos.write(buffer, 0, len);
             }
             fos.close();
-            if (f.exists() && f.getName().equals("sample.jtl")) {
-                f.renameTo(new File(reportDir, "bm-kpis.jtl"));
+            if (report.exists() && report.getName().equals("sample.jtl")) {
+                report.renameTo(new File(reportDir, "bm-kpis.jtl"));
             }
             zipEntry = zis.getNextEntry();
         }
@@ -302,28 +301,23 @@ public class CiPostProcess {
         }
     }
 
-    public File makeReportDir(String reportDir) throws Exception {
-        File workspaceDir = this.workspaceDir == null ? createTmpDir() : new File(this.workspaceDir);
-        File f = StringUtils.isBlank(reportDir) ? workspaceDir : new File(reportDir);
-        if (!f.isAbsolute()) {
-            f = new File(workspaceDir, f.getName());
+    public static File createReportFile(File parent, String reportName) throws IOException {
+        File result = new File(parent, reportName);
+        result.createNewFile();
+        return result;
+    }
+
+    public static File mkdirs(String workspaceDir, String userPath) throws IOException {
+        if (StringUtils.isBlank(userPath) || !new File(userPath).isAbsolute()) {
+            File workspace = (workspaceDir == null) ? createTmpDir() : new File(workspaceDir);
+            File result = StringUtils.isBlank(userPath) ? workspace : new File(workspace, userPath);
+            result.mkdirs();
+            return result;
+        } else  {
+            File userFile = new File(userPath);
+            userFile.mkdirs();
+            return userFile;
         }
-        logger.debug("Trying to make path to " + f.getCanonicalPath());
-        try {
-            f.mkdirs();
-        } catch (Exception e) {
-            throw new Exception("Failed to find filepath to " + f.getAbsolutePath());
-        } finally {
-            if (!f.exists()) {
-                logger.debug(f.getCanonicalPath() + " is not created.");
-                f = new File(workspaceDir, reportDir);
-                logger.debug("Trying to set workspace " + f.getAbsolutePath() + " as report path");
-                f.mkdirs();
-            }
-        }
-        notifier.notifyInfo("Resolving path into " + f.getCanonicalPath());
-        logger.debug("Resolving path into " + f.getCanonicalPath());
-        return f.getCanonicalFile();
     }
 
     public static File createTmpDir() throws IOException {

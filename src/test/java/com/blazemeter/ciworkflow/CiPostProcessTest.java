@@ -74,7 +74,7 @@ public class CiPostProcessTest {
             out.write(buffer);
             out.close();
             InputStream is = new FileInputStream(bzmZip);
-            File reportDir = ciPostProcess.makeReportDir(ciPostProcess.jtlPath);
+            File reportDir = CiPostProcess.createTmpDir();
             ciPostProcess.unzipJTL(is, reportDir);
             File bmKpi = new File(reportDir, "bm-kpis.jtl");
             assertTrue(bmKpi.exists());
@@ -306,171 +306,6 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testMakeReportDir() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
-        String reportPath = "report";
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
-        try {
-            File wdf = new File(workingDir);
-            if (wdf.exists()) {
-                for (File f : wdf.listFiles()) {
-                    f.delete();
-                }
-                wdf.delete();
-            }
-            assertFalse(wdf.exists());
-            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assertTrue(junitReportDir.exists());
-            assertEquals(workingDir + File.separator + reportPath, junitReportDir.getAbsolutePath());
-            junitReportDir.delete();
-            assertFalse(junitReportDir.exists());
-            junitReportDir.getParentFile().delete();
-            assertFalse(junitReportDir.getParentFile().exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testMakeReportDirEmpty() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
-        String reportPath = "";
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
-        try {
-            File wdf = new File(workingDir);
-            if (wdf.exists()) {
-                for (File f : wdf.listFiles()) {
-                    f.delete();
-                }
-                wdf.delete();
-            }
-            assertFalse(wdf.exists());
-            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assertTrue(junitReportDir.exists());
-            assertEquals(workingDir, junitReportDir.getAbsolutePath());
-            junitReportDir.delete();
-            assertFalse(junitReportDir.exists());
-            junitReportDir.getParentFile().delete();
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-
-    @Test
-    public void testMakeReportDirRoot() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
-        String reportPath = "/report";
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
-        try {
-            File wdf = new File(workingDir);
-            if (wdf.exists()) {
-                for (File f : wdf.listFiles()) {
-                    f.delete();
-                }
-                wdf.delete();
-            }
-            assertFalse(wdf.exists());
-            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assertTrue(junitReportDir.exists());
-            assertEquals(workingDir + File.separator + reportPath.substring(1), junitReportDir.getAbsolutePath());
-            junitReportDir.delete();
-            assertFalse(junitReportDir.exists());
-            junitReportDir.getParentFile().delete();
-            assertFalse(junitReportDir.getParentFile().exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testMakeReportDirParent() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
-        String reportPath = "../report";
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
-        try {
-            File wdf = new File(workingDir);
-            if (wdf.exists()) {
-                for (File f : wdf.listFiles()) {
-                    f.delete();
-                }
-                wdf.delete();
-            }
-            assertFalse(wdf.exists());
-            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assertTrue(junitReportDir.exists());
-            assertTrue(junitReportDir.getName().equals(reportPath.substring(3)));
-            junitReportDir.delete();
-            assertFalse(junitReportDir.exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testMakeReportDirParentMiddle() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
-        String reportPath = "report/../t";
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
-        try {
-            File wdf = new File(workingDir);
-            if (wdf.exists()) {
-                for (File f : wdf.listFiles()) {
-                    f.delete();
-                }
-                wdf.delete();
-            }
-            assertFalse(wdf.exists());
-            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assertTrue(junitReportDir.exists());
-            assertTrue(junitReportDir.getParentFile().equals(wdf));
-            assertTrue(junitReportDir.getName().equals(reportPath.substring(10)));
-            junitReportDir.delete();
-            assertFalse(junitReportDir.exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testMakeReportCurrent() {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        String workingDir = System.getProperty("user.dir") + File.separator + "wd";
-        String reportPath = "report";
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, reportPath, reportPath, workingDir, notifier, logger);
-        try {
-            File wdf = new File(workingDir);
-            if (wdf.exists()) {
-                for (File f : wdf.listFiles()) {
-                    f.delete();
-                }
-                wdf.delete();
-            }
-            assertFalse(wdf.exists());
-            File junitReportDir = ciPostProcess.makeReportDir(ciPostProcess.junitPath);
-            assertTrue(junitReportDir.exists());
-            assertEquals(workingDir + File.separator + reportPath, junitReportDir.getAbsolutePath());
-            junitReportDir.delete();
-            assertFalse(junitReportDir.exists());
-            junitReportDir.getParentFile().delete();
-            assertFalse(junitReportDir.getParentFile().exists());
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
-    @Test
     public void testSaveJUnit() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
@@ -523,7 +358,7 @@ public class CiPostProcessTest {
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "", notifier, logger) {
             @Override
-            public boolean downloadAndUnzipJTL(URL url, String jtlZipPath) {
+            public boolean downloadAndUnzipJTL(URL url, File reportDir) {
                 return false;
             }
         };
@@ -548,7 +383,7 @@ public class CiPostProcessTest {
             }
         };
 
-        boolean result = ciPostProcess.downloadAndUnzipJTL(new URL(BZM_ADDRESS), "1");
+        boolean result = ciPostProcess.downloadAndUnzipJTL(new URL(BZM_ADDRESS), new File("1"));
         assertFalse(result);
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Unable to get JTL zip for sessionId="));
@@ -609,23 +444,156 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testJtlPathNullInTheMiddle() throws Exception {
+    public void testResolvePath_UserNullPath_NullWorkspace() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        Master master = new Master(emul, "id", "name");
 
+        setStandardFlow(emul);
+        CiPostProcess postProcess = new CiPostProcess(true, true, null, null, null, notifier, logger);
+        postProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+
+        String jtlPath = notifiers.substring(notifiers.indexOf("Saving jtl report"), notifiers.indexOf("Trying to get functional summar"));
+        System.out.println(jtlPath);
+        assertTrue(notifiers, jtlPath.contains("/bzm_tmp"));
+        assertTrue(notifiers, jtlPath.contains("/r-v3-1234567890qwerty"));
+        assertFalse(notifiers, jtlPath.contains("/null/r-v3-1234567890qwerty"));
+
+        String junitPath = notifiers.substring(notifiers.indexOf("Saving junit report"), notifiers.indexOf("Saving jtl"));
+        System.out.println(junitPath);
+        assertTrue(notifiers, junitPath.contains("/bzm_tmp"));
+        assertTrue(notifiers, junitPath.contains("/id.xml"));
+        assertFalse(notifiers, junitPath.contains("/null/id.xml"));
+    }
+
+    @Test
+    public void testResolvePath_UserNullPath() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        setStandardFlow(emul);
+        String userWorkspace = System.getProperty("user.dir") + File.separator + "job/logs/100";
+        CiPostProcess postProcess = new CiPostProcess(true, true, null, null, userWorkspace, notifier, logger);
+        postProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+
+        String jtlPath = notifiers.substring(notifiers.indexOf("Saving jtl report"), notifiers.indexOf("Trying to get functional summar"));
+        System.out.println(jtlPath);
+        assertTrue(notifiers, jtlPath.contains("job/logs/100/r-v3-1234567890qwerty"));
+        assertFalse(notifiers, jtlPath.contains("job/logs/100/null/r-v3-1234567890qwerty"));
+
+        String junitPath = notifiers.substring(notifiers.indexOf("Saving junit report"), notifiers.indexOf("Saving jtl"));
+        System.out.println(junitPath);
+        assertTrue(notifiers, junitPath.contains("job/logs/100/id.xml"));
+        assertFalse(notifiers, junitPath.contains("job/logs/100/null/id.xml"));
+    }
+
+
+    @Test
+    public void testResolvePath_UserRelativePath() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        setStandardFlow(emul);
+        String userWorkspace = System.getProperty("user.dir") + File.separator + "job/logs/100";
+        CiPostProcess postProcess = new CiPostProcess(true, true, "relative1/jtl/rep", "relative2/junit/rep", userWorkspace, notifier, logger);
+        postProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+
+        String jtlPath = notifiers.substring(notifiers.indexOf("Saving jtl report"), notifiers.indexOf("Trying to get functional summar"));
+        System.out.println(jtlPath);
+        assertTrue(notifiers, jtlPath.contains("job/logs/100/relative1/jtl/rep/r-v3-1234567890qwerty"));
+
+        String junitPath = notifiers.substring(notifiers.indexOf("Saving junit report"), notifiers.indexOf("Saving jtl"));
+        System.out.println(junitPath);
+        assertTrue(notifiers, junitPath.contains("job/logs/100/relative2/junit/rep/id.xml"));
+    }
+
+    @Test
+    public void testResolvePath_UserRelativePath_NullWorkspace() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        setStandardFlow(emul);
+        CiPostProcess postProcess = new CiPostProcess(true, true, "relative1/jtl/rep", "relative2/junit/rep", null, notifier, logger);
+        postProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+
+        String jtlPath = notifiers.substring(notifiers.indexOf("Saving jtl report"), notifiers.indexOf("Trying to get functional summar"));
+        System.out.println(jtlPath);
+        assertTrue(notifiers, jtlPath.contains("/bzm_tmp"));
+        assertTrue(notifiers, jtlPath.contains("/relative1/jtl/rep/r-v3-1234567890qwerty"));
+
+        String junitPath = notifiers.substring(notifiers.indexOf("Saving junit report"), notifiers.indexOf("Saving jtl"));
+        System.out.println(junitPath);
+        assertTrue(notifiers, junitPath.contains("/bzm_tmp"));
+        assertTrue(notifiers, junitPath.contains("/relative2/junit/rep/id.xml"));
+    }
+
+
+    @Test
+    public void testResolvePath_UserAbsolutePath() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        setStandardFlow(emul);
+        String userWorkspace = System.getProperty("user.dir") + File.separator + "job/logs/100";
+
+        File jtlDir = CiPostProcess.createTmpDir();
+        File junitDir = CiPostProcess.createTmpDir();
+
+        CiPostProcess postProcess = new CiPostProcess(true, true, jtlDir.getAbsolutePath(), junitDir.getAbsolutePath(), userWorkspace, notifier, logger);
+        postProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+
+        String jtlPath = notifiers.substring(notifiers.indexOf("Saving jtl report"), notifiers.indexOf("Trying to get functional summar"));
+        System.out.println(jtlPath);
+        assertTrue(notifiers, jtlPath.contains(jtlDir.getAbsolutePath() + File.separator + "r-v3-1234567890qwerty"));
+
+        String junitPath = notifiers.substring(notifiers.indexOf("Saving junit report"), notifiers.indexOf("Saving jtl"));
+        System.out.println(junitPath);
+        assertTrue(notifiers, junitPath.contains(junitDir.getAbsolutePath() + File.separator + "id.xml"));
+    }
+
+    @Test
+    public void testResolvePath_UserAbsolutePath_NullWorkspace() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        Master master = new Master(emul, "id", "name");
+
+        setStandardFlow(emul);
+        File jtlDir = CiPostProcess.createTmpDir();
+        File junitDir = CiPostProcess.createTmpDir();
+
+        CiPostProcess postProcess = new CiPostProcess(true, true, jtlDir.getAbsolutePath(), junitDir.getAbsolutePath(), null, notifier, logger);
+        postProcess.execute(master);
+        String notifiers = notifier.getLogs().toString();
+
+        String jtlPath = notifiers.substring(notifiers.indexOf("Saving jtl report"), notifiers.indexOf("Trying to get functional summar"));
+        System.out.println(jtlPath);
+        assertTrue(notifiers, jtlPath.contains(jtlDir.getAbsolutePath() + File.separator + "r-v3-1234567890qwerty"));
+
+        String junitPath = notifiers.substring(notifiers.indexOf("Saving junit report"), notifiers.indexOf("Saving jtl"));
+        System.out.println(junitPath);
+        assertTrue(notifiers, junitPath.contains(junitDir.getAbsolutePath() + File.separator + "id.xml"));
+    }
+
+    private void setStandardFlow(BlazeMeterUtilsEmul emul) {
         emul.addEmul(MasterTest.generateResponseGetCIStatus());
         emul.addEmul("junit report");
         emul.addEmul(MasterTest.generateResponseGetSessions());
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
-
-        CiPostProcess ciPostProcess = new CiPostProcess(true, true, null, null, System.getProperty("user.dir") + File.separator +
-                "job/logs/100", notifier, logger);
-        Master master = new Master(emul, "id", "name");
-        ciPostProcess.execute(master);
-        String notifiers = notifier.getLogs().toString();
-        assertTrue(notifiers, notifiers.contains("job/logs/100/r-v3-1234567890qwerty"));
-        assertFalse(notifiers, notifiers.contains("job/logs/100/null/r-v3-1234567890qwerty"));
     }
 }
