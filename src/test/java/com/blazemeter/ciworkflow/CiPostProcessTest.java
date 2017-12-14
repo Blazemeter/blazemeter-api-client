@@ -267,7 +267,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testGetters() throws Exception {
+    public void testGetters() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "pwd", notifier, logger);
@@ -281,7 +281,7 @@ public class CiPostProcessTest {
 
 
     @Test
-    public void testFlow() throws Exception {
+    public void testFlow() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -306,7 +306,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testSaveJUnit() throws Exception {
+    public void testSaveJUnit() throws IOException {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -337,7 +337,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testSaveJTLFail() throws Exception {
+    public void testSaveJTLFail() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -372,7 +372,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testDownloadAndUnzipJTL() throws Exception {
+    public void testDownloadAndUnzipJTL() throws IOException {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
 
@@ -390,7 +390,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testDownloadSummary() throws Exception {
+    public void testDownloadSummary() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -410,7 +410,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testHasReportsWhenSessionHasNoData() throws Exception {
+    public void testHasReportsWhenSessionHasNoData() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -431,7 +431,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testExecuteFailed() throws Exception {
+    public void testExecuteFailed() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -444,7 +444,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testResolvePath_UserNullPath_NullWorkspace() throws Exception {
+    public void testResolvePathUserNullPathNullWorkspace() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -469,7 +469,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testResolvePath_UserNullPath() throws Exception {
+    public void testResolvePathUserNullPath() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -494,7 +494,7 @@ public class CiPostProcessTest {
 
 
     @Test
-    public void testResolvePath_UserRelativePath() throws Exception {
+    public void testResolvePathUserRelativePath() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -516,7 +516,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testResolvePath_UserRelativePath_NullWorkspace() throws Exception {
+    public void testResolvePathUserRelativePathNullWorkspace() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -540,7 +540,7 @@ public class CiPostProcessTest {
 
 
     @Test
-    public void testResolvePath_UserAbsolutePath() throws Exception {
+    public void testResolvePathUserAbsolutePath() throws IOException {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -566,7 +566,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testResolvePath_UserAbsolutePath_NullWorkspace() throws Exception {
+    public void testResolvePathUserAbsolutePathNullWorkspace() throws IOException {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
