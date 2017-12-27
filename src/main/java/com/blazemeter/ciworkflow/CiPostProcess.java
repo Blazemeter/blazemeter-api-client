@@ -50,9 +50,9 @@ public class CiPostProcess {
 
     protected final String workspaceDir;
 
-    private final UserNotifier notifier;
+    protected final UserNotifier notifier;
 
-    private final Logger logger;
+    protected final Logger logger;
 
     public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
                          String junitPath, String workspaceDir,
@@ -94,7 +94,7 @@ public class CiPostProcess {
         }
     }
 
-    private boolean checkErrorCode(JSONObject ciStatus) {
+    protected boolean checkErrorCode(JSONObject ciStatus) {
         if (ciStatus.has("errors")) {
             JSONArray errors = ciStatus.getJSONArray("errors");
             if (!errors.isEmpty()) {
@@ -119,7 +119,7 @@ public class CiPostProcess {
         return result;
     }
 
-    private BuildResult checkFailsAndError(JSONObject ciStatus) {
+    protected BuildResult checkFailsAndError(JSONObject ciStatus) {
         if (ciStatus.has("failures")) {
             JSONArray failures = ciStatus.getJSONArray("failures");
             if (!failures.isEmpty()) {
@@ -135,13 +135,13 @@ public class CiPostProcess {
         return BuildResult.SUCCESS;
     }
 
-    private BuildResult notifyAboutErrors(JSONArray errors) {
+    protected BuildResult notifyAboutErrors(JSONArray errors) {
         notifier.notifyWarning("Having errors " + errors.toString());
         logger.error("Having errors " + errors.toString());
         return isErrorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
     }
 
-    private BuildResult notifyAboutFailed(JSONArray failures) {
+    protected BuildResult notifyAboutFailed(JSONArray failures) {
         notifier.notifyInfo("Having failures " + failures.toString());
         notifier.notifyInfo("Setting ci-status = " + BuildResult.FAILED.name());
         return BuildResult.FAILED;
@@ -171,10 +171,14 @@ public class CiPostProcess {
     public void saveJunit(Master master) {
         try {
             String junitReport = master.getJUnitReport();
-            File junitReportDir = mkdirs(workspaceDir, junitPath);
-            File junitFile = createReportFile(junitReportDir, master.getId() + ".xml");
-            notifier.notifyInfo("Saving junit report " + junitFile.getAbsolutePath());
-            Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
+            if (StringUtils.isBlank(junitReport)) {
+                notifier.notifyWarning("Got empty junit report from server");
+            } else {
+                File junitReportDir = mkdirs(workspaceDir, junitPath);
+                File junitFile = createReportFile(junitReportDir, master.getId() + ".xml");
+                notifier.notifyInfo("Saving junit report " + junitFile.getAbsolutePath());
+                Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
+            }
         } catch (Exception e) {
             notifier.notifyWarning("Failed to save junit report from master = " + master.getId() + " to disk.");
             logger.error("Failed to save junit report from master = " + master.getId() + " to disk.", e);
@@ -187,17 +191,26 @@ public class CiPostProcess {
      */
     public void saveJTL(Master master) {
         try {
-            File jtlReportsDir = mkdirs(workspaceDir, jtlPath);
+            File jtlReportsDir = mkdirs(workspaceDir, jtlPath, false);
             for (Session session : master.getSessions()) {
-                String reportUrl = session.getJTLReport();
-                if (reportUrl != null) {
-                    URL url = new URL(reportUrl);
-                    File reportDir = new File(jtlReportsDir, session.getId());
-                    reportDir.mkdirs();
-                    boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
-                    notifier.notifyInfo("Saving jtl report " + reportDir.getAbsolutePath());
-                    if (!isSuccess) {
-                        logger.error("Failed to download & unzip jtl-report from " + url.getPath());
+                for (int i = 1; i < 6; i++) {
+                    String reportUrl = session.getJTLReport();
+                    if (reportUrl != null) {
+                        URL url = new URL(reportUrl);
+                        File reportDir = new File(jtlReportsDir, session.getId());
+                        reportDir.mkdirs();
+                        boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
+                        notifier.notifyInfo("Saving jtl report " + reportDir.getAbsolutePath());
+                        if (!isSuccess) {
+                            logger.error("Failed to download & unzip jtl-report from " + url.getPath());
+                        }
+                        break;
+                    } else {
+                        if (i == 5) {
+                            notifier.notifyWarning("Failed to get JTL ZIP for session id=" + session.getId());
+                            break;
+                        }
+                        Thread.sleep(5000);
                     }
                 }
             }
@@ -212,19 +225,16 @@ public class CiPostProcess {
      * @return true - if report has been successfully downloaded and unzip
      */
     public boolean downloadAndUnzipJTL(URL url, File reportDir) {
-        for (int i = 1; i < 4; i++) {
-            try {
-                int timeout = (int) (10000 * Math.pow(3, i - 1));
-                URLConnection connection = url.openConnection();
-                connection.setConnectTimeout(timeout);
-                connection.setReadTimeout(30000);
-                InputStream inputStream = connection.getInputStream();
-                unzipJTL(inputStream, reportDir);
-                return true;
-            } catch (Exception e) {
-                notifier.notifyWarning("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts " + e);
-                logger.error("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts ", e);
-            }
+        try {
+            URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(30000);
+            InputStream inputStream = connection.getInputStream();
+            unzipJTL(inputStream, reportDir);
+            return true;
+        } catch (Exception e) {
+            notifier.notifyWarning("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts " + e);
+            logger.error("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts ", e);
         }
         return false;
     }
@@ -311,14 +321,22 @@ public class CiPostProcess {
     }
 
     public static File mkdirs(String workspaceDir, String userPath) throws IOException {
+        return mkdirs(workspaceDir, userPath, true);
+    }
+
+    public static File mkdirs(String workspaceDir, String userPath, boolean doMkdirs) throws IOException {
         if (StringUtils.isBlank(userPath) || !new File(userPath).isAbsolute()) {
             File workspace = (workspaceDir == null) ? createTmpDir() : new File(workspaceDir);
             File result = StringUtils.isBlank(userPath) ? workspace : new File(workspace, userPath);
-            result.mkdirs();
+            if (doMkdirs) {
+                result.mkdirs();
+            }
             return result;
-        } else  {
+        } else {
             File userFile = new File(userPath);
-            userFile.mkdirs();
+            if (doMkdirs) {
+                userFile.mkdirs();
+            }
             return userFile;
         }
     }

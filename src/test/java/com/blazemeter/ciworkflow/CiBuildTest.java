@@ -27,6 +27,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
@@ -229,5 +231,24 @@ public class CiBuildTest {
         emul.addEmul(MasterTest.generateResponseStopMaster());
         interrupt = ciBuild.interrupt(master);
         assertTrue(interrupt);
+    }
+
+    @Test
+    public void testStartFailed() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null) {
+            @Override
+            public Master start() throws IOException {
+                return null;
+            }
+        };
+        BuildResult result = ciBuild.execute();
+
+        assertEquals(BuildResult.FAILED, result);
+        String logs = notifier.getLogs().toString();
+        assertTrue(logs, logs.contains("Set Build status [FAILED]."));
     }
 }
