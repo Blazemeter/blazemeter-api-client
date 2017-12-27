@@ -14,6 +14,7 @@
 
 package com.blazemeter.api.explorer.test;
 
+import com.blazemeter.api.exception.UnexpectedResponseException;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
@@ -80,12 +81,15 @@ public class TestDetectorTest {
         emul.addEmul(generateResponseTestNotFound());
         emul.addEmul(generateResponseTestNotFound());
 
-        AbstractTest abstractTest = TestDetector.detectTest(emul, "xxxx");
-        assertNull(abstractTest);
-        assertEquals(2, emul.getRequests().size());
-        String logs = logger.getLogs().toString();
-        assertEquals(logs, 892, logs.length());
-        assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Receive response with the following error message: Not Found: Test not found"));
+        try {
+            TestDetector.detectTest(emul, "xxxx");
+            fail();
+        } catch (UnexpectedResponseException ex) {
+            assertEquals(2, emul.getRequests().size());
+            String logs = logger.getLogs().toString();
+            assertEquals(logs, 892, logs.length());
+            assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Receive response with the following error message: Not Found: Test not found"));
+        }
     }
 
     @Test
@@ -96,12 +100,15 @@ public class TestDetectorTest {
 
         emul.addEmul(generateResponseUnauthorized());
 
-        AbstractTest abstractTest = TestDetector.detectTest(emul, "xxxx");
-        assertNull(abstractTest);
-        assertEquals(1, emul.getRequests().size());
-        String logs = logger.getLogs().toString();
-        assertEquals(logs, 479, logs.length());
-        assertTrue(logs, logs.contains("Fail for detect Single test type id=xxxx. Reason is: Receive response with the following error message: Unauthorized"));
+        try {
+            TestDetector.detectTest(emul, "xxxx");
+            fail();
+        } catch (UnexpectedResponseException ex) {
+            assertEquals(1, emul.getRequests().size());
+            String logs = logger.getLogs().toString();
+            assertEquals(logs, 479, logs.length());
+            assertTrue(logs, logs.contains("Fail for detect Single test type id=xxxx. Reason is: Receive response with the following error message: Unauthorized"));
+        }
     }
 
     public static String generateResponseTestNotFound() {
