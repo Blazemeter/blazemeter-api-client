@@ -148,8 +148,8 @@ public class CiBuild {
      * @throws InterruptedException IOException
      */
     public void waitForFinish(Master master) throws InterruptedException, IOException {
-        long lastPrint = 0;
         long start = System.currentTimeMillis();
+        long lastPrint = start;
         long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
         long bzmMinute = Long.parseLong(System.getProperty("bzm.minute", "60000"));
         while (true) {
