@@ -159,7 +159,7 @@ public class CiBuild {
             }
             long now = System.currentTimeMillis();
             if (now - lastPrint > bzmMinute) {
-                notifier.notifyInfo("Check if the test is still running. Time passed since start:" + ((now - start) / 1000 / 60) + " minutes.");
+                notifier.notifyInfo("Check if the test is still running. Time passed since start: " + ((now - start) / 1000 / 60) + " minutes.");
                 lastPrint = now;
             }
             if (Thread.interrupted()) {
