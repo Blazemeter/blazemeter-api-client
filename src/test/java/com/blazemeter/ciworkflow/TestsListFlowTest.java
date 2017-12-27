@@ -16,6 +16,7 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.AccountTest;
 import com.blazemeter.api.explorer.UserTest;
+import com.blazemeter.api.explorer.Workspace;
 import com.blazemeter.api.explorer.WorkspaceTest;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.logging.LoggerTest;
@@ -130,5 +131,26 @@ public class TestsListFlowTest {
         assertTrue(notifier.getLogs().toString().contains("Failed to get single tests for workspace id ="));
         assertTrue(logger.getLogs().toString().contains("Failed to get multi tests for workspace id ="));
         assertTrue(notifier.getLogs().toString().contains("Failed to get multi tests for workspace id ="));
+    }
+
+    @Test
+    public void testGetAllTestsForWorkspace() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(WorkspaceTest.generateResponseGetSingleTests());
+        emul.addEmul(WorkspaceTest.generateResponseGetMultiTests());
+
+        TestsListFlow flow = new TestsListFlow(emul);
+
+        List<AbstractTest> usersTests = flow.getAllTestsForWorkspace(new Workspace(emul, "100", ""));
+        assertEquals(4, usersTests.size());
+        assertFalse(logger.getLogs().toString().contains("Fail"));
+        List<String> requests = emul.getRequests();
+        assertEquals(2, requests.size());
+
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests?workspaceId=100&sort%5B%5D=name&limit=10000, tag=null}", requests.get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=100&sort%5B%5D=name&limit=10000, tag=null}", requests.get(1));
     }
 }

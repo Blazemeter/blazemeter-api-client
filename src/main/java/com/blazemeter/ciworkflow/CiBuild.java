@@ -71,7 +71,7 @@ public class CiBuild {
         }
     }
 
-    private BuildResult waitForFinishAndDoPostProcess(Master master) throws IOException {
+    protected BuildResult waitForFinishAndDoPostProcess(Master master) throws IOException {
         try {
             waitForFinish(master);
             return doPostProcess(master);
@@ -90,6 +90,7 @@ public class CiBuild {
     /**
      * Start Test with 'testId' in BlazeMeter
      * and the Post properties and notes to Master
+     *
      * @return Master of started Test
      */
     public Master start() throws IOException {
@@ -105,9 +106,12 @@ public class CiBuild {
         return startTest(test);
     }
 
-    private Master startTest(AbstractTest test) throws IOException {
+    protected Master startTest(AbstractTest test) throws IOException {
         Master master = test.start();
-        notifier.notifyInfo("Test has been started successfully. Master id=" + master.getId());
+        Calendar startTime = Calendar.getInstance();
+        startTime.setTimeInMillis(System.currentTimeMillis());
+
+        notifier.notifyInfo("Test has been started successfully at " + startTime.getTime().toString() + ". Master id=" + master.getId());
 
         publicReport = master.getPublicReport();
         notifier.notifyInfo("Test report will be available at " + publicReport);
@@ -120,6 +124,7 @@ public class CiBuild {
 
     /**
      * Interrupt Build.
+     *
      * @return true - if build has reports.
      */
     public boolean interrupt(Master master) throws IOException {
@@ -139,26 +144,22 @@ public class CiBuild {
     /**
      * Waits until test will be over on server
      * Master object corresponds to master session which is created after test was started.
+     *
      * @throws InterruptedException IOException
      */
     public void waitForFinish(Master master) throws InterruptedException, IOException {
         long lastPrint = 0;
         long start = System.currentTimeMillis();
-        Calendar startTime = Calendar.getInstance();
-        startTime.setTimeInMillis(start);
         long bzmCheckTimeout = Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
         long bzmMinute = Long.parseLong(System.getProperty("bzm.minute", "60000"));
-        DecimalFormat decimalFormat = new DecimalFormat("0.0");
         while (true) {
             Thread.sleep(bzmCheckTimeout);
             if (master.getStatus() == 140) {
                 return;
             }
             long now = System.currentTimeMillis();
-            long diffInSec = (now - start) / 1000;
             if (now - lastPrint > bzmMinute) {
-                notifier.notifyInfo("BlazeMeter test # " + testId + ", masterId # " + master.getId() + " running from " +
-                        startTime.getTime().toString() + " - for " + decimalFormat.format(diffInSec / 60.0) + " minutes");
+                notifier.notifyInfo("Check if the test is still running. Time passed since start:" + ((now - start) / 1000 / 60) + " minutes.");
                 lastPrint = now;
             }
             if (Thread.interrupted()) {

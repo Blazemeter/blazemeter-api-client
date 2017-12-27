@@ -39,19 +39,19 @@ public class TestDetector {
                 return detectMultiTest(utils, testId);
             } else {
                 logger.error("Fail for detect Single test type id=" + testId + ". Reason is: " + ex.getMessage(), ex);
-                return null;
+                throw ex;
             }
         }
     }
 
-    private static AbstractTest detectMultiTest(BlazeMeterUtils utils, String testId) throws IOException {
+    public static AbstractTest detectMultiTest(BlazeMeterUtils utils, String testId) throws IOException {
         final Logger logger = utils.getLogger();
         try {
             logger.info("Attempt to detect Multi test type with id=" + testId);
             return MultiTest.getMultiTest(utils, testId);
         } catch (UnexpectedResponseException ex) {
             logger.error("Fail for detect Multi test type id=" + testId + ". Reason is: " + ex.getMessage(), ex);
-            return null;
+            throw ex;
         }
     }
 
