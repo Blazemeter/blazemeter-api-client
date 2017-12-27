@@ -73,8 +73,8 @@ public class BlazeMeterUtils extends HttpUtils {
     protected JSONObject processResponse(String response) {
         String error = extractErrorMessage(response);
         if (error != null) {
-            logger.error("Receive response with the following error message: " + error);
-            throw new UnexpectedResponseException("Receive response with the following error message: " + error);
+            logger.error("Received response with the following error: " + error);
+            throw new UnexpectedResponseException("Received response with the following error: " + error);
         }
         return JSONObject.fromObject(response);
     }

@@ -48,16 +48,16 @@ public class BlazeMeterUtilsTest {
             utils.processResponse("{\"result\": \"ok\",\"error\": {\"code\": 404, \"message\": \"Not Found: Project not found\"}}");
             fail("Must fail, because response have empty 'result'");
         } catch (UnexpectedResponseException ex) {
-            assertEquals("Receive response with the following error message: Not Found: Project not found", ex.getMessage());
-            assertEquals("Receive response with the following error message: Not Found: Project not found\r\n", logger.getLogs().toString());
+            assertEquals("Received response with the following error: Not Found: Project not found", ex.getMessage());
+            assertEquals("Received response with the following error: Not Found: Project not found\r\n", logger.getLogs().toString());
         }
         logger.reset();
         try {
             utils.processResponse("{\"result\": null,\"error\": {\"code\": 404, \"message\": \"Not Found: Project not found\"}}");
             fail("Must fail, because response have empty 'result'");
         } catch (UnexpectedResponseException ex) {
-            assertEquals("Receive response with the following error message: Not Found: Project not found", ex.getMessage());
-            assertEquals("Receive response with the following error message: Not Found: Project not found\r\n", logger.getLogs().toString());
+            assertEquals("Received response with the following error: Not Found: Project not found", ex.getMessage());
+            assertEquals("Received response with the following error: Not Found: Project not found\r\n", logger.getLogs().toString());
         }
 
         logger.reset();

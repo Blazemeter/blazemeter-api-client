@@ -185,7 +185,7 @@ public class CiBuildTest {
             assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests/id, tag=null}", emul.getRequests().get(1));
 
             String logs = logger.getLogs().toString();
-            assertEquals(logs, 814, logs.length());
+            assertEquals(logs, 786, logs.length());
         }
     }
 
@@ -206,7 +206,7 @@ public class CiBuildTest {
             assertEquals(2, emul.getRequests().size());
 
             String logs = logger.getLogs().toString();
-            assertEquals(logs, 814, logs.length());
+            assertEquals(logs, 786, logs.length());
         }
     }
 

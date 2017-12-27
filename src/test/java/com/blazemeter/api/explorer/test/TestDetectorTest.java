@@ -67,7 +67,7 @@ public class TestDetectorTest {
         assertEquals("multi", abstractTest.getTestType());
         assertEquals(2, emul.getRequests().size());
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 621, logs.length());
+        assertEquals(logs, 614, logs.length());
         assertTrue(logs, logs.contains("Single test with id=xxxx not found"));
         assertTrue(logs, logs.contains("Attempt to detect Multi test type with id=xxx"));
     }
@@ -87,8 +87,8 @@ public class TestDetectorTest {
         } catch (UnexpectedResponseException ex) {
             assertEquals(2, emul.getRequests().size());
             String logs = logger.getLogs().toString();
-            assertEquals(logs, 892, logs.length());
-            assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Receive response with the following error message: Not Found: Test not found"));
+            assertEquals(logs, 864, logs.length());
+            assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Received response with the following error: Not Found: Test not found"));
         }
     }
 
@@ -106,8 +106,8 @@ public class TestDetectorTest {
         } catch (UnexpectedResponseException ex) {
             assertEquals(1, emul.getRequests().size());
             String logs = logger.getLogs().toString();
-            assertEquals(logs, 479, logs.length());
-            assertTrue(logs, logs.contains("Fail for detect Single test type id=xxxx. Reason is: Receive response with the following error message: Unauthorized"));
+            assertEquals(logs, 458, logs.length());
+            assertTrue(logs, logs.contains("Fail for detect Single test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
         }
     }
 
