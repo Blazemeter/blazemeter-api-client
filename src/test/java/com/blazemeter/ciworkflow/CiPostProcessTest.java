@@ -596,4 +596,42 @@ public class CiPostProcessTest {
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
     }
+
+    @Test
+    public void testRepeatDownloading5Attempts() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+
+        Master master = new Master(emul, "id", "name");
+        ciPostProcess.saveJTL(master);
+
+        String logs = notifier.getLogs().toString();
+        assertTrue(logs, logs.contains("Failed to get JTL ZIP for session id"));
+        assertEquals(6, emul.getRequests().size());
+    }
+
+
+    @Test
+    public void testEmptyJUnit() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        emul.addEmul("");
+
+        Master master = new Master(emul, "id", "name");
+        ciPostProcess.saveJunit(master);
+
+        String logs = notifier.getLogs().toString();
+        assertTrue(logs, logs.contains("Got empty junit report from server"));
+        assertEquals(1, emul.getRequests().size());
+    }
 }

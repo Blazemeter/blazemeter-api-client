@@ -106,6 +106,22 @@ public class SessionTest {
         return response.toString();
     }
 
+    public static String generateResponseGetJTLReportNullZip() {
+        JSONObject dataUrl = new JSONObject();
+        dataUrl.put("dataUrl", "z");
+        dataUrl.put("title", "x");
+
+        JSONArray data = new JSONArray();
+        data.add(dataUrl);
+
+        JSONObject result = new JSONObject();
+        result.put("data", data);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
     @Test
     public void testGetJTLReportReturnNull() throws Exception {
         LoggerTest logger = new LoggerTest();
