@@ -71,7 +71,7 @@ public class CiBuild {
         }
     }
 
-    private BuildResult waitForFinishAndDoPostProcess(Master master) throws IOException {
+    protected BuildResult waitForFinishAndDoPostProcess(Master master) throws IOException {
         try {
             waitForFinish(master);
             return doPostProcess(master);
@@ -105,7 +105,7 @@ public class CiBuild {
         return startTest(test);
     }
 
-    private Master startTest(AbstractTest test) throws IOException {
+    protected Master startTest(AbstractTest test) throws IOException {
         Master master = test.start();
         notifier.notifyInfo("Test has been started successfully. Master id=" + master.getId());
 
