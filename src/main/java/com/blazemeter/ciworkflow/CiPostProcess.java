@@ -194,6 +194,7 @@ public class CiPostProcess {
             File jtlReportsDir = mkdirs(workspaceDir, jtlPath, false);
             for (Session session : master.getSessions()) {
                 for (int i = 1; i < 6; i++) {
+                    logger.debug("Try to get JTL report attempt #" + i);
                     String reportUrl = session.getJTLReport();
                     if (reportUrl != null) {
                         URL url = new URL(reportUrl);
@@ -210,7 +211,7 @@ public class CiPostProcess {
                             notifier.notifyWarning("Failed to get JTL ZIP for session id=" + session.getId());
                             break;
                         }
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     }
                 }
             }
