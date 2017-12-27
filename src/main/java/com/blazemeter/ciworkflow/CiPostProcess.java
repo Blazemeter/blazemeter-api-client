@@ -50,9 +50,9 @@ public class CiPostProcess {
 
     protected final String workspaceDir;
 
-    private final UserNotifier notifier;
+    protected final UserNotifier notifier;
 
-    private final Logger logger;
+    protected final Logger logger;
 
     public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
                          String junitPath, String workspaceDir,
@@ -94,7 +94,7 @@ public class CiPostProcess {
         }
     }
 
-    private boolean checkErrorCode(JSONObject ciStatus) {
+    protected boolean checkErrorCode(JSONObject ciStatus) {
         if (ciStatus.has("errors")) {
             JSONArray errors = ciStatus.getJSONArray("errors");
             if (!errors.isEmpty()) {
@@ -119,7 +119,7 @@ public class CiPostProcess {
         return result;
     }
 
-    private BuildResult checkFailsAndError(JSONObject ciStatus) {
+    protected BuildResult checkFailsAndError(JSONObject ciStatus) {
         if (ciStatus.has("failures")) {
             JSONArray failures = ciStatus.getJSONArray("failures");
             if (!failures.isEmpty()) {
@@ -135,13 +135,13 @@ public class CiPostProcess {
         return BuildResult.SUCCESS;
     }
 
-    private BuildResult notifyAboutErrors(JSONArray errors) {
+    protected BuildResult notifyAboutErrors(JSONArray errors) {
         notifier.notifyWarning("Having errors " + errors.toString());
         logger.error("Having errors " + errors.toString());
         return isErrorsFailed(errors) ? BuildResult.FAILED : BuildResult.ERROR;
     }
 
-    private BuildResult notifyAboutFailed(JSONArray failures) {
+    protected BuildResult notifyAboutFailed(JSONArray failures) {
         notifier.notifyInfo("Having failures " + failures.toString());
         notifier.notifyInfo("Setting ci-status = " + BuildResult.FAILED.name());
         return BuildResult.FAILED;
