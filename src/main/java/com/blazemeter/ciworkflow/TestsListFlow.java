@@ -59,7 +59,7 @@ public class TestsListFlow {
         return result;
     }
 
-    private List<AbstractTest> getTestsForAccount(Account account) {
+    protected List<AbstractTest> getTestsForAccount(Account account) {
         final List<AbstractTest> result = new ArrayList<>();
         try {
             List<Workspace> workspaces = account.getWorkspaces();
@@ -74,7 +74,14 @@ public class TestsListFlow {
         return result;
     }
 
-    private List<SingleTest> getSingleTestsForWorkspace(Workspace workspace) {
+    public List<AbstractTest> getAllTestsForWorkspace(Workspace workspace) {
+        final List<AbstractTest> result = new ArrayList<>();
+        result.addAll(getSingleTestsForWorkspace(workspace));
+        result.addAll(getMultiTestsForWorkspace(workspace));
+        return result;
+    }
+
+    protected List<SingleTest> getSingleTestsForWorkspace(Workspace workspace) {
         try {
             return workspace.getSingleTests();
         } catch (IOException e) {
@@ -84,7 +91,7 @@ public class TestsListFlow {
         return Collections.emptyList();
     }
 
-    private List<MultiTest> getMultiTestsForWorkspace(Workspace workspace) {
+    protected List<MultiTest> getMultiTestsForWorkspace(Workspace workspace) {
         try {
             return workspace.getMultiTests();
         } catch (IOException e) {
