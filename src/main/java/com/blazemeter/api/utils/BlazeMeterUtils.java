@@ -122,4 +122,12 @@ public class BlazeMeterUtils extends HttpUtils {
     public void setDataAddress(String dataAddress) {
         this.dataAddress = dataAddress;
     }
+
+    public static long getCheckTimeout() {
+        try {
+            return Long.parseLong(System.getProperty("bzm.checkTimeout", "10000"));
+        } catch (NumberFormatException ex) {
+            return 10000;
+        }
+    }
 }
