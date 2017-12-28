@@ -18,6 +18,7 @@ import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
+import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -201,17 +202,18 @@ public class CiPostProcess {
                         File reportDir = new File(jtlReportsDir, session.getId());
                         reportDir.mkdirs();
                         boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
-                        notifier.notifyInfo("Saving jtl report " + reportDir.getAbsolutePath());
-                        if (!isSuccess) {
+                        if (isSuccess) {
+                            notifier.notifyInfo("Saving jtl report " + reportDir.getAbsolutePath());
+                            break;
+                        } else {
                             logger.error("Failed to download & unzip jtl-report from " + url.getPath());
                         }
-                        break;
                     } else {
                         if (i == 5) {
                             notifier.notifyWarning("Failed to get JTL ZIP for session id=" + session.getId());
                             break;
                         }
-                        Thread.sleep(10000);
+                        Thread.sleep(BlazeMeterUtils.getCheckTimeout() * i);
                     }
                 }
             }
