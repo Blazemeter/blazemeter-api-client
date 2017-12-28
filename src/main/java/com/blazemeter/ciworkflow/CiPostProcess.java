@@ -175,7 +175,7 @@ public class CiPostProcess {
             if (StringUtils.isBlank(junitReport)) {
                 notifier.notifyWarning("Got empty junit report from server");
             } else {
-                File junitReportDir = mkdirs(workspaceDir, junitPath);
+                File junitReportDir = getParentDirWithPermissionsCheck(mkdirs(workspaceDir, junitPath), workspaceDir);
                 File junitFile = createReportFile(junitReportDir, master.getId() + ".xml");
                 notifier.notifyInfo("Saving junit report " + junitFile.getAbsolutePath());
                 Files.write(Paths.get(junitFile.toURI()), junitReport.getBytes());
@@ -199,7 +199,7 @@ public class CiPostProcess {
                     String reportUrl = session.getJTLReport();
                     if (reportUrl != null) {
                         URL url = new URL(reportUrl);
-                        File reportDir = new File(jtlReportsDir, session.getId());
+                        File reportDir = new File(getParentDirWithPermissionsCheck(jtlReportsDir, workspaceDir), session.getId());
                         reportDir.mkdirs();
                         boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
                         if (isSuccess) {
@@ -317,6 +317,26 @@ public class CiPostProcess {
         }
     }
 
+    protected File getParentDirWithPermissionsCheck(File dir, String workspaceDir) throws IOException {
+        return isWritableDirectory(dir) ? dir : getWorkspaceDir(workspaceDir);
+    }
+
+    protected boolean isWritableDirectory(File path) {
+        if (!path.exists()) {
+            path.mkdirs();
+        }
+        File sample = new File(path, "empty.txt");
+        try {
+            sample.createNewFile();
+            sample.delete();
+            return true;
+        } catch (IOException e) {
+            notifier.notifyWarning("Directory '"+ path + "' is not writable");
+            logger.debug("Write check failed for " + path, e);
+            return false;
+        }
+    }
+
     public static File createReportFile(File parent, String reportName) throws IOException {
         File result = new File(parent, reportName);
         result.createNewFile();
@@ -329,7 +349,7 @@ public class CiPostProcess {
 
     public static File mkdirs(String workspaceDir, String userPath, boolean doMkdirs) throws IOException {
         if (StringUtils.isBlank(userPath) || !new File(userPath).isAbsolute()) {
-            File workspace = (workspaceDir == null) ? createTmpDir() : new File(workspaceDir);
+            File workspace = getWorkspaceDir(workspaceDir);
             File result = StringUtils.isBlank(userPath) ? workspace : new File(workspace, userPath);
             if (doMkdirs) {
                 result.mkdirs();
@@ -342,6 +362,10 @@ public class CiPostProcess {
             }
             return userFile;
         }
+    }
+
+    public static File getWorkspaceDir(String workspaceDir) throws IOException {
+        return (workspaceDir == null) ? createTmpDir() : new File(workspaceDir);
     }
 
     public static File createTmpDir() throws IOException {
