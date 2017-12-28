@@ -599,23 +599,29 @@ public class CiPostProcessTest {
 
     @Test
     public void testRepeatDownloading5Attempts() throws Exception {
-        LoggerTest logger = new LoggerTest();
-        UserNotifierTest notifier = new UserNotifierTest();
-        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
-        emul.addEmul(MasterTest.generateResponseGetSessions());
-        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
-        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
-        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
-        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
-        emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+        String val = System.getProperty("bzm.checkTimeout", "10000");
+        try {
+            System.setProperty("bzm.checkTimeout", "10");
+            LoggerTest logger = new LoggerTest();
+            UserNotifierTest notifier = new UserNotifierTest();
+            BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+            CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+            emul.addEmul(MasterTest.generateResponseGetSessions());
+            emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+            emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+            emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+            emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
+            emul.addEmul(SessionTest.generateResponseGetJTLReportNullZip());
 
-        Master master = new Master(emul, "id", "name");
-        ciPostProcess.saveJTL(master);
+            Master master = new Master(emul, "id", "name");
+            ciPostProcess.saveJTL(master);
 
-        String logs = notifier.getLogs().toString();
-        assertTrue(logs, logs.contains("Failed to get JTL ZIP for session id"));
-        assertEquals(6, emul.getRequests().size());
+            String logs = notifier.getLogs().toString();
+            assertTrue(logs, logs.contains("Failed to get JTL ZIP for session id"));
+            assertEquals(6, emul.getRequests().size());
+        } finally {
+            System.setProperty("bzm.checkTimeout", val);
+        }
     }
 
 
