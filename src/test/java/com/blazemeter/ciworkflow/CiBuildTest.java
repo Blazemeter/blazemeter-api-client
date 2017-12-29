@@ -88,20 +88,23 @@ public class CiBuildTest {
         CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         CiBuild ciBuild = new CiBuild(emul, "testId", "1=2", "i", postProcess);
         ciBuild.execute();
-        assertEquals(11, emul.getRequests().size());
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(0));
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(1));
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(2));
+        assertEquals(13, emul.getRequests().size());
+        int i = 0;
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(i++));
         assertEquals("http://a.blazemeter.com/app/?public-token=x1x1x1x1x1x1x1x11x1x1x1#/masters/responseMasterId/summary",
                 ciBuild.getPublicReport());
-        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(3));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/sessions, tag=null}", emul.getRequests().get(4));
-        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(5));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(6));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(7));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(8));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(9));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(10));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/sessions, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(i));
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Get Single Test id=testId"));
         assertTrue(logs, logs.contains("Start single test id=testId"));
@@ -111,7 +114,7 @@ public class CiBuildTest {
         assertTrue(logs, logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertEquals(logs, 2699, logger.getLogs().length());
+        assertEquals(logs, 3116, logger.getLogs().length());
     }
 
 
@@ -121,6 +124,8 @@ public class CiBuildTest {
 
         String token = "x1x1x1x1x1x1x1x11x1x1x1";
         emul.addEmul(MasterTest.generateResponseGetPublicToken(token));
+        emul.addEmul(MasterTest.generateResponseGetStatus(0));
+        emul.addEmul(MasterTest.generateResponseGetStatus(90));
         emul.addEmul(MasterTest.generateResponsePostNote());
         emul.addEmul(MasterTest.generateResponseGetSessions());
         emul.addEmul(SessionTest.generateResponsePostProperties());
@@ -246,5 +251,19 @@ public class CiBuildTest {
         assertEquals(BuildResult.FAILED, result);
         String logs = notifier.getLogs().toString();
         assertTrue(logs, logs.contains("Set Build status [FAILED]."));
+    }
+
+    @Test
+    public void testSkipInitStateFailed() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
+        Master master = new Master(emul, "id", "name");
+        ciBuild.skipInitState(master);
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Failed to skip INIT state"));
     }
 }
