@@ -252,4 +252,18 @@ public class CiBuildTest {
         String logs = notifier.getLogs().toString();
         assertTrue(logs, logs.contains("Set Build status [FAILED]."));
     }
+
+    @Test
+    public void testSkipInitStateFailed() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
+        Master master = new Master(emul, "id", "name");
+        ciBuild.skipInitState(master);
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Failed to skip INIT state"));
+    }
 }
