@@ -116,7 +116,8 @@ public class CiBuild {
         publicReport = master.getPublicReport();
         notifier.notifyInfo("Test report will be available at " + publicReport);
 
-        skipBootingState(master);
+        // required before post properties to master
+        skipInitState(master);
 
         master.postNotes(notes);
         master.postProperties(properties);
@@ -124,21 +125,21 @@ public class CiBuild {
     }
 
     /**
-     * Skip BOOTING state.
+     * Skip INIT state.
      * It should be done before post notes and post session properties
      */
-    protected void skipBootingState(Master master) {
+    protected void skipInitState(Master master) {
         int n = 1;
         long bzmCheckTimeout = BlazeMeterUtils.getCheckTimeout();
         while (n < 6) {
             try {
                 Thread.sleep(bzmCheckTimeout);
                 int statusCode = master.getStatus();
-                if (statusCode > 25) {
+                if (statusCode > 0) {
                     break;
                 }
             } catch (Exception e) {
-                logger.warn("Failed to skip BOOTING state");
+                logger.warn("Failed to skip INIT state");
                 break;
             } finally {
                 n++;

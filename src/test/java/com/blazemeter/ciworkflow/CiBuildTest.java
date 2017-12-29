@@ -88,13 +88,14 @@ public class CiBuildTest {
         CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
         CiBuild ciBuild = new CiBuild(emul, "testId", "1=2", "i", postProcess);
         ciBuild.execute();
-        assertEquals(12, emul.getRequests().size());
+        assertEquals(13, emul.getRequests().size());
         int i = 0;
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/public-token, tag=null}", emul.getRequests().get(i++));
         assertEquals("http://a.blazemeter.com/app/?public-token=x1x1x1x1x1x1x1x11x1x1x1#/masters/responseMasterId/summary",
                 ciBuild.getPublicReport());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/sessions, tag=null}", emul.getRequests().get(i++));
@@ -113,7 +114,7 @@ public class CiBuildTest {
         assertTrue(logs, logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertEquals(logs, 2908, logger.getLogs().length());
+        assertEquals(logs, 3116, logger.getLogs().length());
     }
 
 
@@ -123,6 +124,7 @@ public class CiBuildTest {
 
         String token = "x1x1x1x1x1x1x1x11x1x1x1";
         emul.addEmul(MasterTest.generateResponseGetPublicToken(token));
+        emul.addEmul(MasterTest.generateResponseGetStatus(0));
         emul.addEmul(MasterTest.generateResponseGetStatus(90));
         emul.addEmul(MasterTest.generateResponsePostNote());
         emul.addEmul(MasterTest.generateResponseGetSessions());
