@@ -81,15 +81,12 @@ public class TestDetectorTest {
         emul.addEmul(generateResponseTestNotFound());
         emul.addEmul(generateResponseTestNotFound());
 
-        try {
-            TestDetector.detectTest(emul, "xxxx");
-            fail();
-        } catch (UnexpectedResponseException ex) {
-            assertEquals(2, emul.getRequests().size());
-            String logs = logger.getLogs().toString();
-            assertEquals(logs, 864, logs.length());
-            assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Received response with the following error: Not Found: Test not found"));
-        }
+        AbstractTest test = TestDetector.detectTest(emul, "xxxx");
+        assertNull(test);
+        assertEquals(2, emul.getRequests().size());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 705, logs.length());
+        assertTrue(logs, logs.contains("Multi test with id=xxxx not found"));
     }
 
     @Test

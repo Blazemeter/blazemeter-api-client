@@ -178,17 +178,15 @@ public class CiBuildTest {
         emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
 
         CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
-        try {
-            ciBuild.start();
-            fail();
-        } catch (UnexpectedResponseException ex) {
-            assertEquals(2, emul.getRequests().size());
-            assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/id, tag=null}", emul.getRequests().get(0));
-            assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests/id, tag=null}", emul.getRequests().get(1));
+        Master master = ciBuild.start();
+        assertNull(master);
+        assertEquals(2, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/id, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests/id, tag=null}", emul.getRequests().get(1));
 
-            String logs = logger.getLogs().toString();
-            assertEquals(logs, 786, logs.length());
-        }
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 705, logs.length());
+        assertTrue(logs, logs.contains("Failed to detect test type. Test with id=id not found."));
     }
 
     @Test
@@ -201,15 +199,13 @@ public class CiBuildTest {
         emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
 
         CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
-        try {
-            ciBuild.execute();
-            fail();
-        } catch (UnexpectedResponseException ex) {
-            assertEquals(2, emul.getRequests().size());
+        BuildResult result = ciBuild.execute();
+        assertEquals(BuildResult.FAILED, result);
+        assertEquals(2, emul.getRequests().size());
 
-            String logs = logger.getLogs().toString();
-            assertEquals(logs, 786, logs.length());
-        }
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 733, logs.length());
+        assertTrue(logs, logs.contains("Set Build status [FAILED]."));
     }
 
 
