@@ -116,9 +116,34 @@ public class CiBuild {
         publicReport = master.getPublicReport();
         notifier.notifyInfo("Test report will be available at " + publicReport);
 
+        skipBootingState(master);
+
         master.postNotes(notes);
         master.postProperties(properties);
         return master;
+    }
+
+    /**
+     * Skip BOOTING state.
+     * It should be done before post notes and post session properties
+     */
+    protected void skipBootingState(Master master) {
+        int n = 1;
+        long bzmCheckTimeout = BlazeMeterUtils.getCheckTimeout();
+        while (n < 6) {
+            try {
+                Thread.sleep(bzmCheckTimeout);
+                int statusCode = master.getStatus();
+                if (statusCode > 25) {
+                    break;
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to skip BOOTING state");
+                break;
+            } finally {
+                n++;
+            }
+        }
     }
 
 
