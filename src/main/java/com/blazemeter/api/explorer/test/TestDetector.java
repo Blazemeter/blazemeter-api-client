@@ -50,8 +50,14 @@ public class TestDetector {
             logger.info("Attempt to detect Multi test type with id=" + testId);
             return MultiTest.getMultiTest(utils, testId);
         } catch (UnexpectedResponseException ex) {
-            logger.error("Fail for detect Multi test type id=" + testId + ". Reason is: " + ex.getMessage(), ex);
-            throw ex;
+            String msg = ex.getMessage();
+            if (msg.toLowerCase().contains("not found")) {
+                logger.info("Multi test with id=" + testId + " not found");
+                return null;
+            } else {
+                logger.error("Fail for detect Multi test type id=" + testId + ". Reason is: " + ex.getMessage(), ex);
+                throw ex;
+            }
         }
     }
 
