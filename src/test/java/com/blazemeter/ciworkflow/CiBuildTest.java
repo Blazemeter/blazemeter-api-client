@@ -14,11 +14,11 @@
 
 package com.blazemeter.ciworkflow;
 
-import com.blazemeter.api.exception.UnexpectedResponseException;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.MasterTest;
 import com.blazemeter.api.explorer.SessionTest;
 import com.blazemeter.api.explorer.test.SingleTestTest;
+import com.blazemeter.api.explorer.test.TestDetectorTest;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
@@ -179,8 +179,8 @@ public class CiBuildTest {
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
+        emul.addEmul(TestDetectorTest.generateResponseTestNotFound());
+        emul.addEmul(TestDetectorTest.generateResponseCollectionNotFound());
 
         CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
         Master master = ciBuild.start();
@@ -190,7 +190,7 @@ public class CiBuildTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests/id, tag=null}", emul.getRequests().get(1));
 
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 705, logs.length());
+        assertEquals(logs, 757, logs.length());
         assertTrue(logs, logs.contains("Failed to detect test type. Test with id=id not found."));
     }
 
@@ -200,8 +200,8 @@ public class CiBuildTest {
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest_NoSuchTest());
+        emul.addEmul(TestDetectorTest.generateResponseTestNotFound());
+        emul.addEmul(TestDetectorTest.generateResponseCollectionNotFound());
 
         CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
         BuildResult result = ciBuild.execute();
@@ -209,7 +209,7 @@ public class CiBuildTest {
         assertEquals(2, emul.getRequests().size());
 
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 733, logs.length());
+        assertEquals(logs, 785, logs.length());
         assertTrue(logs, logs.contains("Set Build status [FAILED]."));
     }
 
