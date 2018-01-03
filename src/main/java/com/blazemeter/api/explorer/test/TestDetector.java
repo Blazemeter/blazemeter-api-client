@@ -51,7 +51,7 @@ public class TestDetector {
             return MultiTest.getMultiTest(utils, testId);
         } catch (UnexpectedResponseException ex) {
             String msg = ex.getMessage();
-            if (msg.toLowerCase().contains("not found")) {
+            if (msg.toLowerCase().contains("collection not found")) {
                 logger.info("Multi test with id=" + testId + " not found");
                 return null;
             } else {
