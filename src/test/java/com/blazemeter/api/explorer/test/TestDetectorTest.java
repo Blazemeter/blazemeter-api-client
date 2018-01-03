@@ -79,13 +79,13 @@ public class TestDetectorTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         emul.addEmul(generateResponseTestNotFound());
-        emul.addEmul(generateResponseTestNotFound());
+        emul.addEmul(generateResponseCollectionNotFound());
 
         AbstractTest test = TestDetector.detectTest(emul, "xxxx");
         assertNull(test);
         assertEquals(2, emul.getRequests().size());
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 705, logs.length());
+        assertEquals(logs, 717, logs.length());
         assertTrue(logs, logs.contains("Multi test with id=xxxx not found"));
     }
 
@@ -108,10 +108,41 @@ public class TestDetectorTest {
         }
     }
 
+    @Test
+    public void testDetectFailedMultiTest() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseTestNotFound());
+        emul.addEmul(generateResponseUnauthorized());
+
+        try {
+            TestDetector.detectTest(emul, "xxxx");
+            fail();
+        } catch (UnexpectedResponseException ex) {
+            assertEquals(2, emul.getRequests().size());
+            String logs = logger.getLogs().toString();
+            assertEquals(logs, 812, logs.length());
+            assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
+        }
+    }
+
     public static String generateResponseTestNotFound() {
         JSONObject error = new JSONObject();
         error.put("code", 404);
         error.put("message", "Not Found: Test not found");
+
+        JSONObject response = new JSONObject();
+        response.put("error", error);
+        response.put("result", null);
+        return response.toString();
+    }
+
+    public static String generateResponseCollectionNotFound() {
+        JSONObject error = new JSONObject();
+        error.put("code", 404);
+        error.put("message", "Not Found: Collection not found");
 
         JSONObject response = new JSONObject();
         response.put("error", error);
