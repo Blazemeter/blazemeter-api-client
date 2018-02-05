@@ -20,6 +20,7 @@ import com.blazemeter.api.explorer.test.TestDetector;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -68,6 +69,10 @@ public class CiBuild {
             logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
             notifier.notifyError("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
             return BuildResult.FAILED;
+        }catch (InterruptedException e) {
+            logger.error("Caught exception. Set Build status [ABORTED]. Reason is: " + e.getMessage(), e);
+            notifier.notifyError("Caught exception. Set Build status [ABORTED].");
+            return BuildResult.ABORTED;
         }
     }
 
@@ -93,7 +98,7 @@ public class CiBuild {
      *
      * @return Master of started Test
      */
-    public Master start() throws IOException {
+    public Master start() throws IOException, InterruptedException {
         notifier.notifyInfo("CiBuild is started.");
         AbstractTest test = TestDetector.detectTest(utils, testId);
         if (test == null) {
@@ -106,7 +111,7 @@ public class CiBuild {
         return startTest(test);
     }
 
-    protected Master startTest(AbstractTest test) throws IOException {
+    protected Master startTest(AbstractTest test) throws IOException, InterruptedException {
         Master master = test.start();
         Calendar startTime = Calendar.getInstance();
         startTime.setTimeInMillis(System.currentTimeMillis());
@@ -119,8 +124,14 @@ public class CiBuild {
         // required before post properties to master
         skipInitState(master);
 
-        master.postNotes(notes);
-        master.postProperties(properties);
+        if (!StringUtils.isBlank(notes)) {
+            notifier.notifyInfo("Sent notes: " + notes);
+            master.postNotes(notes);
+        }
+        if (!StringUtils.isBlank(properties)) {
+            notifier.notifyInfo("Sent properties: " + properties);
+            master.postProperties(properties);
+        }
         return master;
     }
 
@@ -128,7 +139,7 @@ public class CiBuild {
      * Skip INIT state.
      * It should be done before post notes and post session properties
      */
-    protected void skipInitState(Master master) {
+    protected void skipInitState(Master master) throws InterruptedException, IOException {
         int n = 1;
         long bzmCheckTimeout = BlazeMeterUtils.getCheckTimeout();
         while (n < 6) {
@@ -138,9 +149,16 @@ public class CiBuild {
                 if (statusCode > 0) {
                     break;
                 }
+            } catch (InterruptedException ex) {
+                logger.warn("Caught InterruptedException while skip InitState");
+                boolean hasReports = interrupt(master);
+                if (hasReports) {
+                    doPostProcess(master);
+                }
+                throw ex;
             } catch (Exception e) {
                 logger.warn("Failed to skip INIT state");
-                break;
+                return;
             } finally {
                 n++;
             }
@@ -154,6 +172,7 @@ public class CiBuild {
      * @return true - if build has reports.
      */
     public boolean interrupt(Master master) throws IOException {
+        notifier.notifyWarning("Build has been interrupted");
         boolean hasReports = false;
         int statusCode = master.getStatus();
         if (statusCode < 100 && statusCode != 0) {
