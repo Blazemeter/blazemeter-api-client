@@ -23,7 +23,6 @@ import com.blazemeter.api.utils.BlazeMeterUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Calendar;
 
 public class CiBuild {
