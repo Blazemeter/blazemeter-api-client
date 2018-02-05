@@ -20,9 +20,9 @@ import com.blazemeter.api.explorer.test.TestDetector;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Calendar;
 
 public class CiBuild {
@@ -121,6 +121,12 @@ public class CiBuild {
 
         master.postNotes(notes);
         master.postProperties(properties);
+        if (!StringUtils.isBlank(notes)) {
+            notifier.notifyInfo("Sent notes: " + notes);
+        }
+        if (!StringUtils.isBlank(properties)) {
+            notifier.notifyInfo("Sent properties: " + properties);
+        }
         return master;
     }
 
