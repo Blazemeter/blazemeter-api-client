@@ -69,6 +69,9 @@ public class BlazeMeterUtilsTest {
             assertEquals("A JSONObject text must begin with '{' at character 1 of incorrect json", ex.getMessage());
             assertEquals("Cannot parse response: incorrect json\r\n" +
                     "A JSONObject text must begin with '{' at character 1 of incorrect json\r\n", logger.getLogs().toString());
+        } catch (UnexpectedResponseException ex) {
+            assertEquals("Received response with the following error: Cannot parse response: incorrect json", ex.getMessage());
+            assertEquals(194, logger.getLogs().toString().length());
         }
     }
 

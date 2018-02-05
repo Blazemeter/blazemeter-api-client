@@ -90,6 +90,7 @@ public class BlazeMeterUtils extends HttpUtils {
                 }
             } catch (JSONException ex) {
                 logger.debug("Cannot parse response: " + response, ex);
+                return "Cannot parse response: " + response;
             }
         }
         return null;

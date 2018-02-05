@@ -22,6 +22,7 @@ import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -318,7 +319,7 @@ public class CiPostProcess {
     }
 
     protected File getParentDirWithPermissionsCheck(File dir, String workspaceDir) throws IOException {
-        return isWritableDirectory(dir) ? dir : getWorkspaceDir(workspaceDir);
+        return new File(FilenameUtils.normalize(isWritableDirectory(dir) ? dir.getAbsolutePath() : getWorkspaceDir(workspaceDir).getAbsolutePath()));
     }
 
     protected boolean isWritableDirectory(File path) {
@@ -331,7 +332,7 @@ public class CiPostProcess {
             sample.delete();
             return true;
         } catch (IOException e) {
-            notifier.notifyWarning("Directory '"+ path + "' is not writable");
+            notifier.notifyWarning("Directory '" + path + "' is not writable");
             logger.debug("Write check failed for " + path, e);
             return false;
         }
