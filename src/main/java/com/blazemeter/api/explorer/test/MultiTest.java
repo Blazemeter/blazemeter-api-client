@@ -29,6 +29,8 @@ import java.io.IOException;
  */
 public class MultiTest extends AbstractTest {
 
+    private static String MULTI_TESTS = "/api/v4/multi-tests";
+
     public MultiTest(BlazeMeterUtils utils, String id, String name, String testType) {
         super(utils, id, name, testType);
     }
@@ -39,10 +41,22 @@ public class MultiTest extends AbstractTest {
     @Override
     public Master start() throws IOException {
         logger.info("Start multi test id=" + getId());
-        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/multi-tests/%s/start", encode(getId())));
+        JSONObject result = sendStartTest(utils.getAddress() + String.format(MULTI_TESTS + "/%s/start", encode(getId())));
         fillFields(result);
         return master;
     }
+
+    /**
+     * POST request to 'https://a.blazemeter.com/api/v4/multi-tests/{testId}/start'
+     */
+    @Override
+    public Master startWithProperties(String properties) throws IOException {
+        logger.info("Start multi test id=" + getId());
+        JSONObject result = sendStartTestWithBody(utils.getAddress() + String.format(MULTI_TESTS + "/%s/start", encode(getId())), properties);
+        fillFields(result);
+        return master;
+    }
+
 
     @Override
     public Master startExternal() throws IOException {
@@ -53,14 +67,15 @@ public class MultiTest extends AbstractTest {
     /**
      * Get multi-test
      * GET request to 'https://a.blazemeter.com/api/v4/multi-tests/{testId}'
+     *
      * @param utils - BlazeMeterUtils that contains logging and http setup
-     * @param id - multi-test Id
+     * @param id    - multi-test Id
      * @return MultiTest entity, which contains test ID and name (test label)
      */
     public static MultiTest getMultiTest(BlazeMeterUtils utils, String id) throws IOException {
         Logger logger = utils.getLogger();
         logger.info("Get Multi Test id=" + id);
-        String uri = utils.getAddress() + String.format("/api/v4/multi-tests/%s", BZAObject.encode(logger, id));
+        String uri = utils.getAddress() + String.format(MULTI_TESTS + "/%s", BZAObject.encode(logger, id));
         JSONObject response = utils.execute(utils.createGet(uri));
         return MultiTest.fromJSON(utils, response.getJSONObject("result"));
     }

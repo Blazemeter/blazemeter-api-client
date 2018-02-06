@@ -111,7 +111,13 @@ public class CiBuild {
     }
 
     protected Master startTest(AbstractTest test) throws IOException, InterruptedException {
-        Master master = test.start();
+        Master master = null;
+        if (!StringUtils.isBlank(properties)) {
+            notifier.notifyInfo("Sent properties: " + properties);
+            master = test.startWithProperties(properties);
+        } else {
+            master = test.start();
+        }
         Calendar startTime = Calendar.getInstance();
         startTime.setTimeInMillis(System.currentTimeMillis());
 
@@ -120,16 +126,13 @@ public class CiBuild {
         publicReport = master.getPublicReport();
         notifier.notifyInfo("Test report will be available at " + publicReport);
 
-        // required before post properties to master
+        // TODO
+        // check if required before post notes to master
         skipInitState(master);
 
         if (!StringUtils.isBlank(notes)) {
             notifier.notifyInfo("Sent notes: " + notes);
             master.postNotes(notes);
-        }
-        if (!StringUtils.isBlank(properties)) {
-            notifier.notifyInfo("Sent properties: " + properties);
-            master.postProperties(properties);
         }
         return master;
     }

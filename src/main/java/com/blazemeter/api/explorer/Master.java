@@ -87,6 +87,7 @@ public class Master extends BZAObject {
      * Step 1: Get list of sessions
      * Step 2: Post properties to each session
      */
+    @Deprecated
     public void postProperties(String properties) {
         if (StringUtils.isBlank(properties)) {
             logger.warn("Properties are empty, won't be sent to master = " + getId());

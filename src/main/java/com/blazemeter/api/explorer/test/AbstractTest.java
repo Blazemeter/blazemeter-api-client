@@ -45,7 +45,11 @@ public abstract class AbstractTest extends BZAObject implements ITest {
     }
 
     protected JSONObject sendStartTest(String uri) throws IOException {
-        JSONObject response = utils.execute(utils.createPost(uri, ""));
+        return sendStartTestWithBody(uri, "");
+    }
+
+    protected JSONObject sendStartTestWithBody(String uri, String body) throws IOException {
+        JSONObject response = utils.execute(utils.createPost(uri, body));
         return response.getJSONObject("result");
     }
 
