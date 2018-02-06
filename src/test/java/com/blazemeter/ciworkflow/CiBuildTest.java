@@ -97,7 +97,7 @@ public class CiBuildTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(i++));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/sessions?masterId=responseMasterId, tag=null}", emul.getRequests().get(i++));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions?masterId=responseMasterId, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
@@ -113,7 +113,7 @@ public class CiBuildTest {
         assertTrue(logs, logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertEquals(logs, 3112, logger.getLogs().length());
+        assertEquals(logs, 3104, logger.getLogs().length());
     }
 
 
