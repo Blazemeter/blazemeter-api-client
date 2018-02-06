@@ -56,6 +56,30 @@ public class MultiTestTest {
     }
 
     @Test
+    public void testStartWithProperties() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject response = new JSONObject();
+        response.put("result", generateResponseStartMultiTest());
+
+        emul.addEmul(response.toString());
+
+        MultiTest test = new MultiTest(emul, "testId", "testName", "multi");
+        Master master = test.startWithProperties("1");
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/multi-tests/testId/start, tag=null}", emul.getRequests().get(0));
+        checkTest(test);
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 217, logs.length());
+        assertTrue(logs, logs.contains("Start multi test id=testId"));
+        assertEquals("responseMasterId", master.getId());
+        assertEquals("multi", test.getTestType());
+    }
+
+    @Test
     public void testStartExternal() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();

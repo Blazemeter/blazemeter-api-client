@@ -39,6 +39,12 @@ public class AnonymousTest extends AbstractTest {
         throw new UnsupportedOperationException("Start is not supported for anonymous test type");
     }
 
+    @Override
+    public Master startWithProperties(String properties) throws IOException {
+        logger.error("Start is not supported for anonymous test type");
+        throw new UnsupportedOperationException("Start is not supported for anonymous test type");
+    }
+
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/sessions'
      */

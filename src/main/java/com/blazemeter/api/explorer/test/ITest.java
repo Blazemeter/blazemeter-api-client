@@ -27,6 +27,14 @@ public interface ITest {
     Master start() throws IOException;
 
     /**
+     * Start BlazeMeter test
+     *
+     * @return Master of started test
+     */
+    Master startWithProperties(String properties) throws IOException;
+
+
+    /**
      * Create empty BlazeMeter report, without starting JMeter or other testing tools.
      * @return Master of started test
      */

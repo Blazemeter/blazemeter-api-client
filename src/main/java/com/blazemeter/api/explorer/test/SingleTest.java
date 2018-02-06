@@ -28,6 +28,8 @@ import java.io.IOException;
  */
 public class SingleTest extends AbstractTest {
 
+    private static String TESTS = "/api/v4/tests";
+
     public SingleTest(BlazeMeterUtils utils, String id, String name, String testType) {
         super(utils, id, name, testType);
     }
@@ -38,7 +40,19 @@ public class SingleTest extends AbstractTest {
     @Override
     public Master start() throws IOException {
         logger.info("Start single test id=" + getId());
-        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start", encode(getId())));
+        JSONObject result = sendStartTest(utils.getAddress() + String.format(TESTS + "/%s/start", encode(getId())));
+        fillFields(result);
+        return master;
+    }
+
+
+    /**
+     * POST request to 'https://a.blazemeter.com/api/v4/tests/{testId}/start'
+     */
+    @Override
+    public Master startWithProperties(String properties) throws IOException {
+        logger.info("Start single test id=" + getId());
+        JSONObject result = sendStartTestWithBody(utils.getAddress() + String.format(TESTS + "/%s/start", encode(getId())), properties);
         fillFields(result);
         return master;
     }
@@ -49,7 +63,7 @@ public class SingleTest extends AbstractTest {
     @Override
     public Master startExternal() throws IOException {
         logger.info("Start external single test id=" + getId());
-        JSONObject result = sendStartTest(utils.getAddress() + String.format("/api/v4/tests/%s/start-external", encode(getId())));
+        JSONObject result = sendStartTest(utils.getAddress() + String.format(TESTS + "/%s/start-external", encode(getId())));
         fillFields(result);
         return master;
     }
@@ -57,14 +71,15 @@ public class SingleTest extends AbstractTest {
     /**
      * Get single test
      * GET request to 'https://a.blazemeter.com/api/v4/tests/{testId}'
+     *
      * @param utils - BlazeMeterUtils that contains logging and http setup
-     * @param id - test Id
+     * @param id    - test Id
      * @return SingleTest entity, which contains test ID and name (test label)
      */
     public static SingleTest getSingleTest(BlazeMeterUtils utils, String id) throws IOException {
         Logger logger = utils.getLogger();
         logger.info("Get Single Test id=" + id);
-        String uri = utils.getAddress() + String.format("/api/v4/tests/%s", BZAObject.encode(logger, id));
+        String uri = utils.getAddress() + String.format(TESTS + "/%s", BZAObject.encode(logger, id));
         JSONObject response = utils.execute(utils.createGet(uri));
         return SingleTest.fromJSON(utils, response.getJSONObject("result"));
     }
