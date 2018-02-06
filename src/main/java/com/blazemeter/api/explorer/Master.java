@@ -65,19 +65,18 @@ public class Master extends BZAObject {
     }
 
     /**
-     * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/sessions'
+     * GET request to 'https://a.blazemeter.com/api/v4/sessions'
      *
      * @return list of Sessions Id
      */
     public List<Session> getSessions() throws IOException {
         logger.info("Get list of sessions for master id=" + getId());
-        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/sessions", encode(getId()));
+        String uri = utils.getAddress() + String.format("/api/v4/sessions?masterId=%s", encode(getId()));
         List<Session> sessions = new ArrayList<>();
         JSONObject response = utils.execute(utils.createGet(uri));
-        JSONObject result = response.getJSONObject("result");
-        JSONArray sessionsArray = result.getJSONArray("sessions");
-        for (int i = 0; i < sessionsArray.size(); i++) {
-            JSONObject so = sessionsArray.getJSONObject(i);
+        JSONArray result = response.getJSONArray("result");
+        for (int i = 0; i < result.size(); i++) {
+            JSONObject so = result.getJSONObject(i);
             sessions.add(Session.fromJSON(utils, so));
         }
         return sessions;

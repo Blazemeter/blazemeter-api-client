@@ -121,10 +121,10 @@ public class MasterTest {
         assertEquals("12", sessionsList.get(0).getUserId());
         assertEquals("13", sessionsList.get(0).getTestId());
         assertEquals("r-v3-1234567890qwerty", sessionsList.get(0).getId());
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions?masterId=id, tag=null}", emul.getRequests().get(0));
 
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 254, logs.length());
+        assertEquals(logs, 242, logs.length());
         assertTrue(logs, logs.contains("Get list of sessions for master id=id"));
     }
 
@@ -138,11 +138,8 @@ public class MasterTest {
         JSONArray sessionsArray = new JSONArray();
         sessionsArray.add(session);
 
-        JSONObject sessions = new JSONObject();
-        sessions.put("sessions", sessionsArray);
-
         JSONObject result = new JSONObject();
-        result.put("result", sessions);
+        result.put("result", sessionsArray);
         return result.toString();
     }
 
@@ -415,10 +412,10 @@ public class MasterTest {
         Master master = new Master(emul, "id", "name");
         master.postProperties("1=2");
         assertEquals(2, emul.getRequests().size());
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions?masterId=id, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(1));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 538, logs.length());
+        assertEquals(logs, 526, logs.length());
         assertTrue(logs, logs.contains("Post properties to master id=id"));
         assertTrue(logs, logs.contains("Post properties to session id=r-v3-1234567890qwerty"));
     }
@@ -451,8 +448,8 @@ public class MasterTest {
 
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Failed to get sessions for master id=id"));
-        assertEquals(logs, 245, logs.length());
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+        assertEquals(logs, 246, logs.length());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions?masterId=id, tag=null}", emul.getRequests().get(0));
     }
 
     @Test
@@ -467,9 +464,9 @@ public class MasterTest {
 
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Failed to send properties for session id=r-v3-1234567890qwerty"));
-        assertEquals(logs, 545, logs.length());
+        assertEquals(logs, 533, logs.length());
 
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/sessions, tag=null}", emul.getRequests().get(0));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions?masterId=id, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(1));
     }
 }

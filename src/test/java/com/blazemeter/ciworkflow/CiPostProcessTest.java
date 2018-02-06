@@ -289,7 +289,6 @@ public class CiPostProcessTest {
         emul.addEmul(generateResponseCIStatusSuccess());
         emul.addEmul(MasterTest.generateResponseGetStatus(140));
         emul.addEmul("junit");
-        emul.addEmul(MasterTest.generateResponseGetSessions());
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
 
