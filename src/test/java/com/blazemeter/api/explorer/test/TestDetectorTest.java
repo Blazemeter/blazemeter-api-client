@@ -22,6 +22,8 @@ import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
@@ -50,7 +52,7 @@ public class TestDetectorTest {
         assertEquals("http", abstractTest.getTestType());
         assertEquals(1, emul.getRequests().size());
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 267, logs.length());
+        assertEquals(logs, 305, logs.length());
         assertTrue(logs, logs.contains("Attempt to detect Single test type with id=xxx"));
     }
 
@@ -71,7 +73,7 @@ public class TestDetectorTest {
         assertEquals("multi", abstractTest.getTestType());
         assertEquals(2, emul.getRequests().size());
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 614, logs.length());
+        assertEquals(logs, 652, logs.length());
         assertTrue(logs, logs.contains("Single test with id=xxxx not found"));
         assertTrue(logs, logs.contains("Attempt to detect Multi test type with id=xxx"));
     }
@@ -89,7 +91,7 @@ public class TestDetectorTest {
         assertNull(test);
         assertEquals(2, emul.getRequests().size());
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 717, logs.length());
+        assertEquals(logs, 755, logs.length());
         assertTrue(logs, logs.contains("Multi test with id=xxxx not found"));
     }
 
@@ -107,9 +109,97 @@ public class TestDetectorTest {
         } catch (UnexpectedResponseException ex) {
             assertEquals(1, emul.getRequests().size());
             String logs = logger.getLogs().toString();
-            assertEquals(logs, 458, logs.length());
+            assertEquals(logs, 496, logs.length());
             assertTrue(logs, logs.contains("Fail for detect Single test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
         }
+    }
+
+    @Test
+    public void detectTestBySyffix() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        String testId = "123.abc";
+        try {
+            TestDetector.detectTestBySyffix(emul, testId);
+        } catch (IOException e) {
+            assertEquals("Failed to detect test with id = 123", e.getMessage());
+        }
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+
+        testId = "testId.http";
+        try {
+            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            assertEquals("testId", test.getId());
+            assertEquals("http", test.getTestType());
+            assertEquals("http", test.getTestType());
+            assertEquals("Single_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        testId = "testId.jmeter";
+        try {
+            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            assertEquals("testId", test.getId());
+            assertEquals("http", test.getTestType());
+            assertEquals("http", test.getTestType());
+            assertEquals("Single_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        testId = "testId.webdriver";
+        try {
+            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            assertEquals("testId", test.getId());
+            assertEquals("http", test.getTestType());
+            assertEquals("http", test.getTestType());
+            assertEquals("Single_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        testId = "testId.taurus";
+        try {
+            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            assertEquals("testId", test.getId());
+            assertEquals("http", test.getTestType());
+            assertEquals("http", test.getTestType());
+            assertEquals("Single_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        emul.addEmul(MultiTestTest.generateResponseGetMultiTest());
+        emul.addEmul(MultiTestTest.generateResponseGetMultiTest());
+
+
+        testId = "testId.multi";
+        try {
+            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            assertEquals("testId", test.getId());
+            assertEquals("multi", test.getTestType());
+            assertEquals("multi", test.getTestType());
+            assertEquals("Multi_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        testId = "testId.multi-location";
+        try {
+            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            assertEquals("testId", test.getId());
+            assertEquals("multi", test.getTestType());
+            assertEquals("multi", test.getTestType());
+            assertEquals("Multi_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
     }
 
     @Test
@@ -127,7 +217,7 @@ public class TestDetectorTest {
         } catch (UnexpectedResponseException ex) {
             assertEquals(2, emul.getRequests().size());
             String logs = logger.getLogs().toString();
-            assertEquals(logs, 812, logs.length());
+            assertEquals(logs, 850, logs.length());
             assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
         }
     }

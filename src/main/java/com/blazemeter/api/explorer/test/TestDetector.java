@@ -30,7 +30,7 @@ public class TestDetector {
     public static AbstractTest detectTest(BlazeMeterUtils utils, String testId) throws IOException {
         final Logger logger = utils.getLogger();
         try {
-            AbstractTest test = detectTestByPrefix(utils, testId);
+            AbstractTest test = detectTestBySyffix(utils, testId);
             if (test != null) {
                 return test;
             }
@@ -71,7 +71,7 @@ public class TestDetector {
     }
 
 
-    public static AbstractTest detectTestByPrefix(BlazeMeterUtils utils, String test) throws IOException {
+    public static AbstractTest detectTestBySyffix(BlazeMeterUtils utils, String test) throws IOException {
         String suffix = getTestTypeSuffix(test);
         String testId = getTestId(test);
         AbstractTest detectedTest = null;
@@ -97,6 +97,8 @@ public class TestDetector {
             case "webdriver":
                 detectedTest = SingleTest.getSingleTest(utils, testId);
                 break;
+            default:
+                throw new IOException("Failed to detect test with id = " + testId);
         }
         return detectedTest;
     }

@@ -108,7 +108,7 @@ public class CiBuildTest {
         assertTrue(logs, logs.contains("Post notes to master id=responseMasterId"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertEquals(logs, 2536, logger.getLogs().length());
+        assertEquals(logs, 2576, logger.getLogs().length());
     }
 
 
@@ -141,7 +141,7 @@ public class CiBuildTest {
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/id, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 272, logs.length());
+        assertEquals(logs, 308, logs.length());
         assertTrue(logs, logs.contains("Caught exception. Set Build status [FAILED]. Reason is:"));
     }
 
@@ -182,7 +182,7 @@ public class CiBuildTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests/id, tag=null}", emul.getRequests().get(1));
 
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 757, logs.length());
+        assertEquals(logs, 793, logs.length());
         assertTrue(logs, logs.contains("Failed to detect test type. Test with id=id not found."));
     }
 
@@ -201,7 +201,7 @@ public class CiBuildTest {
         assertEquals(2, emul.getRequests().size());
 
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 785, logs.length());
+        assertEquals(logs, 821, logs.length());
         assertTrue(logs, logs.contains("Set Build status [FAILED]."));
     }
 
