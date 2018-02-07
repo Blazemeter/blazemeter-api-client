@@ -24,7 +24,11 @@ import org.junit.Test;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestDetectorTest {
 
@@ -126,6 +130,48 @@ public class TestDetectorTest {
             assertEquals(logs, 812, logs.length());
             assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
         }
+    }
+
+    @Test
+    public void getTestId() {
+        String test = "123.vbg";
+        String testId = TestDetector.getTestId(test);
+        assertEquals("123", testId);
+
+        test = ".";
+        testId = TestDetector.getTestId(test);
+        assertEquals("", testId);
+
+        test = "123";
+        testId = TestDetector.getTestId(test);
+        assertEquals("123", testId);
+
+        test = "";
+        testId = TestDetector.getTestId(test);
+        assertEquals("", testId);
+    }
+
+    @Test
+    public void getTestTypePrefix() {
+        String testId = "123.blabla";
+        String prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("blabla", prefix);
+
+        testId = ".blabla";
+        prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("blabla", prefix);
+
+        testId = ".";
+        prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("", prefix);
+
+        testId = "1";
+        prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("", prefix);
+
+        testId = "112345";
+        prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("", prefix);
     }
 
     public static String generateResponseTestNotFound() {

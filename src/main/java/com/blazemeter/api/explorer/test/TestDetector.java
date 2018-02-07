@@ -23,12 +23,21 @@ import java.io.IOException;
 public class TestDetector {
 
     /**
-     * @param utils - BlazeMeterUtils that contains logging and http setup
+     * @param utils  - BlazeMeterUtils that contains logging and http setup
      * @param testId - test Id for detected
-     * Detect test type by test id. If test not found that return null
+     *               Detect test type by test id. If test not found that return null
      */
     public static AbstractTest detectTest(BlazeMeterUtils utils, String testId) throws IOException {
         final Logger logger = utils.getLogger();
+        try {
+            AbstractTest test = detectTestByPrefix(utils, testId);
+            if (test != null) {
+                return test;
+            }
+        } catch (Exception e) {
+            logger.info("Failed to detect test with id = " + testId);
+        }
+
         try {
             logger.info("Attempt to detect Single test type with id=" + testId);
             return SingleTest.getSingleTest(utils, testId);
@@ -61,4 +70,58 @@ public class TestDetector {
         }
     }
 
+
+    public static AbstractTest detectTestByPrefix(BlazeMeterUtils utils, String test) throws IOException {
+        String suffix = getTestTypeSuffix(test);
+        String testId = getTestId(test);
+        AbstractTest detectedTest = null;
+        switch (suffix) {
+            case "http":
+                detectedTest = SingleTest.getSingleTest(utils, testId);
+                break;
+            case "followme":
+                detectedTest = SingleTest.getSingleTest(utils, testId);
+                break;
+            case "jmeter":
+                detectedTest = SingleTest.getSingleTest(utils, testId);
+                break;
+            case "multi":
+                detectedTest = MultiTest.getMultiTest(utils, testId);
+                break;
+            case "multi-location":
+                detectedTest = MultiTest.getMultiTest(utils, testId);
+                break;
+            case "taurus":
+                detectedTest = SingleTest.getSingleTest(utils, testId);
+                break;
+            case "webdriver":
+                detectedTest = SingleTest.getSingleTest(utils, testId);
+                break;
+        }
+        return detectedTest;
+    }
+
+    public static String getTestTypeSuffix(String testId) {
+        try {
+            int dot = testId.lastIndexOf(".");
+            if (dot < 0) {
+                return "";
+            }
+            return testId.substring(testId.lastIndexOf(".") + 1);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public static String getTestId(String testId) {
+        try {
+            int dot = testId.lastIndexOf(".");
+            if (dot < 0) {
+                return testId;
+            }
+            return testId.substring(0, testId.lastIndexOf("."));
+        } catch (Exception e) {
+            return testId;
+        }
+    }
 }
