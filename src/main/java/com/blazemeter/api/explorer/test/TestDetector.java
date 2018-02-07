@@ -34,9 +34,13 @@ public class TestDetector {
             if (test != null) {
                 return test;
             }
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            return null;
         } catch (Exception e) {
             logger.info("Failed to detect test with id = " + testId);
         }
+
 
         try {
             logger.info("Attempt to detect Single test type with id=" + testId);

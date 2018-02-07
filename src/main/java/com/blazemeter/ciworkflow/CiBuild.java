@@ -17,6 +17,7 @@ package com.blazemeter.ciworkflow;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.explorer.test.TestDetector;
+import com.blazemeter.api.http.HttpUtils;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.utils.BlazeMeterUtils;
@@ -68,7 +69,7 @@ public class CiBuild {
             logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
             notifier.notifyError("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
             return BuildResult.FAILED;
-        }catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             logger.error("Caught exception. Set Build status [ABORTED]. Reason is: " + e.getMessage(), e);
             notifier.notifyError("Caught exception. Set Build status [ABORTED].");
             return BuildResult.ABORTED;
@@ -250,5 +251,85 @@ public class CiBuild {
 
     public void setPublicReport(String publicReport) {
         this.publicReport = publicReport;
+    }
+
+    public static void main(String[] args) {
+        Logger logger = new Logger() {
+            @Override
+            public void debug(String message) {
+                System.out.println(message);
+            }
+
+            @Override
+            public void debug(String message, Throwable throwable) {
+                System.out.println(message + throwable.getMessage());
+
+            }
+
+            @Override
+            public void info(String message) {
+                System.out.println(message);
+
+            }
+
+            @Override
+            public void info(String message, Throwable throwable) {
+                System.out.println(message + throwable.getMessage());
+
+            }
+
+            @Override
+            public void warn(String message) {
+                System.out.println(message);
+
+            }
+
+            @Override
+            public void warn(String message, Throwable throwable) {
+                System.out.println(message + throwable.getMessage());
+            }
+
+            @Override
+            public void error(String message) {
+
+            }
+
+            @Override
+            public void error(String message, Throwable throwable) {
+                System.out.println(message + throwable.getMessage());
+
+            }
+        };
+        UserNotifier notifier = new UserNotifier() {
+            @Override
+            public void notifyInfo(String info) {
+
+            }
+
+            @Override
+            public void notifyWarning(String warn) {
+
+            }
+
+            @Override
+            public void notifyError(String error) {
+
+            }
+        };
+        System.setProperty(HttpUtils.PROXY_HOST, "ec2-52-201-233-245.compute-1.amazonaws.com");
+        System.setProperty(HttpUtils.PROXY_PORT, "49894");
+        System.setProperty(HttpUtils.PROXY_USER, "squid3");
+        System.setProperty(HttpUtils.PROXY_PASS, "kamianica");
+        String userId = "a49a98bea0b9e492505131ad";
+        String userSecret = "d29fb5da7ce230660bd9151214b0075131672f04c9cb0f1753e0a4517274c838684d9d31";
+        BlazeMeterUtils utils = new BlazeMeterUtils(userId, userSecret, "https://a-bm-qa-base.blazemeter.net", "", notifier, logger);
+        CiBuild ciBuild = new CiBuild(utils, "5021578.multi", "", "", null);
+        try {
+            ciBuild.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
