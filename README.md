@@ -50,8 +50,6 @@ Supported calls:
 |**Multi Test**||||
 |Get Multi Test|GET|/api/v4/multi-tests/{testId}|
 |Start|POST|/api/v4/multi-tests/{testId}/start|
-|**Anonymous Test**||||
-|Start External|POST|/api/v4/sessions|
 
 
 	
