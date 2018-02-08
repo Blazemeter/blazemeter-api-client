@@ -15,7 +15,7 @@ Supported calls:
 |Description   |Method   |Path   |
 |:---|:---|:---|
 |**Master**|||
-|Get Sessions|GET|/api/v4/masters/{masterId}/sessions|
+|Get Sessions|GET|/api/v4/sessions?masterId={masterId}|
 |Stop Master|POST|/api/v4/masters/{masterId}/stop|
 |Terminate Master|POST|/api/v4/masters/{masterId}/terminate|
 |Get Master Status Code|GET   |/api/v4/masters/{masterId}/status?events=false   |
@@ -26,7 +26,6 @@ Supported calls:
 |Get Functional Report|GET|/api/v4/masters/{masterId}|
 |Post Notes |PATCH|/api/v4/masters/{masterId}|
 |**Session**||||
-|Send Data|POST|/submit.php|
 |Post Properties |POST|/api/v4/sessions/{sessionId}/properties?target=all|
 |Get JTL Report |GET|/api/v4/sessions/{sessionId}/reports/logs|
 |Terminate Session External|POST|/api/v4/sessions/{sessionId}/terminate-external|
