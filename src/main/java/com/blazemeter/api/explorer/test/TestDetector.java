@@ -17,37 +17,30 @@ package com.blazemeter.api.explorer.test;
 import com.blazemeter.api.exception.UnexpectedResponseException;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 
 public class TestDetector {
 
     /**
-     * @param utils  - BlazeMeterUtils that contains logging and http setup
-     * @param testId - test Id for detected
-     *               Detect test type by test id. If test not found that return null
+     * @param utils - BlazeMeterUtils that contains logging and http setup
+     * @param test  - test Id for detected
+     *              Detect test type by test id. If test not found that return null
      */
-    public static AbstractTest detectTest(BlazeMeterUtils utils, String testId) throws IOException {
+    public static AbstractTest detectTest(BlazeMeterUtils utils, String test) throws IOException {
         final Logger logger = utils.getLogger();
-        try {
-            AbstractTest test = detectTestBySyffix(utils, testId);
-            if (test != null) {
-                return test;
-            }
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            return null;
-        } catch (Exception e) {
-            logger.info("Failed to detect test with id = " + testId);
+        String testType = getTestTypeSuffix(test);
+        String testId = getTestId(test);
+        if (!StringUtils.isBlank(testType)) {
+            return detectTestBySuffix(utils, testId, testType);
         }
-
-
         try {
             logger.info("Attempt to detect Single test type with id=" + testId);
             return SingleTest.getSingleTest(utils, testId);
         } catch (UnexpectedResponseException ex) {
             String msg = ex.getMessage();
-            if (msg.toLowerCase().contains("test not found")) {
+            if (msg.toLowerCase().contains("not found")) {
                 logger.info("Single test with id=" + testId + " not found");
                 return detectMultiTest(utils, testId);
             } else {
@@ -64,7 +57,7 @@ public class TestDetector {
             return MultiTest.getMultiTest(utils, testId);
         } catch (UnexpectedResponseException ex) {
             String msg = ex.getMessage();
-            if (msg.toLowerCase().contains("collection not found")) {
+            if (msg.toLowerCase().contains("not found")) {
                 logger.info("Multi test with id=" + testId + " not found");
                 return null;
             } else {
@@ -75,36 +68,26 @@ public class TestDetector {
     }
 
 
-    public static AbstractTest detectTestBySyffix(BlazeMeterUtils utils, String test) throws IOException {
-        String suffix = getTestTypeSuffix(test);
-        String testId = getTestId(test);
-        AbstractTest detectedTest = null;
-        switch (suffix) {
+    public static AbstractTest detectTestBySuffix(BlazeMeterUtils utils, String testId, String testType) throws IOException {
+        switch (testType) {
             case "http":
-                detectedTest = SingleTest.getSingleTest(utils, testId);
-                break;
+                return SingleTest.getSingleTest(utils, testId);
             case "followme":
-                detectedTest = SingleTest.getSingleTest(utils, testId);
-                break;
+                return SingleTest.getSingleTest(utils, testId);
             case "jmeter":
-                detectedTest = SingleTest.getSingleTest(utils, testId);
-                break;
+                return SingleTest.getSingleTest(utils, testId);
             case "multi":
-                detectedTest = MultiTest.getMultiTest(utils, testId);
-                break;
+                return MultiTest.getMultiTest(utils, testId);
             case "multi-location":
-                detectedTest = MultiTest.getMultiTest(utils, testId);
-                break;
+                return MultiTest.getMultiTest(utils, testId);
             case "taurus":
-                detectedTest = SingleTest.getSingleTest(utils, testId);
-                break;
+                return SingleTest.getSingleTest(utils, testId);
             case "webdriver":
-                detectedTest = SingleTest.getSingleTest(utils, testId);
-                break;
+                return SingleTest.getSingleTest(utils, testId);
             default:
-                throw new IOException("Failed to detect test with id = " + testId);
+                utils.getLogger().error("Test type = " + testType + " is unexpected");
+                throw new IOException("Test type = " + testType + " is unexpected");
         }
-        return detectedTest;
     }
 
     public static String getTestTypeSuffix(String testId) {

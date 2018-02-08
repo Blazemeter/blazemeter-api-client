@@ -52,7 +52,7 @@ public class TestDetectorTest {
         assertEquals("http", abstractTest.getTestType());
         assertEquals(1, emul.getRequests().size());
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 305, logs.length());
+        assertEquals(logs, 267, logs.length());
         assertTrue(logs, logs.contains("Attempt to detect Single test type with id=xxx"));
     }
 
@@ -73,7 +73,7 @@ public class TestDetectorTest {
         assertEquals("multi", abstractTest.getTestType());
         assertEquals(2, emul.getRequests().size());
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 652, logs.length());
+        assertEquals(logs, 614, logs.length());
         assertTrue(logs, logs.contains("Single test with id=xxxx not found"));
         assertTrue(logs, logs.contains("Attempt to detect Multi test type with id=xxx"));
     }
@@ -91,7 +91,7 @@ public class TestDetectorTest {
         assertNull(test);
         assertEquals(2, emul.getRequests().size());
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 755, logs.length());
+        assertEquals(logs, 717, logs.length());
         assertTrue(logs, logs.contains("Multi test with id=xxxx not found"));
     }
 
@@ -109,7 +109,7 @@ public class TestDetectorTest {
         } catch (UnexpectedResponseException ex) {
             assertEquals(1, emul.getRequests().size());
             String logs = logger.getLogs().toString();
-            assertEquals(logs, 496, logs.length());
+            assertEquals(logs, 458, logs.length());
             assertTrue(logs, logs.contains("Fail for detect Single test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
         }
     }
@@ -121,9 +121,9 @@ public class TestDetectorTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
         String testId = "123.abc";
         try {
-            TestDetector.detectTestBySyffix(emul, testId);
+            TestDetector.detectTestBySuffix(emul, "123", "abc");
         } catch (IOException e) {
-            assertEquals("Failed to detect test with id = 123", e.getMessage());
+            assertEquals("Test type = abc is unexpected", e.getMessage());
         }
         emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
         emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
@@ -132,7 +132,7 @@ public class TestDetectorTest {
 
         testId = "testId.http";
         try {
-            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "http");
             assertEquals("testId", test.getId());
             assertEquals("http", test.getTestType());
             assertEquals("http", test.getTestType());
@@ -143,7 +143,7 @@ public class TestDetectorTest {
 
         testId = "testId.jmeter";
         try {
-            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "jmeter");
             assertEquals("testId", test.getId());
             assertEquals("http", test.getTestType());
             assertEquals("http", test.getTestType());
@@ -154,7 +154,7 @@ public class TestDetectorTest {
 
         testId = "testId.webdriver";
         try {
-            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "webdriver");
             assertEquals("testId", test.getId());
             assertEquals("http", test.getTestType());
             assertEquals("http", test.getTestType());
@@ -165,7 +165,7 @@ public class TestDetectorTest {
 
         testId = "testId.taurus";
         try {
-            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "taurus");
             assertEquals("testId", test.getId());
             assertEquals("http", test.getTestType());
             assertEquals("http", test.getTestType());
@@ -178,9 +178,8 @@ public class TestDetectorTest {
         emul.addEmul(MultiTestTest.generateResponseGetMultiTest());
 
 
-        testId = "testId.multi";
         try {
-            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "multi");
             assertEquals("testId", test.getId());
             assertEquals("multi", test.getTestType());
             assertEquals("multi", test.getTestType());
@@ -191,7 +190,7 @@ public class TestDetectorTest {
 
         testId = "testId.multi-location";
         try {
-            AbstractTest test = TestDetector.detectTestBySyffix(emul, testId);
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "multi-location");
             assertEquals("testId", test.getId());
             assertEquals("multi", test.getTestType());
             assertEquals("multi", test.getTestType());
@@ -217,7 +216,7 @@ public class TestDetectorTest {
         } catch (UnexpectedResponseException ex) {
             assertEquals(2, emul.getRequests().size());
             String logs = logger.getLogs().toString();
-            assertEquals(logs, 850, logs.length());
+            assertEquals(logs, 812, logs.length());
             assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
         }
     }
