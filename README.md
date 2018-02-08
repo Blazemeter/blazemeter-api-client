@@ -28,7 +28,6 @@ Supported calls:
 |**Session**||||
 |Post Properties |POST|/api/v4/sessions/{sessionId}/properties?target=all|
 |Get JTL Report |GET|/api/v4/sessions/{sessionId}/reports/logs|
-|Terminate Session External|POST|/api/v4/sessions/{sessionId}/terminate-external|
 |**User**||||
 |Get User|GET|/api/v4/user|
 |Get Accounts|GET|/api/v4/accounts?limit={limit}&sort[]={sort}|
@@ -48,7 +47,6 @@ Supported calls:
 |**Single Test**||||
 |Get Test|GET|/api/v4/tests/{testId}|
 |Start |POST|/api/v4/tests{testId}/start|
-|Start External|POST|/api/v4/tests{testId}/start-external|
 |**Multi Test**||||
 |Get Multi Test|GET|/api/v4/multi-tests/{testId}|
 |Start|POST|/api/v4/multi-tests/{testId}/start|
