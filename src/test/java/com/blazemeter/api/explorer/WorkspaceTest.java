@@ -187,4 +187,30 @@ public class WorkspaceTest {
         assertEquals("workspaceName", workspace.getName());
     }
 
+    @Test
+    public void testGetWorkspace() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetWorkspace());
+
+        Workspace workspace = Workspace.getWorkspace(emul, "123");
+        assertEquals("123", workspace.getId());
+        assertEquals("Default workspace", workspace.getName());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/workspaces/123, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 186, logs.length());
+        assertTrue(logs, logs.contains("Get Workspace id=123"));
+    }
+
+    public static String generateResponseGetWorkspace() {
+        JSONObject workspace = new JSONObject();
+        workspace.put("id", "123");
+        workspace.put("name", "Default workspace");
+
+        JSONObject response = new JSONObject();
+        response.put("result", workspace);
+        return response.toString();
+    }
 }
