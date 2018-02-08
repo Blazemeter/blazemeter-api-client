@@ -16,6 +16,8 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
+import com.blazemeter.api.explorer.test.MultiTest;
+import com.blazemeter.api.explorer.test.SingleTest;
 import com.blazemeter.api.explorer.test.TestDetector;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
@@ -112,7 +114,7 @@ public class CiBuild {
 
     protected Master startTest(AbstractTest test) throws IOException, InterruptedException {
         Master master = null;
-        if (!StringUtils.isBlank(properties)) {
+        if (!StringUtils.isBlank(properties) && test instanceof SingleTest) {
             notifier.notifyInfo("Sent properties: " + properties);
             master = test.startWithProperties(properties);
         } else {
@@ -125,11 +127,11 @@ public class CiBuild {
 
         publicReport = master.getPublicReport();
         notifier.notifyInfo("Test report will be available at " + publicReport);
-
-        // TODO
-        // check if required before post notes to master
         skipInitState(master);
-
+        if (!StringUtils.isBlank(properties) && test instanceof MultiTest) {
+            notifier.notifyInfo("Sent properties: " + properties);
+            master.postProperties(properties);
+        }
         if (!StringUtils.isBlank(notes)) {
             notifier.notifyInfo("Sent notes: " + notes);
             master.postNotes(notes);
