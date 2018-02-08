@@ -68,7 +68,7 @@ public class CiBuild {
             logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
             notifier.notifyError("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
             return BuildResult.FAILED;
-        }catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             logger.error("Caught exception. Set Build status [ABORTED]. Reason is: " + e.getMessage(), e);
             notifier.notifyError("Caught exception. Set Build status [ABORTED].");
             return BuildResult.ABORTED;
@@ -251,4 +251,5 @@ public class CiBuild {
     public void setPublicReport(String publicReport) {
         this.publicReport = publicReport;
     }
+
 }

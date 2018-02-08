@@ -17,6 +17,7 @@ package com.blazemeter.api.explorer.test;
 import com.blazemeter.api.exception.UnexpectedResponseException;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 
@@ -24,17 +25,22 @@ public class TestDetector {
 
     /**
      * @param utils - BlazeMeterUtils that contains logging and http setup
-     * @param testId - test Id for detected
-     * Detect test type by test id. If test not found that return null
+     * @param test  - test Id for detected
+     *              Detect test type by test id. If test not found that return null
      */
-    public static AbstractTest detectTest(BlazeMeterUtils utils, String testId) throws IOException {
+    public static AbstractTest detectTest(BlazeMeterUtils utils, String test) throws IOException {
         final Logger logger = utils.getLogger();
+        String testType = getTestTypeSuffix(test);
+        String testId = getTestId(test);
+        if (!StringUtils.isBlank(testType)) {
+            return detectTestBySuffix(utils, testId, testType);
+        }
         try {
             logger.info("Attempt to detect Single test type with id=" + testId);
             return SingleTest.getSingleTest(utils, testId);
         } catch (UnexpectedResponseException ex) {
             String msg = ex.getMessage();
-            if (msg.toLowerCase().contains("test not found")) {
+            if (msg.toLowerCase().contains("not found")) {
                 logger.info("Single test with id=" + testId + " not found");
                 return detectMultiTest(utils, testId);
             } else {
@@ -51,7 +57,7 @@ public class TestDetector {
             return MultiTest.getMultiTest(utils, testId);
         } catch (UnexpectedResponseException ex) {
             String msg = ex.getMessage();
-            if (msg.toLowerCase().contains("collection not found")) {
+            if (msg.toLowerCase().contains("not found")) {
                 logger.info("Multi test with id=" + testId + " not found");
                 return null;
             } else {
@@ -61,4 +67,50 @@ public class TestDetector {
         }
     }
 
+
+    public static AbstractTest detectTestBySuffix(BlazeMeterUtils utils, String testId, String testType) throws IOException {
+        switch (testType) {
+            case "http":
+                return SingleTest.getSingleTest(utils, testId);
+            case "followme":
+                return SingleTest.getSingleTest(utils, testId);
+            case "jmeter":
+                return SingleTest.getSingleTest(utils, testId);
+            case "multi":
+                return MultiTest.getMultiTest(utils, testId);
+            case "multi-location":
+                return MultiTest.getMultiTest(utils, testId);
+            case "taurus":
+                return SingleTest.getSingleTest(utils, testId);
+            case "webdriver":
+                return SingleTest.getSingleTest(utils, testId);
+            default:
+                utils.getLogger().error("Test type = " + testType + " is unexpected");
+                throw new IOException("Test type = " + testType + " is unexpected");
+        }
+    }
+
+    public static String getTestTypeSuffix(String testId) {
+        try {
+            int dot = testId.lastIndexOf(".");
+            if (dot < 0) {
+                return "";
+            }
+            return testId.substring(testId.lastIndexOf(".") + 1);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public static String getTestId(String testId) {
+        try {
+            int dot = testId.lastIndexOf(".");
+            if (dot < 0) {
+                return testId;
+            }
+            return testId.substring(0, testId.lastIndexOf("."));
+        } catch (Exception e) {
+            return testId;
+        }
+    }
 }

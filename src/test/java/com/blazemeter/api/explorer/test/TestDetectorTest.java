@@ -22,9 +22,15 @@ import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestDetectorTest {
 
@@ -109,6 +115,93 @@ public class TestDetectorTest {
     }
 
     @Test
+    public void detectTestBySyffix() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        String testId = "123.abc";
+        try {
+            TestDetector.detectTestBySuffix(emul, "123", "abc");
+        } catch (IOException e) {
+            assertEquals("Test type = abc is unexpected", e.getMessage());
+        }
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+
+        testId = "testId.http";
+        try {
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "http");
+            assertEquals("testId", test.getId());
+            assertEquals("http", test.getTestType());
+            assertEquals("http", test.getTestType());
+            assertEquals("Single_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        testId = "testId.jmeter";
+        try {
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "jmeter");
+            assertEquals("testId", test.getId());
+            assertEquals("http", test.getTestType());
+            assertEquals("http", test.getTestType());
+            assertEquals("Single_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        testId = "testId.webdriver";
+        try {
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "webdriver");
+            assertEquals("testId", test.getId());
+            assertEquals("http", test.getTestType());
+            assertEquals("http", test.getTestType());
+            assertEquals("Single_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        testId = "testId.taurus";
+        try {
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "taurus");
+            assertEquals("testId", test.getId());
+            assertEquals("http", test.getTestType());
+            assertEquals("http", test.getTestType());
+            assertEquals("Single_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        emul.addEmul(MultiTestTest.generateResponseGetMultiTest());
+        emul.addEmul(MultiTestTest.generateResponseGetMultiTest());
+
+
+        try {
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "multi");
+            assertEquals("testId", test.getId());
+            assertEquals("multi", test.getTestType());
+            assertEquals("multi", test.getTestType());
+            assertEquals("Multi_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+        testId = "testId.multi-location";
+        try {
+            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "multi-location");
+            assertEquals("testId", test.getId());
+            assertEquals("multi", test.getTestType());
+            assertEquals("multi", test.getTestType());
+            assertEquals("Multi_testName", test.getName());
+        } catch (IOException e) {
+            fail();
+        }
+
+    }
+
+    @Test
     public void testDetectFailedMultiTest() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
@@ -126,6 +219,48 @@ public class TestDetectorTest {
             assertEquals(logs, 812, logs.length());
             assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
         }
+    }
+
+    @Test
+    public void getTestId() {
+        String test = "123.vbg";
+        String testId = TestDetector.getTestId(test);
+        assertEquals("123", testId);
+
+        test = ".";
+        testId = TestDetector.getTestId(test);
+        assertEquals("", testId);
+
+        test = "123";
+        testId = TestDetector.getTestId(test);
+        assertEquals("123", testId);
+
+        test = "";
+        testId = TestDetector.getTestId(test);
+        assertEquals("", testId);
+    }
+
+    @Test
+    public void getTestTypePrefix() {
+        String testId = "123.blabla";
+        String prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("blabla", prefix);
+
+        testId = ".blabla";
+        prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("blabla", prefix);
+
+        testId = ".";
+        prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("", prefix);
+
+        testId = "1";
+        prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("", prefix);
+
+        testId = "112345";
+        prefix = TestDetector.getTestTypeSuffix(testId);
+        assertEquals("", prefix);
     }
 
     public static String generateResponseTestNotFound() {
