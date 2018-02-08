@@ -33,6 +33,7 @@ Supported calls:
 |Get User|GET|/api/v4/user|
 |Get Accounts|GET|/api/v4/accounts?limit={limit}&sort[]={sort}|
 |**Workspace**||||
+|Get Workspace|GET|/api/v4/workspaces/{workspaceId}|
 |Create Project|POST|/api/v4/projects|
 |Get Projects|GET|/api/v4/projects?workspaceId={workspaceId}&limit={limit}&sort[]={sort}|
 |Get Single Tests|GET|/api/v4/tests?workspaceId={workspaceId}&limit={limit}&sort[]={sort}|
