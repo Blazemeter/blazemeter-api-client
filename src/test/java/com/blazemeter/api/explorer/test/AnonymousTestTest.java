@@ -71,6 +71,22 @@ public class AnonymousTestTest {
         assertEquals("external", test.getTestType());
     }
 
+    @Test
+    public void testStartWithProperties() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        AnonymousTest test = new AnonymousTest(emul);
+        try {
+            test.startWithProperties("");
+            fail("Cannot start this test type");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("Start is not supported for anonymous test type", ex.getMessage());
+            assertEquals("Start is not supported for anonymous test type\r\n", logger.getLogs().toString());
+        }
+    }
+
     public static String generateResponseStartExternalAnonymousTest() {
         JSONObject testResponse = new JSONObject();
         testResponse.put("id", "responseTestId");

@@ -16,6 +16,8 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.MasterTest;
+import com.blazemeter.api.explorer.test.MultiTest;
+import com.blazemeter.api.explorer.test.MultiTestTest;
 import com.blazemeter.api.explorer.test.SingleTestTest;
 import com.blazemeter.api.explorer.test.TestDetectorTest;
 import com.blazemeter.api.logging.LoggerTest;
@@ -40,7 +42,7 @@ public class CiBuildTest {
     @Before
     public void setUp() throws Exception {
         System.setProperty("bzm.checkTimeout", "1000");
-        System.setProperty("bzm.minute", "1500");
+        System.setProperty("bzm.minute", "900");
     }
 
     @After
@@ -257,5 +259,60 @@ public class CiBuildTest {
 
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Failed to skip INIT state"));
+    }
+
+    @Test
+    public void testStartTest() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject response = new JSONObject();
+        response.put("result", MultiTestTest.generateResponseStartMultiTest());
+        emul.addEmul(response.toString());
+        emul.addEmul(MasterTest.generateResponseGetPublicToken("multi-test-public-token"));
+        emul.addEmul(MasterTest.generateResponseGetStatus(30));
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "", null);
+        MultiTest multiTest = new MultiTest(emul, "123", "multi-test-name", "multi");
+
+        ciBuild.startTest(multiTest);
+
+        String log = logger.getLogs().toString();
+        assertEquals(log, emul.getRequests().get(0), "Request{method=POST, url=http://a.blazemeter.com/api/v4/multi-tests/123/start, tag=null}");
+        assertEquals(log, emul.getRequests().get(3), "Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions?masterId=responseMasterId, tag=null}");
+        assertEquals(log, 970, log.length());
+    }
+
+    @Test
+    public void testGeneratePublicToken() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "", null);
+        ciBuild.generatePublicReport(null);
+
+        String log = logger.getLogs().toString();
+        assertTrue(log, log.contains("Cannot get public token"));
+
+        String userLog = notifier.getLogs().toString();
+        assertTrue(userLog, userLog.contains("Cannot get public token"));
+    }
+
+    @Test
+    public void testPostNotes() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", null);
+        ciBuild.postNotes(null);
+
+        String log = logger.getLogs().toString();
+        assertTrue(log, log.contains("Cannot post notes"));
+
+        String userLog = notifier.getLogs().toString();
+        assertTrue(userLog, userLog.contains("Cannot post notes"));
     }
 }

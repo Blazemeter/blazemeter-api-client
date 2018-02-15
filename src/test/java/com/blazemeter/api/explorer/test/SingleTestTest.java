@@ -160,8 +160,12 @@ public class SingleTestTest {
     }
 
     public static String generateResponseGetSingleTest() {
+        return generateResponseGetSingleTest("http");
+    }
+
+    public static String generateResponseGetSingleTest(String testType) {
         JSONObject configuration = new JSONObject();
-        configuration.put("type", "http");
+        configuration.put("type", testType);
 
         JSONObject result = new JSONObject();
         result.put("id", "testId");

@@ -113,30 +113,50 @@ public class CiBuild {
     }
 
     protected Master startTest(AbstractTest test) throws IOException, InterruptedException {
-        Master master = null;
+        Master master;
         if (!StringUtils.isBlank(properties) && test instanceof SingleTest) {
             notifier.notifyInfo("Sent properties: " + properties);
             master = test.startWithProperties(properties);
         } else {
             master = test.start();
         }
+
         Calendar startTime = Calendar.getInstance();
         startTime.setTimeInMillis(System.currentTimeMillis());
-
         notifier.notifyInfo("Test has been started successfully at " + startTime.getTime().toString() + ". Master id=" + master.getId());
 
-        publicReport = master.getPublicReport();
-        notifier.notifyInfo("Test report will be available at " + publicReport);
+        generatePublicReport(master);
+
         skipInitState(master);
         if (!StringUtils.isBlank(properties) && test instanceof MultiTest) {
             notifier.notifyInfo("Sent properties: " + properties);
             master.postProperties(properties);
         }
-        if (!StringUtils.isBlank(notes)) {
-            notifier.notifyInfo("Sent notes: " + notes);
-            master.postNotes(notes);
-        }
+
+        postNotes(master);
         return master;
+    }
+
+    protected void generatePublicReport(Master master) {
+        try {
+            publicReport = master.getPublicReport();
+            notifier.notifyInfo("Test report will be available at " + publicReport);
+        } catch (Exception ex) {
+            logger.warn("Cannot get public token", ex);
+            notifier.notifyWarning("Cannot get public token");
+        }
+    }
+
+    protected void postNotes(Master master) {
+        try {
+            if (!StringUtils.isBlank(notes)) {
+                notifier.notifyInfo("Sent notes: " + notes);
+                master.postNotes(notes);
+            }
+        } catch (Exception ex) {
+            logger.warn("Cannot post notes", ex);
+            notifier.notifyWarning("Cannot post notes");
+        }
     }
 
     /**
