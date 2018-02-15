@@ -35,6 +35,7 @@ public class TestDetector {
         if (!StringUtils.isBlank(testType)) {
             return detectTestBySuffix(utils, testId, testType);
         }
+
         try {
             logger.info("Attempt to detect Single test type with id=" + testId);
             return SingleTest.getSingleTest(utils, testId);

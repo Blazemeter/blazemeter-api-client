@@ -140,10 +140,14 @@ public class MultiTestTest {
     }
 
     public static String generateResponseGetMultiTest() {
+        return generateResponseGetMultiTest("multi");
+    }
+
+    public static String generateResponseGetMultiTest(String testType) {
         JSONObject result = new JSONObject();
         result.put("id", "testId");
         result.put("name", "Multi_testName");
-        result.put("collectionType", "multi");
+        result.put("collectionType", testType);
 
         JSONObject response = new JSONObject();
         response.put("result", result);

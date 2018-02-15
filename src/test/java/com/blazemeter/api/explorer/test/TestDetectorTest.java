@@ -115,90 +115,106 @@ public class TestDetectorTest {
     }
 
     @Test
-    public void detectTestBySyffix() {
+    public void detectTestBySuffix1() {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
-        String testId = "123.abc";
         try {
             TestDetector.detectTestBySuffix(emul, "123", "abc");
         } catch (IOException e) {
             assertEquals("Test type = abc is unexpected", e.getMessage());
         }
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
+    }
 
-        testId = "testId.http";
-        try {
-            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "http");
-            assertEquals("testId", test.getId());
-            assertEquals("http", test.getTestType());
-            assertEquals("http", test.getTestType());
-            assertEquals("Single_testName", test.getName());
-        } catch (IOException e) {
-            fail();
-        }
+    @Test
+    public void detectTestBySuffix2() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("http"));
 
-        testId = "testId.jmeter";
-        try {
-            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "jmeter");
-            assertEquals("testId", test.getId());
-            assertEquals("http", test.getTestType());
-            assertEquals("http", test.getTestType());
-            assertEquals("Single_testName", test.getName());
-        } catch (IOException e) {
-            fail();
-        }
+        AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "http");
+        assertEquals("testId", test.getId());
+        assertEquals("http", test.getTestType());
+        assertEquals("Single_testName", test.getName());
+    }
 
-        testId = "testId.webdriver";
-        try {
-            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "webdriver");
-            assertEquals("testId", test.getId());
-            assertEquals("http", test.getTestType());
-            assertEquals("http", test.getTestType());
-            assertEquals("Single_testName", test.getName());
-        } catch (IOException e) {
-            fail();
-        }
+    @Test
+    public void detectTestBySuffix3() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter"));
 
-        testId = "testId.taurus";
-        try {
-            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "taurus");
-            assertEquals("testId", test.getId());
-            assertEquals("http", test.getTestType());
-            assertEquals("http", test.getTestType());
-            assertEquals("Single_testName", test.getName());
-        } catch (IOException e) {
-            fail();
-        }
+        AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "jmeter");
+        assertEquals("testId", test.getId());
+        assertEquals("jmeter", test.getTestType());
+        assertEquals("Single_testName", test.getName());
+    }
 
-        emul.addEmul(MultiTestTest.generateResponseGetMultiTest());
-        emul.addEmul(MultiTestTest.generateResponseGetMultiTest());
+    @Test
+    public void detectTestBySuffix4() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("webdriver"));
 
+        AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "webdriver");
+        assertEquals("testId", test.getId());
+        assertEquals("webdriver", test.getTestType());
+        assertEquals("Single_testName", test.getName());
+    }
 
-        try {
-            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "multi");
-            assertEquals("testId", test.getId());
-            assertEquals("multi", test.getTestType());
-            assertEquals("multi", test.getTestType());
-            assertEquals("Multi_testName", test.getName());
-        } catch (IOException e) {
-            fail();
-        }
+    @Test
+    public void detectTestBySuffix5() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("followme"));
 
-        testId = "testId.multi-location";
-        try {
-            AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "multi-location");
-            assertEquals("testId", test.getId());
-            assertEquals("multi", test.getTestType());
-            assertEquals("multi", test.getTestType());
-            assertEquals("Multi_testName", test.getName());
-        } catch (IOException e) {
-            fail();
-        }
+        AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "followme");
+        assertEquals("testId", test.getId());
+        assertEquals("followme", test.getTestType());
+        assertEquals("Single_testName", test.getName());
+    }
 
+    @Test
+    public void detectTestBySuffix6() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("taurus"));
+
+        AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "taurus");
+        assertEquals("testId", test.getId());
+        assertEquals("taurus", test.getTestType());
+        assertEquals("Single_testName", test.getName());
+    }
+
+    @Test
+    public void detectTestBySuffix7() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(MultiTestTest.generateResponseGetMultiTest("multi"));
+
+        AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "multi");
+        assertEquals("testId", test.getId());
+        assertEquals("multi", test.getTestType());
+        assertEquals("Multi_testName", test.getName());
+    }
+
+    @Test
+    public void detectTestBySuffix8() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(MultiTestTest.generateResponseGetMultiTest("multi-location"));
+
+        AbstractTest test = TestDetector.detectTestBySuffix(emul, "testId", "multi-location");
+        assertEquals("testId", test.getId());
+        assertEquals("multi-location", test.getTestType());
+        assertEquals("Multi_testName", test.getName());
     }
 
     @Test
@@ -219,6 +235,29 @@ public class TestDetectorTest {
             assertEquals(logs, 812, logs.length());
             assertTrue(logs, logs.contains("Fail for detect Multi test type id=xxxx. Reason is: Received response with the following error: Unauthorized"));
         }
+    }
+
+    @Test
+    public void testGetTestId() throws Exception {
+        assertNull(TestDetector.getTestId(null));
+    }
+
+    @Test
+    public void testGetTestSuffix() throws Exception {
+        assertEquals("", TestDetector.getTestTypeSuffix(null));
+    }
+
+    @Test
+    public void testDetectTestTypeWithSuffix() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(MultiTestTest.generateResponseGetMultiTest("multi-location"));
+
+        AbstractTest test = TestDetector.detectTest(emul, "testId.multi-location");
+        assertEquals("testId", test.getId());
+        assertEquals("multi-location", test.getTestType());
+        assertEquals("Multi_testName", test.getName());
     }
 
     @Test
