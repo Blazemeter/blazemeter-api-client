@@ -113,16 +113,16 @@ public class CiBuild {
     }
 
     protected Master startTest(AbstractTest test) throws IOException, InterruptedException {
-        Master master = null;
+        Master master;
         if (!StringUtils.isBlank(properties) && test instanceof SingleTest) {
             notifier.notifyInfo("Sent properties: " + properties);
             master = test.startWithProperties(properties);
         } else {
             master = test.start();
         }
+
         Calendar startTime = Calendar.getInstance();
         startTime.setTimeInMillis(System.currentTimeMillis());
-
         notifier.notifyInfo("Test has been started successfully at " + startTime.getTime().toString() + ". Master id=" + master.getId());
 
         generatePublicReport(master);
