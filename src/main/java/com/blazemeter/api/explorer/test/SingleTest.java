@@ -52,7 +52,7 @@ public class SingleTest extends AbstractTest {
     @Override
     public Master startWithProperties(String properties) throws IOException {
         logger.info("Start single test id=" + getId());
-        JSONObject result = sendStartTestWithBody(utils.getAddress() + String.format(TESTS + "/%s/start", encode(getId())), properties);
+        JSONObject result = sendStartTestWithBody(utils.getAddress() + String.format(TESTS + "/%s/start", encode(getId())), prepareSessionProperties(properties));
         fillFields(result);
         return master;
     }
