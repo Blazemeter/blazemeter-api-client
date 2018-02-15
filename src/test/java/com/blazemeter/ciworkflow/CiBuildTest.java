@@ -42,7 +42,7 @@ public class CiBuildTest {
     @Before
     public void setUp() throws Exception {
         System.setProperty("bzm.checkTimeout", "1000");
-        System.setProperty("bzm.minute", "1500");
+        System.setProperty("bzm.minute", "900");
     }
 
     @After
