@@ -23,6 +23,8 @@ import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
@@ -66,8 +68,14 @@ public class MultiTestTest {
 
         emul.addEmul(response.toString());
 
-        MultiTest test = new MultiTest(emul, "testId", "testName", "multi");
-        Master master = test.startWithProperties("1");
+        MultiTest test = new MultiTest(emul, "testId", "testName", "multi") {
+            @Override
+            protected JSONObject sendStartTestWithBody(String uri, String body) throws IOException {
+                assertEquals(body, "{\"data\":{\"configuration\":{\"plugins\":{\"remoteControl\":[{\"key\":\"command_property\",\"value\":\"fsdfsd\"},{\"key\":\"command_property2\",\"value\":\"fsdfsd22\"}]}}}}");
+                return super.sendStartTestWithBody(uri, body);
+            }
+        };
+        Master master = test.startWithProperties("command_property=fsdfsd,command_property2=fsdfsd22");
 
         assertEquals(1, emul.getRequests().size());
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/multi-tests/testId/start, tag=null}", emul.getRequests().get(0));
@@ -77,6 +85,7 @@ public class MultiTestTest {
         assertTrue(logs, logs.contains("Start multi test id=testId"));
         assertEquals("responseMasterId", master.getId());
         assertEquals("multi", test.getTestType());
+        assertTrue(emul.getRequestsBody().get(0).contains("size=149"));
     }
 
     @Test

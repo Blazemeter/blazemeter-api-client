@@ -15,8 +15,10 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.IOException;
@@ -51,6 +53,23 @@ public abstract class AbstractTest extends BZAObject implements ITest {
     protected JSONObject sendStartTestWithBody(String uri, String body) throws IOException {
         JSONObject response = utils.execute(utils.createPost(uri, body));
         return response.getJSONObject("result");
+    }
+
+    public String prepareSessionProperties(String sesssionProperties) {
+        JSONArray props = Session.convertProperties(sesssionProperties);
+
+        JSONObject remoteControl = new JSONObject();
+        remoteControl.put("remoteControl", props);
+
+        JSONObject plugins = new JSONObject();
+        plugins.put("plugins",remoteControl);
+
+        JSONObject configuration = new JSONObject();
+        configuration.put("configuration", plugins);
+
+        JSONObject data = new JSONObject();
+        data.put("data",configuration);
+        return data.toString();
     }
 
     public abstract void fillFields(JSONObject result);

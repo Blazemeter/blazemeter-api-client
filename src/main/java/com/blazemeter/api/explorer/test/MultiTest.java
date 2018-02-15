@@ -52,7 +52,7 @@ public class MultiTest extends AbstractTest {
     @Override
     public Master startWithProperties(String properties) throws IOException {
         logger.info("Start multi test id=" + getId());
-        JSONObject result = sendStartTestWithBody(utils.getAddress() + String.format(MULTI_TESTS + "/%s/start", encode(getId())), properties);
+        JSONObject result = sendStartTestWithBody(utils.getAddress() + String.format(MULTI_TESTS + "/%s/start", encode(getId())), prepareSessionProperties(properties));
         fillFields(result);
         return master;
     }
