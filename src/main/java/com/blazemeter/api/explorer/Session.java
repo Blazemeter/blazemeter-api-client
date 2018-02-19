@@ -48,6 +48,7 @@ public class Session extends BZAObject {
     /**
      * Send test json data for the report
      * POST request to 'https://a.blazemeter.com/submit.php?session_id={sessionId}&signature={signature}&test_id={testId}&user_id={userId}'
+     *
      * @return session in JSONObject
      */
     public JSONObject sendData(JSONObject data) throws IOException {
@@ -80,6 +81,7 @@ public class Session extends BZAObject {
     /**
      * Send properties to Session.
      * POST request to 'https://a.blazemeter.com/api/v4/sessions/{sessionId}/properties?target=all'
+     *
      * @param properties - in JSONArray. For convert from String use @link com.blazemeter.api.explorer.Session#convertProperties(java.lang.String)
      */
     void postProperties(JSONArray properties) throws IOException {
@@ -93,6 +95,7 @@ public class Session extends BZAObject {
 
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/sessions/{sessionId}/reports/logs'
+     *
      * @return url for downloading jtl report
      */
     public String getJTLReport() throws IOException {
@@ -132,8 +135,8 @@ public class Session extends BZAObject {
         JSONObject result = o.getJSONObject("result");
         JSONArray data = result.getJSONArray("data");
         for (int i = 0; i < data.size(); i++) {
-            String title = data.getJSONObject(i).getString("title");
-            if ("Zip".equals(title)) {
+            String filename = data.getJSONObject(i).getString("filename");
+            if (filename.endsWith("zip")) {
                 return data.getJSONObject(i).getString("dataUrl");
             }
         }
