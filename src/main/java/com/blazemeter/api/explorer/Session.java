@@ -132,8 +132,8 @@ public class Session extends BZAObject {
         JSONObject result = o.getJSONObject("result");
         JSONArray data = result.getJSONArray("data");
         for (int i = 0; i < data.size(); i++) {
-            String title = data.getJSONObject(i).getString("title");
-            if ("Zip".equals(title)) {
+            String filename = data.getJSONObject(i).getString("filename");
+            if (filename.endsWith("zip")) {
                 return data.getJSONObject(i).getString("dataUrl");
             }
         }

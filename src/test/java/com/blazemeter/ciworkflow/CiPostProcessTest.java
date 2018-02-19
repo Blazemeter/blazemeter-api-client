@@ -616,7 +616,7 @@ public class CiPostProcessTest {
             ciPostProcess.saveJTL(master);
 
             String logs = notifier.getLogs().toString();
-            assertTrue(logs, logs.contains("Failed to get JTL ZIP for session id"));
+            assertTrue(logs, logs.contains("Unable to get JTL zip for sessionId= : check server for test artifacts java.net.UnknownHostException: z"));
             assertEquals(6, emul.getRequests().size());
         } finally {
             System.setProperty("bzm.checkTimeout", val);
