@@ -86,14 +86,14 @@ public class SessionTest {
         assertEquals("http://a.blazemeter.com/dataURL", url);
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions/id/reports/logs, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 239, logs.length());
+        assertEquals(logs, 242, logs.length());
         assertTrue(logs, logs.contains("Get JTL report for session id=id"));
     }
 
     public static String generateResponseGetJTLReport() {
         JSONObject dataUrl = new JSONObject();
         dataUrl.put("dataUrl", "http://a.blazemeter.com/dataURL");
-        dataUrl.put("title", "Zip");
+        dataUrl.put("filename", "zip");
 
         JSONArray data = new JSONArray();
         data.add(dataUrl);
@@ -108,8 +108,8 @@ public class SessionTest {
 
     public static String generateResponseGetJTLReportNullZip() {
         JSONObject dataUrl = new JSONObject();
-        dataUrl.put("dataUrl", "z");
-        dataUrl.put("title", "x");
+        dataUrl.put("dataUrl", "http://z");
+        dataUrl.put("filename", "zip");
 
         JSONArray data = new JSONArray();
         data.add(dataUrl);
