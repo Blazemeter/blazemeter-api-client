@@ -14,6 +14,7 @@
 
 package com.blazemeter.api.http;
 
+import com.blazemeter.api.exception.InterruptRuntimeException;
 import com.blazemeter.api.logging.Logger;
 import net.sf.json.JSONObject;
 import okhttp3.Authenticator;
@@ -30,6 +31,10 @@ import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,6 +57,7 @@ public class HttpUtils {
     protected Logger logger;
 
     private OkHttpClient httpClient;
+    private final ExecutorService service = Executors.newFixedThreadPool(4);
 
     public HttpUtils(Logger logger) {
         this.logger = logger;
@@ -112,7 +118,16 @@ public class HttpUtils {
      * @return - response in String
      */
     public String executeRequest(Request request) throws IOException {
-        return httpClient.newCall(request).execute().body().string();
+        RequestTask task = new RequestTask(httpClient, request);
+        Future<Response> future = service.submit(task);
+        Response response;
+        try {
+            response = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            future.cancel(true);
+            throw new InterruptRuntimeException("Request has been interrupted", e);
+        }
+        return response.body().string();
     }
 
     protected String extractErrorMessage(String response) {
@@ -146,7 +161,7 @@ public class HttpUtils {
         this.logger = logger;
     }
 
-    private OkHttpClient createHTTPClient() {
+    protected OkHttpClient createHTTPClient() {
         Proxy proxy = Proxy.NO_PROXY;
         Authenticator auth = Authenticator.NONE;
         try {
