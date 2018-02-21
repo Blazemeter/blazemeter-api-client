@@ -14,6 +14,7 @@
 
 package com.blazemeter.api.http;
 
+import com.blazemeter.api.exception.InterruptRuntimeException;
 import com.blazemeter.api.logging.Logger;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -42,7 +43,7 @@ public class RetryInterceptor implements Interceptor {
             try {
                 Thread.sleep(1000 * retry);
             } catch (InterruptedException e) {
-                throw new IOException("Retry was interrupted on sleep at retry # " + retry);
+                throw new InterruptRuntimeException("Retry was interrupted on sleep at retry # " + retry);
             }
             response = chain.proceed(request);
             logger.info("Child request: code = " + response.code() + " -> " + retry + " retry");
