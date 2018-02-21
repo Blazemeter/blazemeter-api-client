@@ -14,6 +14,7 @@
 
 package com.blazemeter.ciworkflow;
 
+import com.blazemeter.api.exception.InterruptRuntimeException;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.explorer.test.MultiTest;
@@ -70,7 +71,7 @@ public class CiBuild {
             logger.error("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage(), e);
             notifier.notifyError("Caught exception. Set Build status [FAILED]. Reason is: " + e.getMessage());
             return BuildResult.FAILED;
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | InterruptRuntimeException e) {
             logger.error("Caught exception. Set Build status [ABORTED]. Reason is: " + e.getMessage(), e);
             notifier.notifyError("Caught exception. Set Build status [ABORTED].");
             return BuildResult.ABORTED;
@@ -81,7 +82,7 @@ public class CiBuild {
         try {
             waitForFinish(master);
             return doPostProcess(master);
-        } catch (InterruptedException ex) {
+        } catch (InterruptedException | InterruptRuntimeException ex) {
             logger.warn("Caught InterruptedException, execute postProcess. " + ex.getMessage());
             boolean hasReports = interrupt(master);
             if (hasReports) {
@@ -125,34 +126,52 @@ public class CiBuild {
         startTime.setTimeInMillis(System.currentTimeMillis());
         notifier.notifyInfo("Test has been started successfully at " + startTime.getTime().toString() + ". Master id=" + master.getId());
 
-        generatePublicReport(master);
+        try {
+            generatePublicReport(master);
 
-        skipInitState(master);
-        if (!StringUtils.isBlank(properties) && test instanceof MultiTest) {
-            notifier.notifyInfo("Sent properties: " + properties);
-            master.postProperties(properties);
+            skipInitState(master);
+
+            if (!StringUtils.isBlank(properties) && test instanceof MultiTest) {
+                notifier.notifyInfo("Sent properties: " + properties);
+                master.postProperties(properties);
+            }
+
+            postNotes(master);
+        } catch (InterruptedException | InterruptRuntimeException ex) {
+            logger.warn("Interrupt master", ex);
+            boolean hasReports = interrupt(master);
+            if (hasReports) {
+                doPostProcess(master);
+            }
+            throw new InterruptedException("Interrupt master");
         }
-
-        postNotes(master);
         return master;
     }
 
-    protected void generatePublicReport(Master master) {
+
+
+    protected void generatePublicReport(Master master) throws InterruptedException {
         try {
             publicReport = master.getPublicReport();
             notifier.notifyInfo("Test report will be available at " + publicReport);
+        } catch (InterruptedException | InterruptRuntimeException ex) {
+            logger.warn("Interrupt while get public report", ex);
+            throw ex;
         } catch (Exception ex) {
             logger.warn("Cannot get public token", ex);
             notifier.notifyWarning("Cannot get public token");
         }
     }
 
-    protected void postNotes(Master master) {
+    protected void postNotes(Master master) throws InterruptedException {
         try {
             if (!StringUtils.isBlank(notes)) {
                 notifier.notifyInfo("Sent notes: " + notes);
                 master.postNotes(notes);
             }
+        } catch (InterruptedException | InterruptRuntimeException ex) {
+            logger.warn("Interrupt while post notes", ex);
+            throw ex;
         } catch (Exception ex) {
             logger.warn("Cannot post notes", ex);
             notifier.notifyWarning("Cannot post notes");
@@ -173,12 +192,8 @@ public class CiBuild {
                 if (statusCode > 0) {
                     break;
                 }
-            } catch (InterruptedException ex) {
+            } catch (InterruptedException | InterruptRuntimeException ex) {
                 logger.warn("Caught InterruptedException while skip InitState");
-                boolean hasReports = interrupt(master);
-                if (hasReports) {
-                    doPostProcess(master);
-                }
                 throw ex;
             } catch (Exception e) {
                 logger.warn("Failed to skip INIT state");
@@ -231,11 +246,15 @@ public class CiBuild {
                 notifier.notifyInfo("Check if the test is still running. Time passed since start: " + ((now - start) / 1000 / 60) + " minutes.");
                 lastPrint = now;
             }
-            if (Thread.interrupted()) {
-                logger.warn("Job was stopped by user");
-                notifier.notifyError("Job was stopped by user");
-                throw new InterruptedException("Job was stopped by user");
-            }
+            checkAborted();
+        }
+    }
+
+    protected void checkAborted() throws InterruptedException{
+        if (Thread.interrupted()) {
+            logger.warn("Job was stopped by user");
+            notifier.notifyError("Job was stopped by user");
+            throw new InterruptedException("Job was stopped by user");
         }
     }
 
