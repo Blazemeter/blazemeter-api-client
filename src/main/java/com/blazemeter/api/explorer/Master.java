@@ -14,6 +14,7 @@
 
 package com.blazemeter.api.explorer;
 
+import com.blazemeter.api.exception.InterruptRuntimeException;
 import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONArray;
@@ -24,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +45,7 @@ public class Master extends BZAObject {
      *
      * @return public link to the report
      */
-    public String getPublicReport() throws IOException {
+    public String getPublicReport() throws IOException, InterruptedException {
         logger.info("Get link to public report for master id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/public-token", encode(getId()));
         JSONObject request = new JSONObject();
@@ -88,7 +90,7 @@ public class Master extends BZAObject {
      * Step 2: Post properties to each session
      */
     @Deprecated
-    public void postProperties(String properties) {
+    public void postProperties(String properties) throws IOException, InterruptedException {
         if (StringUtils.isBlank(properties)) {
             logger.warn("Properties are empty, won't be sent to master = " + getId());
             return;
@@ -97,18 +99,24 @@ public class Master extends BZAObject {
         try {
             List<Session> sessions = getSessions();
             postProperties(properties, sessions);
-        } catch (IOException ioe) {
+        } catch (InterruptedException | InterruptRuntimeException | InterruptedIOException ex) {
+            logger.warn("Interrupt while post properties", ex);
+            throw new InterruptedException("Interrupt while post properties");
+        } catch (Exception ioe) {
             logger.error("Failed to get sessions for master id=" + getId(), ioe);
         }
     }
 
-    private void postProperties(String properties, List<Session> sessions) {
+    private void postProperties(String properties, List<Session> sessions) throws IOException, InterruptedException {
         JSONArray propertiesArray = Session.convertProperties(properties);
         for (Session session : sessions) {
             try {
                 session.postProperties(propertiesArray);
+            } catch (InterruptedException | InterruptRuntimeException | InterruptedIOException ex) {
+                logger.warn("Interrupt while post properties to session", ex);
+                throw new InterruptedException("Interrupt while post properties to session");
             } catch (Exception e) {
-                logger.error("Failed to send properties for session id=" + session.getId());
+                logger.error("Failed to send properties for session id=" + session.getId(), e);
             }
         }
     }
@@ -180,7 +188,7 @@ public class Master extends BZAObject {
      *
      * @return note which was applied to master if request was successful
      */
-    public String postNotes(String note) throws IOException {
+    public String postNotes(String note) throws IOException, InterruptedException {
         if (StringUtils.isBlank(note)) {
             logger.warn("Cannot send null or empty notes");
             return StringUtils.EMPTY;
