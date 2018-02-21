@@ -22,6 +22,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
@@ -401,7 +402,7 @@ public class MasterTest {
     }
 
     @Test
-    public void testPostProperties() {
+    public void testPostProperties() throws InterruptedException, IOException {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -421,7 +422,7 @@ public class MasterTest {
     }
 
     @Test
-    public void testPostPropertiesEmpty() {
+    public void testPostPropertiesEmpty() throws InterruptedException, IOException {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -464,7 +465,7 @@ public class MasterTest {
 
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Failed to send properties for session id=r-v3-1234567890qwerty"));
-        assertEquals(logs, 533, logs.length());
+        assertEquals(logs, 558, logs.length());
 
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions?masterId=id, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(1));
