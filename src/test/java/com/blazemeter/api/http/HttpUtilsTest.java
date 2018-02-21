@@ -194,4 +194,26 @@ public class HttpUtilsTest {
         }
     }
 
+    @Test
+    public void testInterrupted() throws Exception {
+        LoggerTest logger = new LoggerTest();
+
+        final HttpUtils utils = new HttpUtils(logger);
+
+        final Request request = utils.createGet(BLAZEDEMO);
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    utils.executeRequest(request);
+                    fail();
+                } catch (Throwable e) {
+                    assertEquals("Request has been interrupted", e.getMessage());
+                }
+            }
+        };
+        t.start();
+        t.interrupt();
+        t.join();
+    }
 }
