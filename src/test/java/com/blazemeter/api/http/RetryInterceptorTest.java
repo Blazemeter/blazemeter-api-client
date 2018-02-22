@@ -67,4 +67,30 @@ public class RetryInterceptorTest {
             return null;
         }
     }
+
+    @Test
+    public void testInterrupt() throws Exception {
+        final Throwable[] ex = {null};
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                LoggerTest logger = new LoggerTest();
+                RetryInterceptor retryInterceptor = new RetryInterceptor(logger);
+                ChainImpl chain = new ChainImpl();
+                chain.code = 500;
+                try {
+                    retryInterceptor.intercept(chain);
+                    fail();
+                } catch (Throwable e) {
+                    ex[0] = e;
+                }
+            }
+        };
+        t.start();
+        t.interrupt();
+        t.join();
+        assertNotNull(ex[0]);
+        assertEquals("Retry was interrupted on sleep at retry # 1", ex[0].getMessage());
+
+    }
 }
