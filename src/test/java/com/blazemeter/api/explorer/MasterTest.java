@@ -18,15 +18,19 @@ import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
+import com.blazemeter.api.utils.BlazeMeterUtilsSlowEmul;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class MasterTest {
@@ -267,6 +271,28 @@ public class MasterTest {
         assertTrue(logs, logs.contains("Get summary for master id=id"));
     }
 
+    @Test
+    public void testGetEmptySummary() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        result.put("summary", new JSONArray());
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        emul.addEmul(response.toString());
+
+        Master master = new Master(emul, "id", "name");
+        JSONObject summary = master.getSummary();
+        assertTrue(summary.isEmpty());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/reports/main/summary, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 186, logs.length());
+        assertTrue(logs, logs.contains("Get summary for master id=id"));
+    }
+
     public static String generateResponseGetSummary() {
         JSONObject summaryEmul = new JSONObject();
         summaryEmul.put("first", 1437397105);
@@ -401,7 +427,7 @@ public class MasterTest {
     }
 
     @Test
-    public void testPostProperties() {
+    public void testPostProperties() throws InterruptedException, IOException {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -421,7 +447,7 @@ public class MasterTest {
     }
 
     @Test
-    public void testPostPropertiesEmpty() {
+    public void testPostPropertiesEmpty() throws InterruptedException, IOException {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -464,9 +490,72 @@ public class MasterTest {
 
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Failed to send properties for session id=r-v3-1234567890qwerty"));
-        assertEquals(logs, 533, logs.length());
+        assertEquals(logs, 558, logs.length());
 
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/sessions?masterId=id, tag=null}", emul.getRequests().get(0));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/sessions/r-v3-1234567890qwerty/properties?target=all, tag=null}", emul.getRequests().get(1));
+    }
+
+    @Test
+    public void testPostPropertiesInterrupt() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        final BlazeMeterUtilsSlowEmul emul = new BlazeMeterUtilsSlowEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetSessions());
+
+        final Throwable ex[] = {null};
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Master master = new Master(emul, "id", "name");
+                    master.postProperties("1=2");
+                } catch (Exception e) {
+                    ex[0] = e;
+                }
+            }
+        };
+        t.start();
+        t.interrupt();
+        t.join();
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Interrupt while post properties"));
+        assertNotNull(ex[0]);
+        assertEquals("Interrupt while post properties", ex[0].getMessage());
+    }
+
+    @Test
+    public void testPostPropertiesInterrupt2() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        final BlazeMeterUtilsSlowEmul emul = new BlazeMeterUtilsSlowEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetSessions());
+
+        final Throwable ex[] = {null};
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Session session = new Session(emul, "id", "sesssion_name", "usetId", "test_id", "signature");
+                    List<Session> sessions = new ArrayList<>();
+                    sessions.add(session);
+                    Master master = new Master(emul, "id", "name");
+                    master.postProperties("1=2", sessions);
+                } catch (Exception e) {
+                    ex[0] = e;
+                }
+            }
+        };
+        t.start();
+        t.interrupt();
+        t.join();
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Interrupt while post properties to session"));
+        assertNotNull(ex[0]);
+        assertEquals("Interrupt while post properties to session", ex[0].getMessage());
     }
 }

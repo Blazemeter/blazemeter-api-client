@@ -69,7 +69,7 @@ public class Session extends BZAObject {
      * if properties were send correctly(server's response contains the same properties)
      * POST request to 'https://a.blazemeter.com/api/v4/sessions/{sessionId}/properties?target=all'
      */
-    public void postProperties(String properties) throws IOException {
+    public void postProperties(String properties) throws IOException, InterruptedException {
         if (StringUtils.isBlank(properties)) {
             logger.warn("Properties are empty, won't be sent to session = " + getId());
             return;
@@ -84,7 +84,7 @@ public class Session extends BZAObject {
      *
      * @param properties - in JSONArray. For convert from String use @link com.blazemeter.api.explorer.Session#convertProperties(java.lang.String)
      */
-    void postProperties(JSONArray properties) throws IOException {
+    void postProperties(JSONArray properties) throws IOException, InterruptedException {
         logger.info("Post properties to session id=" + getId());
         String uri = utils.getAddress() + String.format("/api/v4/sessions/%s/properties?target=all", encode(getId()));
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"),
