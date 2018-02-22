@@ -17,8 +17,10 @@ package com.blazemeter.api.http;
 import com.blazemeter.api.logging.LoggerTest;
 import net.sf.json.JSONObject;
 import okhttp3.MediaType;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -33,6 +35,7 @@ import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -215,5 +218,20 @@ public class HttpUtilsTest {
         t.start();
         t.interrupt();
         t.join();
+    }
+
+    @Test
+    public void testAuth() throws Exception {
+        HttpUtils.AuthenticatorExt auth = new HttpUtils.AuthenticatorExt("aaa", "xxx");
+        Request.Builder reqBuilder = new Request.Builder();
+        reqBuilder.url(BLAZEDEMO).get();
+        Response.Builder respBuilder = new Response.Builder();
+        respBuilder.request(reqBuilder.build()).protocol(Protocol.HTTP_1_1).code(200);
+        Request actual = auth.authenticate(null, respBuilder.build());
+        assertEquals(actual.header("Proxy-Authorization"), "Basic YWFhOnh4eA==");
+
+        reqBuilder.addHeader("Proxy-Authorization", "aaa");
+        respBuilder.request(reqBuilder.build());
+        assertNull(auth.authenticate(null, respBuilder.build()));
     }
 }

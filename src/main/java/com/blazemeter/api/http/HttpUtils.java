@@ -206,19 +206,30 @@ public class HttpUtils {
         final String proxyPass = System.getProperty(PROXY_PASS);
         logger.info("Using http.proxyPass = " + StringUtils.left(proxyPass, 4));
         if (!StringUtils.isBlank(proxyUser) && !StringUtils.isBlank(proxyPass)) {
-            return new Authenticator() {
-                @Override
-                public Request authenticate(Route route, Response response) throws IOException {
-                    String credential = Credentials.basic(proxyUser, proxyPass);
-                    if (response.request().header("Proxy-Authorization") != null) {
-                        return null; // Give up, we've already attempted to authenticate.
-                    }
-                    return response.request().newBuilder()
-                            .header("Proxy-Authorization", credential)
-                            .build();
-                }
-            };
+            return new AuthenticatorExt(proxyUser, proxyPass);
         }
         return Authenticator.NONE;
+    }
+
+    protected static class AuthenticatorExt implements Authenticator {
+        private final String proxyUser;
+        private final String proxyPass;
+
+        public AuthenticatorExt(String proxyUser, String proxyPass) {
+            this.proxyUser = proxyUser;
+            this.proxyPass = proxyPass;
+        }
+
+        // https://github.com/square/okhttp/wiki/Recipes#handling-authentication
+        @Override
+        public Request authenticate(Route route, Response response) throws IOException {
+            String credential = Credentials.basic(proxyUser, proxyPass);
+            if (response.request().header("Proxy-Authorization") != null) {
+                return null; // Give up, we've already attempted to authenticate.
+            }
+            return response.request().newBuilder()
+                    .header("Proxy-Authorization", credential)
+                    .build();
+        }
     }
 }
