@@ -250,7 +250,8 @@ public class CiBuild {
         }
     }
 
-    protected void checkAborted() throws InterruptedException{
+    // TODO: is it really need?
+    protected void checkAborted() throws InterruptedException {
         if (Thread.interrupted()) {
             logger.warn("Job was stopped by user");
             notifier.notifyError("Job was stopped by user");
