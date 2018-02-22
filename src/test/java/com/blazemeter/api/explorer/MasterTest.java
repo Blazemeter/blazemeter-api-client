@@ -268,6 +268,28 @@ public class MasterTest {
         assertTrue(logs, logs.contains("Get summary for master id=id"));
     }
 
+    @Test
+    public void testGetEmptySummary() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject result = new JSONObject();
+        result.put("summary", new JSONArray());
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        emul.addEmul(response.toString());
+
+        Master master = new Master(emul, "id", "name");
+        JSONObject summary = master.getSummary();
+        assertTrue(summary.isEmpty());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/reports/main/summary, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 186, logs.length());
+        assertTrue(logs, logs.contains("Get summary for master id=id"));
+    }
+
     public static String generateResponseGetSummary() {
         JSONObject summaryEmul = new JSONObject();
         summaryEmul.put("first", 1437397105);
