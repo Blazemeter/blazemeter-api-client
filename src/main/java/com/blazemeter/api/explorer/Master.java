@@ -107,7 +107,7 @@ public class Master extends BZAObject {
         }
     }
 
-    private void postProperties(String properties, List<Session> sessions) throws IOException, InterruptedException {
+    protected void postProperties(String properties, List<Session> sessions) throws IOException, InterruptedException {
         JSONArray propertiesArray = Session.convertProperties(properties);
         for (Session session : sessions) {
             try {
