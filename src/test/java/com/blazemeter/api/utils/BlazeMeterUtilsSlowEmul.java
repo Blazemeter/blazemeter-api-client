@@ -1,5 +1,6 @@
 package com.blazemeter.api.utils;
 
+import com.blazemeter.api.exception.InterruptRuntimeException;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 import net.sf.json.JSONObject;
@@ -10,7 +11,7 @@ import java.io.IOException;
 public class BlazeMeterUtilsSlowEmul extends BlazeMeterUtilsEmul {
 
     public long delay = 5000;
-    public boolean isThrowsError = false;
+    public boolean isThrowsError = true;
 
     public BlazeMeterUtilsSlowEmul(String apiKeyId, String apiKeySecret, String address, String dataAddress, UserNotifier notifier, Logger logger) {
         super(apiKeyId, apiKeySecret, address, dataAddress, notifier, logger);
@@ -37,7 +38,7 @@ public class BlazeMeterUtilsSlowEmul extends BlazeMeterUtilsEmul {
             Thread.currentThread().sleep(delay);
         } catch (InterruptedException ex) {
             if (isThrowsError) {
-                throw new AssertionError(ex);
+                throw new InterruptRuntimeException("Interrupted emul", ex);
             }
         }
     }
