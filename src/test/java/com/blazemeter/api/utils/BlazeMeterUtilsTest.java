@@ -94,4 +94,15 @@ public class BlazeMeterUtilsTest {
         assertEquals(BZM_ADDRESS, utils.getAddress());
         assertEquals(BZM_DATA_ADDRESS, utils.getDataAddress());
     }
+
+    @Test
+    public void testGetTimeoutFailed() throws Exception {
+        System.setProperty("bzm.checkTimeout", "aaaa");
+        try {
+            long checkTimeout = BlazeMeterUtils.getCheckTimeout();
+            assertEquals(10000, checkTimeout);
+        } finally {
+            System.setProperty("bzm.checkTimeout", "10000");
+        }
+    }
 }
