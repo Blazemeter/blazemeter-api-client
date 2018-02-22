@@ -38,6 +38,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CiBuildTest {
     @Before
@@ -451,4 +452,74 @@ public class CiBuildTest {
         assertEquals(logs, emul.getRequests().get(2), "Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/stop, tag=null}");
         assertEquals(logs, 817, logs.length());
     }
+
+    @Test
+    public void testExecuteInterrupt() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        final BlazeMeterUtilsSlowEmul emul = new BlazeMeterUtilsSlowEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        final CiPostProcess ciPostProcess = new CiPostProcess(false, false, "re", "", "", notifier, logger) {
+            @Override
+            public BuildResult execute(Master master) {
+                return BuildResult.FAILED;
+            }
+        };
+
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", ciPostProcess);
+                assertEquals(BuildResult.ABORTED, ciBuild.execute());
+            }
+        };
+        t.start();
+        t.interrupt();
+        t.join();
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Caught exception. Set Build status [ABORTED]. Reason is: Interrupted emul"));
+        String notifications = notifier.getLogs().toString();
+        assertTrue(notifications, notifications.contains("Caught exception. Set Build status [ABORTED]."));
+    }
+
+
+    @Test(timeout = 30000)
+    public void testwaitForFinishAndDoPostProcessInterrupt() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        final BlazeMeterUtilsSlowEmul emul = new BlazeMeterUtilsSlowEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(MasterTest.generateResponseGetStatus(120));
+        emul.addEmul(MasterTest.generateResponseStopMaster());
+
+        final CiPostProcess ciPostProcess = new CiPostProcess(false, false, "re", "", "", notifier, logger) {
+            @Override
+            public BuildResult execute(Master master) {
+                return BuildResult.ABORTED;
+            }
+        };
+
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                Master master = new Master(emul, "id", "name");
+                CiBuild ciBuild = new CiBuild(emul, "id", "props", "notes", ciPostProcess);
+                try {
+                    assertEquals(BuildResult.ABORTED, ciBuild.waitForFinishAndDoPostProcess(master));
+                } catch (IOException e) {
+                    fail();
+                }
+            }
+        };
+        t.start();
+        t.interrupt();
+        t.join();
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Caught InterruptedException, execute postProcess."));
+        assertEquals(logs, emul.getRequests().get(0), "Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/status?events=false, tag=null}");
+        assertEquals(logs, emul.getRequests().get(1), "Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/id/stop, tag=null}");
+    }
+
 }
