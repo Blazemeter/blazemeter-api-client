@@ -56,8 +56,8 @@ public class HttpUtils {
 
     protected Logger logger;
 
-    private OkHttpClient httpClient;
-    private final ExecutorService service = Executors.newFixedThreadPool(4);
+    protected OkHttpClient httpClient;
+    protected final ExecutorService service = Executors.newFixedThreadPool(4);
 
     public HttpUtils(Logger logger) {
         this.logger = logger;
