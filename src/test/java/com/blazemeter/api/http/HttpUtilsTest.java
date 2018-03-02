@@ -221,6 +221,21 @@ public class HttpUtilsTest {
     }
 
     @Test
+    public void testExecutionException() throws Exception {
+        LoggerTest logger = new LoggerTest();
+
+        final HttpUtils utils = new HttpUtils(logger);
+
+        final Request request = utils.createGet("http://aiaiaiaiaiaiaiiaxxxmsmsms.iiingo");
+        try {
+            utils.executeRequest(request);
+            fail();
+        } catch (Throwable e) {
+            assertEquals("java.net.UnknownHostException: aiaiaiaiaiaiaiiaxxxmsmsms.iiingo: Name or service not known", e.getMessage());
+        }
+    }
+
+    @Test
     public void testAuth() throws Exception {
         HttpUtils.AuthenticatorExt auth = new HttpUtils.AuthenticatorExt("aaa", "xxx");
         Request.Builder reqBuilder = new Request.Builder();
