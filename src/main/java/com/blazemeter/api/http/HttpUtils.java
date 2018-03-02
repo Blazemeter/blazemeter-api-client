@@ -123,9 +123,14 @@ public class HttpUtils {
         Response response;
         try {
             response = future.get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
             future.cancel(true);
+            logger.warn("Caught InterruptedException ", e);
             throw new InterruptRuntimeException("Request has been interrupted", e);
+        } catch (ExecutionException e) {
+            future.cancel(true);
+            logger.warn("Caught ExecutionException ", e);
+            throw new IOException(e.getMessage(), e);
         }
         return response.body().string();
     }
