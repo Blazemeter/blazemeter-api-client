@@ -52,10 +52,25 @@ public class CiPostProcess {
 
     protected final String workspaceDir;
 
+    protected BlazeMeterUtils utils;
+
     protected final UserNotifier notifier;
 
     protected final Logger logger;
 
+    public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
+                         String junitPath, String workspaceDir, BlazeMeterUtils utils) {
+        this.isDownloadJtl = isDownloadJtl;
+        this.isDownloadJunit = isDownloadJunit;
+        this.jtlPath = jtlPath;
+        this.junitPath = junitPath;
+        this.workspaceDir = workspaceDir;
+        this.utils = utils;
+        this.notifier = utils.getNotifier();
+        this.logger = utils.getLogger();
+    }
+
+    @Deprecated
     public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
                          String junitPath, String workspaceDir,
                          UserNotifier notifier, Logger logger) {
@@ -199,7 +214,9 @@ public class CiPostProcess {
                     logger.debug("Try to get JTL report attempt #" + i);
                     String reportUrl = session.getJTLReport();
                     if (reportUrl != null) {
-                        URL url = new URL(reportUrl);
+                        URL url = (reportUrl.startsWith("http")) ?
+                                new URL(reportUrl) :
+                                new URL(utils.getAddress() + reportUrl);
                         File reportDir = new File(getParentDirWithPermissionsCheck(jtlReportsDir, workspaceDir), session.getId());
                         reportDir.mkdirs();
                         boolean isSuccess = downloadAndUnzipJTL(url, reportDir);
@@ -237,8 +254,8 @@ public class CiPostProcess {
             unzipJTL(inputStream, reportDir);
             return true;
         } catch (Exception e) {
-            notifier.notifyWarning("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts " + e);
-            logger.error("Unable to get JTL zip for sessionId=" + url.getPath() + " : check server for test artifacts ", e);
+            notifier.notifyWarning("Unable to get JTL zip for url=" + url + " : check server for test artifacts " + e);
+            logger.error("Unable to get JTL zip for url=" + url + " : check server for test artifacts ", e);
         }
         return false;
     }

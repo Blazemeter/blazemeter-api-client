@@ -385,7 +385,7 @@ public class CiPostProcessTest {
         boolean result = ciPostProcess.downloadAndUnzipJTL(new URL(BZM_ADDRESS), new File("1"));
         assertFalse(result);
         String logs = logger.getLogs().toString();
-        assertTrue(logs, logs.contains("Unable to get JTL zip for sessionId="));
+        assertTrue(logs, logs.contains("Unable to get JTL zip for url="));
     }
 
     @Test
@@ -638,5 +638,27 @@ public class CiPostProcessTest {
         String logs = notifier.getLogs().toString();
         assertTrue(logs, logs.contains("Got empty junit report from server"));
         assertEquals(1, emul.getRequests().size());
+    }
+
+    @Test
+    public void testJTLPrivateLink() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul("http://hahaha111.url", BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(MasterTest.generateResponseGetSessions());
+        emul.addEmul(SessionTest.generateResponseGetJTLReportWithRelativeUrl());
+
+        File jtlDir = CiPostProcess.createTmpDir();
+
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, jtlDir.getAbsolutePath(), "", "", emul);
+
+        Master master = new Master(emul, "id", "name");
+        ciPostProcess.saveJTL(master);
+
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Unable to get JTL zip for url=http://hahaha111.url/api/veeeersion/sssss?file=sessions/sessionID/jtls_and_more.zip : check server for test artifacts \r\n" +
+                "hahaha111.url"));
     }
 }
