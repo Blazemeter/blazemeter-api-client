@@ -90,6 +90,22 @@ public class SessionTest {
         assertTrue(logs, logs.contains("Get JTL report for session id=id"));
     }
 
+    public static String generateResponseGetJTLReportWithRelativeUrl() {
+        JSONObject dataUrl = new JSONObject();
+        dataUrl.put("dataUrl", "/api/veeeersion/sssss?file=sessions/sessionID/jtls_and_more.zip");
+        dataUrl.put("filename", "1.zip");
+
+        JSONArray data = new JSONArray();
+        data.add(dataUrl);
+
+        JSONObject result = new JSONObject();
+        result.put("data", data);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
     public static String generateResponseGetJTLReport() {
         JSONObject dataUrl = new JSONObject();
         dataUrl.put("dataUrl", "http://a.blazemeter.com/dataURL");
