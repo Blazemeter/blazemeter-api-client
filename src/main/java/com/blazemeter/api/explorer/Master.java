@@ -228,7 +228,8 @@ public class Master extends BZAObject {
         double last = sumserv.getDouble("last");
         double first = sumserv.getDouble("first");
         summary.put("hits", sumserv.getInt("hits"));
-        summary.put("avgthrpt", Math.round(hits / (last - first) * 100.0) / 100.0);
+        double diff = ((last - first) == 0) ? 1 : (last - first);
+        summary.put("avgthrpt", Math.round(hits / diff * 100.0) / 100.0);
         return summary;
     }
 
