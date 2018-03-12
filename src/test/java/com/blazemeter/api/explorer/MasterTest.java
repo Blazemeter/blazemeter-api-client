@@ -293,6 +293,39 @@ public class MasterTest {
         assertTrue(logs, logs.contains("Get summary for master id=id"));
     }
 
+    @Test
+    public void getGetSummaryDivideBy0() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject summaryEmul = new JSONObject();
+        summaryEmul.put("first", 1437397105);
+        summaryEmul.put("last", 1437397105);
+        summaryEmul.put("min", 0);
+        summaryEmul.put("max", 177);
+        summaryEmul.put("tp90", 2);
+        summaryEmul.put("tp90", 2);
+        summaryEmul.put("failed", 1236);
+        summaryEmul.put("hits", 2482);
+        summaryEmul.put("avg", 1.47);
+
+        JSONArray sumArrray = new JSONArray();
+        sumArrray.add(summaryEmul);
+
+        JSONObject result = new JSONObject();
+        result.put("summary", sumArrray);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        emul.addEmul(response.toString());
+
+        Master master = new Master(emul, "id", "name");
+        JSONObject summary = master.getSummary();
+        assertEquals("{\"avg\":1.47,\"min\":0,\"max\":177,\"tp90\":2,\"errorPercentage\":49,\"hits\":2482,\"avgthrpt\":2482}", summary.toString());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/reports/main/summary, tag=null}", emul.getRequests().get(0));
+    }
+
     public static String generateResponseGetSummary() {
         JSONObject summaryEmul = new JSONObject();
         summaryEmul.put("first", 1437397105);
