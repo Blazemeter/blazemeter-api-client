@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,7 @@ import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -660,5 +662,34 @@ public class CiPostProcessTest {
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Unable to get JTL zip for url=http://hahaha111.url/api/veeeersion/sssss?file=sessions/sessionID/jtls_and_more.zip : check server for test artifacts \r\n" +
                 "hahaha111.url"));
+    }
+
+    @Test
+    public void testUnzipJTLWithNestedFoldersAndFiles() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        InputStream report = CiPostProcessTest.class.getClassLoader().getResourceAsStream("report.zip");
+        assertNotNull(report);
+        File tmpDir = CiPostProcess.createTmpDir();
+
+        try {
+            CiPostProcess postProcess = new CiPostProcess(true, true, "", "", "", emul);
+            postProcess.unzipJTL(report, tmpDir);
+
+            File kpiJtlFile = new File(tmpDir, "report/nested/kpi.jtl");
+            assertTrue(kpiJtlFile.exists());
+            assertEquals(259, kpiJtlFile.length());
+
+            File errorJtlFile = new File(tmpDir, "report/error.jtl");
+            assertTrue(errorJtlFile.exists());
+            assertEquals(533, errorJtlFile.length());
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            fail(ex.getMessage());
+        } finally {
+            tmpDir.delete();
+        }
     }
 }

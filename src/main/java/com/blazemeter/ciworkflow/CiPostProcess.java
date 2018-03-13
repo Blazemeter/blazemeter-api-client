@@ -272,14 +272,19 @@ public class CiPostProcess {
         ZipEntry zipEntry = zis.getNextEntry();
         while (zipEntry != null) {
             File report = new File(reportDir, zipEntry.getName());
-            FileOutputStream fos = new FileOutputStream(report);
-            int len;
-            while ((len = zis.read(buffer)) > 0) {
-                fos.write(buffer, 0, len);
-            }
-            fos.close();
-            if (report.exists() && report.getName().equals("sample.jtl")) {
-                report.renameTo(new File(reportDir, "bm-kpis.jtl"));
+            if (zipEntry.isDirectory()) {
+                report.mkdirs();
+            } else {
+                report.getParentFile().mkdirs();
+                FileOutputStream fos = new FileOutputStream(report);
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+                if (report.exists() && report.getName().equals("sample.jtl")) {
+                    report.renameTo(new File(reportDir, "bm-kpis.jtl"));
+                }
             }
             zipEntry = zis.getNextEntry();
         }
