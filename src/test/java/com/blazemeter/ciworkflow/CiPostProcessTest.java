@@ -39,6 +39,7 @@ import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -670,6 +671,7 @@ public class CiPostProcessTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         InputStream report = CiPostProcessTest.class.getClassLoader().getResourceAsStream("report.zip");
+        assertNotNull(report);
         File tmpDir = CiPostProcess.createTmpDir();
 
         try {
