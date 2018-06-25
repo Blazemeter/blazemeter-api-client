@@ -16,10 +16,7 @@ package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.MasterTest;
-import com.blazemeter.api.explorer.test.MultiTest;
-import com.blazemeter.api.explorer.test.MultiTestTest;
-import com.blazemeter.api.explorer.test.SingleTestTest;
-import com.blazemeter.api.explorer.test.TestDetectorTest;
+import com.blazemeter.api.explorer.test.*;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
@@ -29,7 +26,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -522,4 +523,42 @@ public class CiBuildTest {
         assertEquals(logs, emul.getRequests().get(1), "Request{method=POST, url=http://a.blazemeter.com/api/v4/masters/id/stop, tag=null}");
     }
 
+    @Test
+    public void testUploadAndUpdateTestFiles() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // detect test type
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // upload main file
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // update main filename
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // upload additional file
+
+        String path = CiBuildTest.class.getResource("/test.yml").getPath();
+        File file = new File(path);
+
+        List<File> files = new ArrayList<>();
+        files.add(file);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", file, files, "", "", null) {
+            @Override
+            protected Master startTest(AbstractTest test) throws IOException, InterruptedException {
+                return new Master(emul, "12345", "54321");
+            }
+        };
+        Master master = ciBuild.start();
+        assertEquals("12345", master.getId());
+        assertEquals("54321", master.getName());
+
+        AbstractTest currentTest = ciBuild.getCurrentTest();
+        assertEquals("testId", currentTest.getId());
+
+        LinkedList<String> requests = emul.getRequests();
+        assertEquals(4, requests.size());
+        String logs = logger.getLogs().toString();
+
+        assertEquals(logs, emul.getRequests().get(1), "Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/files, tag=null}");
+        assertEquals(logs, emul.getRequests().get(2), "Request{method=PATCH, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}");
+        assertEquals(logs, emul.getRequests().get(3), "Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/files, tag=null}");
+    }
 }

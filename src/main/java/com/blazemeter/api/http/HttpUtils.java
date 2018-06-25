@@ -17,25 +17,15 @@ package com.blazemeter.api.http;
 import com.blazemeter.api.exception.InterruptRuntimeException;
 import com.blazemeter.api.logging.Logger;
 import net.sf.json.JSONObject;
-import okhttp3.Authenticator;
-import okhttp3.Credentials;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.Route;
+import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Class for working with HTTP requests
@@ -53,6 +43,7 @@ public class HttpUtils {
     protected static final String APP_JSON_UTF_8 = "application/json; charset=UTF-8";
     protected static final String AUTHORIZATION = "Authorization";
     protected static final MediaType JSON_CONTENT = MediaType.parse("application/json; charset=utf-8");
+    protected static final MediaType FILE_STREAM = MediaType.parse("application/x-www-form-urlencoded");
 
     protected Logger logger;
 
@@ -83,6 +74,16 @@ public class HttpUtils {
      */
     public Request createPost(String url, String data) {
         return createRequestBuilder(url).post(RequestBody.create(JSON_CONTENT, data)).build();
+    }
+
+    /**
+     * Create Post Request with json body
+     */
+    public Request createPost(String url, File data) {
+        MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
+        bodyBuilder.addPart(MultipartBody.Part.createFormData("file", data.getAbsolutePath(), RequestBody.create(FILE_STREAM, data)));
+        bodyBuilder.setType(MultipartBody.FORM);
+        return createRequestBuilder(url).post(bodyBuilder.build()).build();
     }
 
     /**

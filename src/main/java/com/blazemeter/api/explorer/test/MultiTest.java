@@ -21,6 +21,7 @@ import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 
 
@@ -62,6 +63,18 @@ public class MultiTest extends AbstractTest {
     public Master startExternal() throws IOException {
         logger.error("Start external is not supported for multi test type id=" + getId());
         throw new UnsupportedOperationException("Start external is not supported for multi test type id=" + getId());
+    }
+
+    @Override
+    public void uploadFile(File file) throws IOException {
+        logger.error("Upload file is not supported for multi test type id=" + getId());
+        throw new UnsupportedOperationException("Upload file is not supported for multi test type id=" + getId());
+    }
+
+    @Override
+    public void update(String data) throws IOException {
+        logger.error("Update is not supported for multi test type id=" + getId());
+        throw new UnsupportedOperationException("Update is not supported for multi test type id=" + getId());
     }
 
     /**

@@ -19,6 +19,7 @@ import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -64,6 +65,18 @@ public class AnonymousTest extends AbstractTest {
         this.id = test.getString("id");
         this.name = test.getString("name");
         this.session = Session.fromJSON(utils, getId(), signature, result.getJSONObject("session"));
+    }
+
+    @Override
+    public void uploadFile(File file) throws IOException {
+        logger.error("Upload file is not supported for anonymous test type");
+        throw new UnsupportedOperationException("Upload file is not supported for anonymous test type");
+    }
+
+    @Override
+    public void update(String data) throws IOException {
+        logger.error("Update is not supported for anonymous test type");
+        throw new UnsupportedOperationException("Update is not supported for anonymous test type");
     }
 
     public Session getSession() {

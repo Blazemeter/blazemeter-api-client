@@ -21,6 +21,7 @@ import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
 import net.sf.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -66,6 +67,43 @@ public class SingleTest extends AbstractTest {
         JSONObject result = sendStartTest(utils.getAddress() + String.format(TESTS + "/%s/start-external", encode(getId())));
         fillFields(result);
         return master;
+    }
+
+    @Override
+    public void uploadFile(File file) throws IOException {
+        logger.info("Upload file to single test id=" + getId());
+        String uri = utils.getAddress() + String.format(TESTS + "/%s/files", encode(getId()));
+        JSONObject object = utils.execute(utils.createPost(uri, file));
+        logger.info("File uploaded with response: " + object);
+    }
+
+    @Override
+    public void update(String data) throws IOException {
+        logger.info(String.format("Update single test id=%s data=%s", getId(), data));
+        String uri = utils.getAddress() + String.format(TESTS + "/%s", encode(getId()));
+        JSONObject object = utils.execute(utils.createPatch(uri, data));
+        logger.info("Single test was updated with response: " + object);
+    }
+
+    /**
+     * Prepare JSON for PATCH BlazeMeter Test
+     * @param filename - file name without absolute path
+     */
+    public void updateTestFilename(String filename) throws  IOException {
+        logger.info(String.format("Update single test id=%s filename=%s", getId(), filename));
+
+        JSONObject jmeter = new JSONObject();
+        jmeter.put("filename", filename);
+
+        JSONObject plugins = new JSONObject();
+        plugins.put("jmeter", jmeter);
+
+        JSONObject configuration = new JSONObject();
+        configuration.put("plugins", plugins);
+
+        JSONObject data = new JSONObject();
+        data.put("configuration", configuration);
+        update(data.toString());
     }
 
     /**

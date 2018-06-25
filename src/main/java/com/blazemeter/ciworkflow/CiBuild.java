@@ -23,10 +23,13 @@ import com.blazemeter.api.explorer.test.TestDetector;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
 
 public class CiBuild {
 
@@ -36,11 +39,23 @@ public class CiBuild {
     protected final BlazeMeterUtils utils;
     protected final String testId;
 
+    protected File mainTestFile;
+    protected List<File> additionalTestFiles;
+
     protected final String properties;
     protected final String notes;
     protected final CiPostProcess ciPostProcess;
 
     protected String publicReport;
+
+    protected AbstractTest currentTest;
+
+    public CiBuild(BlazeMeterUtils utils, String testId, File mainTestFile, List<File> additionalTestFiles,
+                   String properties, String notes, CiPostProcess ciPostProcess) {
+        this(utils, testId, properties, notes, ciPostProcess);
+        this.mainTestFile = mainTestFile;
+        this.additionalTestFiles = additionalTestFiles;
+    }
 
     public CiBuild(BlazeMeterUtils utils, String testId, String properties, String notes, CiPostProcess ciPostProcess) {
         this.utils = utils;
@@ -102,15 +117,45 @@ public class CiBuild {
      */
     public Master start() throws IOException, InterruptedException {
         notifier.notifyInfo("CiBuild is started.");
-        AbstractTest test = TestDetector.detectTest(utils, testId);
-        if (test == null) {
+        currentTest = TestDetector.detectTest(utils, testId);
+        if (currentTest == null) {
             logger.error("Failed to detect test type. Test with id=" + testId + " not found.");
             notifier.notifyError("Failed to detect test type. Test with id = " + testId + " not found.");
             return null;
         }
 
-        notifier.notifyInfo(String.format("Start test id : %s, name : %s", test.getId(), test.getName()));
-        return startTest(test);
+        updateTestFiles();
+        notifier.notifyInfo(String.format("Start test id : %s, name : %s", currentTest.getId(), currentTest.getName()));
+        return startTest(currentTest);
+    }
+
+    protected void updateTestFiles() throws IOException {
+        if (currentTest instanceof SingleTest) {
+            SingleTest test = (SingleTest) currentTest;
+            updateMainTestFile(test);
+            updateAdditionalTestFiles(test);
+        }
+    }
+
+    protected void updateMainTestFile(SingleTest test) throws IOException {
+        if (mainTestFile != null) {
+            String filepath = FilenameUtils.normalize(mainTestFile.getAbsolutePath());
+            logger.info("Update main test file: " + filepath);
+            notifier.notifyInfo("Update main test file: " + filepath);
+            test.uploadFile(mainTestFile);
+            test.updateTestFilename(mainTestFile.getName());
+        }
+    }
+
+    protected void updateAdditionalTestFiles(SingleTest test) throws IOException {
+        if (additionalTestFiles != null && !additionalTestFiles.isEmpty()) {
+            for (File file : additionalTestFiles) {
+                String filepath = FilenameUtils.normalize(file.getAbsolutePath());
+                logger.info("Upload additional test file: " + filepath);
+                notifier.notifyInfo("Upload additional test file: " + filepath);
+                test.uploadFile(file);
+            }
+        }
     }
 
     protected Master startTest(AbstractTest test) throws IOException, InterruptedException {
@@ -294,4 +339,7 @@ public class CiBuild {
         this.publicReport = publicReport;
     }
 
+    public AbstractTest getCurrentTest() {
+        return currentTest;
+    }
 }

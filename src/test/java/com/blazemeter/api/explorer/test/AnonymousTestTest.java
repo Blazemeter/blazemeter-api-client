@@ -23,6 +23,8 @@ import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.io.File;
+
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
@@ -84,6 +86,38 @@ public class AnonymousTestTest {
         } catch (UnsupportedOperationException ex) {
             assertEquals("Start is not supported for anonymous test type", ex.getMessage());
             assertEquals("Start is not supported for anonymous test type\r\n", logger.getLogs().toString());
+        }
+    }
+
+    @Test
+    public void testUpdate() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        AnonymousTest test = new AnonymousTest(emul);
+        try {
+            test.update("");
+            fail("Cannot update this test type");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("Update is not supported for anonymous test type", ex.getMessage());
+            assertEquals("Update is not supported for anonymous test type\r\n", logger.getLogs().toString());
+        }
+    }
+
+    @Test
+    public void testUploadFile() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        AnonymousTest test = new AnonymousTest(emul);
+        try {
+            test.uploadFile(new File("."));
+            fail("Cannot upload file to this test type");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("Upload file is not supported for anonymous test type", ex.getMessage());
+            assertEquals("Upload file is not supported for anonymous test type\r\n", logger.getLogs().toString());
         }
     }
 

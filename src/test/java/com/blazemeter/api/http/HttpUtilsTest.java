@@ -16,13 +16,10 @@ package com.blazemeter.api.http;
 
 import com.blazemeter.api.logging.LoggerTest;
 import net.sf.json.JSONObject;
-import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +29,6 @@ import static com.blazemeter.api.http.HttpUtils.PROXY_PASS;
 import static com.blazemeter.api.http.HttpUtils.PROXY_PORT;
 import static com.blazemeter.api.http.HttpUtils.PROXY_USER;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
-import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -248,5 +244,24 @@ public class HttpUtilsTest {
         reqBuilder.addHeader("Proxy-Authorization", "aaa");
         respBuilder.request(reqBuilder.build());
         assertNull(auth.authenticate(null, respBuilder.build()));
+    }
+
+    @Test
+    public void testPostFile() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        HttpUtils utils = new HttpUtils(logger);
+
+        String path = HttpUtilsTest.class.getResource("/test.yml").getPath();
+        File file = new File(path);
+
+        Request post = utils.createPost("http://blazedemo.com", file);
+        RequestBody body = post.body();
+        assertEquals("multipart", body.contentType().type());
+        assertEquals("form-data", body.contentType().subtype());
+        assertTrue(body instanceof MultipartBody);
+
+        MultipartBody.Part part = ((MultipartBody) body).part(0);
+        assertEquals(149, part.body().contentLength());
+        assertEquals("application/x-www-form-urlencoded", part.body().contentType().toString());
     }
 }

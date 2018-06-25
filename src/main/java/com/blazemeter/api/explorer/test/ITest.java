@@ -16,6 +16,7 @@ package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
 
+import java.io.File;
 import java.io.IOException;
 
 public interface ITest {
@@ -40,4 +41,13 @@ public interface ITest {
      */
     Master startExternal() throws IOException;
 
+    /**
+     * Upload file to BlazeMeter Test
+     */
+    void uploadFile(File file) throws IOException;
+
+    /**
+     * Update BlazeMeter Test
+     */
+    void update(String data) throws IOException;
 }
