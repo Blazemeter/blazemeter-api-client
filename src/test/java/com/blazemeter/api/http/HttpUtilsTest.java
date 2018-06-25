@@ -256,7 +256,6 @@ public class HttpUtilsTest {
 
         Request post = utils.createPost("http://blazedemo.com", file);
         RequestBody body = post.body();
-        assertEquals(432, body.contentLength());
         assertEquals("multipart", body.contentType().type());
         assertEquals("form-data", body.contentType().subtype());
         assertTrue(body instanceof MultipartBody);
