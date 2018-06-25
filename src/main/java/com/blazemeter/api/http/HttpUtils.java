@@ -28,6 +28,7 @@ import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -53,6 +54,7 @@ public class HttpUtils {
     protected static final String APP_JSON_UTF_8 = "application/json; charset=UTF-8";
     protected static final String AUTHORIZATION = "Authorization";
     protected static final MediaType JSON_CONTENT = MediaType.parse("application/json; charset=utf-8");
+    protected static final MediaType FILE_STREAM = MediaType.parse("application/octet-stream");
 
     protected Logger logger;
 
@@ -83,6 +85,13 @@ public class HttpUtils {
      */
     public Request createPost(String url, String data) {
         return createRequestBuilder(url).post(RequestBody.create(JSON_CONTENT, data)).build();
+    }
+
+    /**
+     * Create Post Request with json body
+     */
+    public Request createPost(String url, File data) {
+        return createRequestBuilder(url).post(RequestBody.create(FILE_STREAM, data)).build();
     }
 
     /**
