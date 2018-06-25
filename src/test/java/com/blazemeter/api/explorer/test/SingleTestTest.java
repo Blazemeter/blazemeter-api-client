@@ -23,6 +23,7 @@ import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
@@ -101,6 +102,48 @@ public class SingleTestTest {
         assertEquals("responseMasterId", master.getId());
         assertEquals("http", test.getTestType());
     }
+
+    @Test
+    public void testUploadFile() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        String path = SingleTestTest.class.getResource("/test.yml").getPath();
+        File file = new File(path);
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "http");
+        test.uploadFile(file);
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/files, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 316, logs.length());
+        assertTrue(logs, logs.contains("Upload file to single test id=testId"));
+    }
+
+
+    @Test
+    public void testUpdateFilename() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "http");
+        test.updateTestFilename("newTest.jmx");
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 437, logs.length());
+        assertTrue(logs, logs.contains("Update single test id=testId filename=newTest.jmx"));
+        assertTrue(logs, logs.contains("Update single test id=testId data={\"configuration\":{\"plugins\":{\"jmeter\":{\"filename\":\"newTest.jmx\"}}}}"));
+    }
+
 
     public static String generateResponseStartSingleTest() {
         JSONObject masterResponse = new JSONObject();
