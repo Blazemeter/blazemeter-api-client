@@ -130,11 +130,19 @@ public class CiBuild {
     }
 
     protected void updateTestFiles() throws IOException {
-        if (currentTest instanceof SingleTest) {
+        if (currentTest instanceof SingleTest && isSupportTestFiles(currentTest)) {
             SingleTest test = (SingleTest) currentTest;
             updateMainTestFile(test);
             updateAdditionalTestFiles(test);
+        } else {
+            notifier.notifyWarning("Current test does not support uploading script files");
         }
+    }
+
+    protected boolean isSupportTestFiles(AbstractTest test) {
+        return "jmeter".equals(test.getTestType()) ||
+                "taurus".equals(test.getTestType()) ||
+                "functionalApi".equals(test.getTestType());
     }
 
     protected void updateMainTestFile(SingleTest test) throws IOException {
