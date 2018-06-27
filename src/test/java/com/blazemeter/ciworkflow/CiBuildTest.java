@@ -529,10 +529,10 @@ public class CiBuildTest {
         UserNotifierTest notifier = new UserNotifierTest();
         final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // detect test type
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // upload main file
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // update main filename
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // upload additional file
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // detect test type
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // upload main file
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // update main filename
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // upload additional file
 
         String path = CiBuildTest.class.getResource("/test.yml").getPath();
         File file = new File(path);
