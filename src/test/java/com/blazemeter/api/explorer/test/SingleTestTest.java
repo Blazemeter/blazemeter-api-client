@@ -133,7 +133,7 @@ public class SingleTestTest {
 
         emul.addEmul(generateResponseStartSingleTest());
 
-        SingleTest test = new SingleTest(emul, "testId", "testName", "http");
+        SingleTest test = new SingleTest(emul, "testId", "testName", "jmeter");
         test.updateTestFilename("newTest.jmx");
 
         assertEquals(1, emul.getRequests().size());
@@ -142,6 +142,62 @@ public class SingleTestTest {
         assertEquals(logs, 437, logs.length());
         assertTrue(logs, logs.contains("Update single test id=testId filename=newTest.jmx"));
         assertTrue(logs, logs.contains("Update single test id=testId data={\"configuration\":{\"plugins\":{\"jmeter\":{\"filename\":\"newTest.jmx\"}}}}"));
+    }
+
+    @Test
+    public void testUpdateFilename1() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "taurus");
+        test.updateTestFilename("newTest.jmx");
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 434, logs.length());
+        assertTrue(logs, logs.contains("Update single test id=testId filename=newTest.jmx"));
+        assertTrue(logs, logs.contains("Update single test id=testId data={\"configuration\":{\"testMode\":\"script\",\"filename\":\"newTest.jmx\"}}"));
+    }
+
+    @Test
+    public void testUpdateFilename2() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        test.updateTestFilename("newTest.jmx");
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=PATCH, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 434, logs.length());
+        assertTrue(logs, logs.contains("Update single test id=testId filename=newTest.jmx"));
+        assertTrue(logs, logs.contains("Update single test id=testId data={\"configuration\":{\"testMode\":\"script\",\"filename\":\"newTest.jmx\"}}"));
+    }
+
+    @Test
+    public void testUpdateFilename3() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "http");
+        test.updateTestFilename("newTest.jmx");
+
+        assertEquals(0, emul.getRequests().size());
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 112, logs.length());
+        assertTrue(logs, logs.contains("Update single test id=testId filename=newTest.jmx"));
+        assertTrue(logs, logs.contains("This test type 'http' does not support script configuration"));
     }
 
 

@@ -529,10 +529,10 @@ public class CiBuildTest {
         UserNotifierTest notifier = new UserNotifierTest();
         final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // detect test type
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // upload main file
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // update main filename
-        emul.addEmul(SingleTestTest.generateResponseGetSingleTest()); // upload additional file
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // detect test type
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // upload main file
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // update main filename
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // upload additional file
 
         String path = CiBuildTest.class.getResource("/test.yml").getPath();
         File file = new File(path);
@@ -560,5 +560,26 @@ public class CiBuildTest {
         assertEquals(logs, emul.getRequests().get(1), "Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/files, tag=null}");
         assertEquals(logs, emul.getRequests().get(2), "Request{method=PATCH, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}");
         assertEquals(logs, emul.getRequests().get(3), "Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/files, tag=null}");
+    }
+
+    @Test
+    public void testUploadFiles2() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", null, null, "", "", null) {
+
+            @Override
+            public Master start() throws IOException, InterruptedException {
+                currentTest = new SingleTest(emul, "id", "name", "http");
+                return new Master(emul, "12345", "54321");
+            }
+        };
+
+        ciBuild.start();
+        ciBuild.updateTestFiles();
+        String logs = notifier.getLogs().toString();
+        assertTrue(logs, logs.contains("Current test does not support uploading script files"));
     }
 }

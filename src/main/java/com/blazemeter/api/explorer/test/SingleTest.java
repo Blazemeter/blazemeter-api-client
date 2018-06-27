@@ -92,6 +92,26 @@ public class SingleTest extends AbstractTest {
     public void updateTestFilename(String filename) throws  IOException {
         logger.info(String.format("Update single test id=%s filename=%s", getId(), filename));
 
+        if ("jmeter".equals(testType)) {
+            updateJMeterTestFilename(filename);
+        } else if ("taurus".equals(testType) || "functionalApi".equals(testType)) {
+            updateTaurusTestFilename(filename);
+        } else {
+            logger.warn(String.format("This test type '%s' does not support script configuration", testType));
+        }
+    }
+
+    protected void updateTaurusTestFilename(String filename) throws IOException {
+        JSONObject configuration = new JSONObject();
+        configuration.put("testMode", "script");
+        configuration.put("filename", filename);
+
+        JSONObject data = new JSONObject();
+        data.put("configuration", configuration);
+        update(data.toString());
+    }
+
+    protected void updateJMeterTestFilename(String filename) throws IOException {
         JSONObject jmeter = new JSONObject();
         jmeter.put("filename", filename);
 
