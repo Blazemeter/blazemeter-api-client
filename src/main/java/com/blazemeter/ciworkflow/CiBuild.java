@@ -151,7 +151,16 @@ public class CiBuild {
             logger.info("Update main test file: " + filepath);
             notifier.notifyInfo("Update main test file: " + filepath);
             test.uploadFile(mainTestFile);
+            validateTestFileName(mainTestFile.getName());
             test.updateTestFilename(mainTestFile.getName());
+        }
+    }
+
+    protected void validateTestFileName(String filename) {
+        if (!filename.endsWith(".jmx") &&
+                !filename.endsWith(".yml") &&
+                !filename.endsWith(".yaml")) {
+            notifier.notifyWarning("Unknown script type. Please, select 'Test type' in BlazeMeter web application");
         }
     }
 
@@ -200,7 +209,6 @@ public class CiBuild {
         }
         return master;
     }
-
 
 
     protected void generatePublicReport(Master master) throws InterruptedException {
