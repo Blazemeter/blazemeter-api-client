@@ -106,6 +106,14 @@ public class SingleTest extends AbstractTest {
         configuration.put("testMode", "script");
         configuration.put("filename", filename);
 
+        if (filename.endsWith(".jmx")) {
+            configuration.put("scriptType", "jmeter");
+        } else if (filename.endsWith(".yml") || filename.endsWith(".yaml")) {
+            configuration.put("scriptType", "taurus");
+        } else {
+            logger.warn("Unknown script type. Please, select 'Test type' in BlazeMeter web application");
+        }
+
         JSONObject data = new JSONObject();
         data.put("configuration", configuration);
         update(data.toString());
