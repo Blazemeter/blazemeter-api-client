@@ -582,4 +582,23 @@ public class CiBuildTest {
         String logs = notifier.getLogs().toString();
         assertTrue(logs, logs.contains("Current test does not support uploading script files"));
     }
+
+    @Test
+    public void testValidateFileName() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        CiBuild ciBuild = new CiBuild(emul, "id", null, null, "", "", null);
+
+        ciBuild.validateTestFileName("test.yml");
+        ciBuild.validateTestFileName("test.yaml");
+        ciBuild.validateTestFileName("test.jmx");
+
+        assertEquals(0, notifier.getLogs().toString().length());
+
+        ciBuild.validateTestFileName("test.py");
+        String logs = notifier.getLogs().toString();
+        assertTrue(logs, logs.contains("Unknown script type. Please, select 'Test type' in BlazeMeter web application"));
+    }
 }
