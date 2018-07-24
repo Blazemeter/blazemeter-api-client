@@ -358,6 +358,28 @@ public class SingleTestTest {
         return response.toString();
     }
 
+    public static String generateResponseValidations(String[] files, int[] statuses, String[] errors) {
+        JSONArray result = new JSONArray();
+
+        for (int i = 0; i < files.length; i++) {
+            JSONObject validation = new JSONObject();
+            validation.put("status", statuses[i]);
+            validation.put("fileName", files[i]);
+            JSONArray errorsArray = new JSONArray();
+            if (!errors[i].isEmpty()) {
+                errorsArray.add(errors[i]);
+            }
+            validation.put("errors", errorsArray);
+
+            result.add(validation);
+        }
+
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
     public static String generateResponseValidations(String fileName, int status, String errors) {
         JSONObject validation = new JSONObject();
         validation.put("status", status);
