@@ -15,6 +15,7 @@
 package com.blazemeter.ciworkflow;
 
 import com.blazemeter.api.exception.InterruptRuntimeException;
+import com.blazemeter.api.exception.ValidationException;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.explorer.test.MultiTest;
@@ -23,11 +24,15 @@ import com.blazemeter.api.explorer.test.TestDetector;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -129,13 +134,85 @@ public class CiBuild {
         return startTest(currentTest);
     }
 
-    protected void updateTestFiles() throws IOException {
+    protected void updateTestFiles() throws IOException, InterruptedException {
         if (currentTest instanceof SingleTest && isSupportTestFiles(currentTest)) {
             SingleTest test = (SingleTest) currentTest;
             updateMainTestFile(test);
             updateAdditionalTestFiles(test);
+            validateTestFiles(test);
         } else {
-            notifier.notifyWarning("Current test does not support uploading script files");
+            if ((mainTestFile != null) || (additionalTestFiles != null && !additionalTestFiles.isEmpty())) {
+                notifier.notifyWarning("Current test does not support uploading script files");
+            }
+        }
+    }
+
+    protected void validateTestFiles(SingleTest test) throws IOException, InterruptedException {
+        List<String> fileNames = new ArrayList<>();
+
+        if (mainTestFile != null) {
+            fileNames.add(mainTestFile.getName());
+        }
+
+        if (additionalTestFiles != null && !additionalTestFiles.isEmpty()) {
+            for (File file : additionalTestFiles) {
+                fileNames.add(file.getName());
+            }
+        }
+
+        if (!fileNames.isEmpty()) {
+            test.validateFiles(fileNames);
+            waitForValidations(test, fileNames);
+        }
+    }
+
+    private void waitForValidations(SingleTest test, List<String> fileNames) throws IOException, InterruptedException {
+        boolean isValidationFinished = false;
+        while (!isValidationFinished) {
+            JSONArray validations = test.validations();
+            isValidationFinished = checkFilesValidation(fileNames, validations);
+            Thread.sleep(1000);
+        }
+        logger.info(String.format("Validation for files %s finished successfully", Arrays.toString(fileNames.toArray(new String[0]))));
+        notifier.notifyInfo(String.format("Validation for files %s finished successfully", Arrays.toString(fileNames.toArray(new String[0]))));
+    }
+
+    /**
+     * @return true - if success, false - is not finished and throws RuntimeException if have validation errors
+     */
+    protected boolean checkFilesValidation(List<String> fileNames, JSONArray validations) {
+        boolean isFinished = true;
+        for (int i = 0; i < validations.size(); i++) {
+            JSONObject object = validations.getJSONObject(i);
+            String fileName = object.getString("fileName");
+            if (fileNames.contains(fileName)) {
+                boolean checkFile = checkFileValidation(fileName, object);
+                if (!checkFile) {
+                    logger.info(String.format("Validation for file=%s is not ready, will be repeat", fileName));
+                    isFinished = false;
+                }
+            } else {
+                logger.debug("Skip " + object + ", because this fileName did not update");
+            }
+        }
+
+        return isFinished;
+    }
+
+    protected boolean checkFileValidation(String fileName, JSONObject object) {
+        int status = object.getInt("status");
+        if (status >= 100) {
+            JSONArray errors = object.getJSONArray("errors");
+            if (!errors.isEmpty()) {
+                notifier.notifyError(String.format("Validation error: file=%s; errors=%s", fileName, errors));
+                throw new ValidationException(String.format("Validation error: file=%s; errors=%s", fileName, errors));
+            }
+
+            logger.info("File " + fileName + " successfully validated");
+            return true;
+        } else {
+            logger.info("Validation for file=" + fileName + " is not ready. status=" + status);
+            return false;
         }
     }
 

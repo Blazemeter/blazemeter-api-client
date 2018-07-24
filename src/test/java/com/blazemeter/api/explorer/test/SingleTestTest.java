@@ -20,6 +20,7 @@ import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
@@ -288,6 +289,24 @@ public class SingleTestTest {
         result.put("id", "testId");
         result.put("name", "Single_testName");
         result.put("configuration", configuration);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
+    public static String generateResponseValidations(String fileName, int status, String errors) {
+        JSONObject validation = new JSONObject();
+        validation.put("status", status);
+        validation.put("fileName", fileName);
+        JSONArray errorsArray = new JSONArray();
+        if (!errors.isEmpty()) {
+            errorsArray.add(errors);
+        }
+        validation.put("errors", errorsArray);
+
+        JSONArray result = new JSONArray();
+        result.add(validation);
 
         JSONObject response = new JSONObject();
         response.put("result", result);

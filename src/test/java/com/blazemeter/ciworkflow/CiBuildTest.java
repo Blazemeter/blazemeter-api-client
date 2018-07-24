@@ -533,6 +533,8 @@ public class CiBuildTest {
         emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // upload main file
         emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // update main filename
         emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // upload additional file
+        emul.addEmul(SingleTestTest.generateResponseGetSingleTest("jmeter")); // validate POST
+        emul.addEmul(SingleTestTest.generateResponseValidations("test.yml", 100, ""));
 
         String path = CiBuildTest.class.getResource("/test.yml").getPath();
         File file = new File(path);
@@ -554,12 +556,14 @@ public class CiBuildTest {
         assertEquals("testId", currentTest.getId());
 
         LinkedList<String> requests = emul.getRequests();
-        assertEquals(4, requests.size());
+        assertEquals(6, requests.size());
         String logs = logger.getLogs().toString();
 
         assertEquals(logs, emul.getRequests().get(1), "Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/files, tag=null}");
         assertEquals(logs, emul.getRequests().get(2), "Request{method=PATCH, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}");
         assertEquals(logs, emul.getRequests().get(3), "Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/files, tag=null}");
+        assertEquals(logs, emul.getRequests().get(4), "Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/validate, tag=null}");
+        assertEquals(logs, emul.getRequests().get(5), "Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId/validations, tag=null}");
     }
 
     @Test
@@ -568,7 +572,7 @@ public class CiBuildTest {
         UserNotifierTest notifier = new UserNotifierTest();
         final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        CiBuild ciBuild = new CiBuild(emul, "id", null, null, "", "", null) {
+        CiBuild ciBuild = new CiBuild(emul, "id", new File(""), null, "", "", null) {
 
             @Override
             public Master start() throws IOException, InterruptedException {
