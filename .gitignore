@@ -1,7 +1,8 @@
 /target/
 /.idea/
 *.iml
-
+/job/
+/pwd/
 # Compiled class file
 *.class
 
