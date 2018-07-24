@@ -24,6 +24,7 @@ import net.sf.json.JSONObject;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -143,6 +144,37 @@ public class AnonymousTestTest {
         return result.toString();
     }
 
+    @Test
+    public void testValidate() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        AnonymousTest test = new AnonymousTest(emul);
+        try {
+            test.validate(".");
+            fail("Cannot validate this test type");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("Validate is not supported for anonymous test type", ex.getMessage());
+            assertEquals("Validate is not supported for anonymous test type\r\n", logger.getLogs().toString());
+        }
+    }
+
+    @Test
+    public void testValidations() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        AnonymousTest test = new AnonymousTest(emul);
+        try {
+            test.validations();
+            fail("Cannot get validations this test type");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("Validations is not supported for anonymous test type", ex.getMessage());
+            assertEquals("Validations is not supported for anonymous test type\r\n", logger.getLogs().toString());
+        }
+    }
 
     private void checkTest(AnonymousTest test) {
         Master master = test.getMaster();

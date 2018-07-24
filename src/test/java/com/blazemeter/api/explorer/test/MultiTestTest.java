@@ -137,6 +137,38 @@ public class MultiTestTest {
         }
     }
 
+    @Test
+    public void testValidate() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        MultiTest test = new MultiTest(emul, "testId", "testName", "multi");
+        try {
+            test.validate(".");
+            fail("Cannot validate this test type");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("Validate is not supported for multi test type id=testId", ex.getMessage());
+            assertEquals("Validate is not supported for multi test type id=testId\r\n", logger.getLogs().toString());
+        }
+    }
+
+    @Test
+    public void testValidations() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        MultiTest test = new MultiTest(emul, "testId", "testName", "multi");
+        try {
+            test.validations();
+            fail("Cannot get validations this test type");
+        } catch (UnsupportedOperationException ex) {
+            assertEquals("Validations is not supported for multi test type id=testId", ex.getMessage());
+            assertEquals("Validations is not supported for multi test type id=testId\r\n", logger.getLogs().toString());
+        }
+    }
+
     public static String generateResponseStartMultiTest() {
         JSONObject masterResponse = new JSONObject();
         masterResponse.put("id", "responseMasterId");
