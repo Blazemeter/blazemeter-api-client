@@ -47,10 +47,10 @@ Supported calls:
 |**Single Test**||||
 |Get Test|GET|/api/v4/tests/{testId}|
 |Start |POST|/api/v4/tests/{testId}/start|
-|Update |PATCH|/api/v4/tests/{testId}|
+|Update Test |PATCH|/api/v4/tests/{testId}|
 |Upload files |POST|/api/v4/tests/{testId}/files|
-|Validate |POST|/api/v4/tests/{testId}/validate|
-|Validations |GET|/api/v4/tests/{testId}/validations|
+|Validate Test |POST|/api/v4/tests/{testId}/validate|
+|Get Test Validations |GET|/api/v4/tests/{testId}/validations|
 |**Multi Test**||||
 |Get Multi Test|GET|/api/v4/multi-tests/{testId}|
 |Start|POST|/api/v4/multi-tests/{testId}/start|
