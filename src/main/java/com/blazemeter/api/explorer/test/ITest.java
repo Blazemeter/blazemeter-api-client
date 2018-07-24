@@ -15,6 +15,7 @@
 package com.blazemeter.api.explorer.test;
 
 import com.blazemeter.api.explorer.Master;
+import net.sf.json.JSONArray;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,4 +51,14 @@ public interface ITest {
      * Update BlazeMeter Test
      */
     void update(String data) throws IOException;
+
+    /**
+     * Validate BlazeMeter Test
+     */
+    void validate(String data) throws IOException;
+
+    /**
+     * Get all validation for BlazeMeter Test
+     */
+    JSONArray validations() throws IOException;
 }

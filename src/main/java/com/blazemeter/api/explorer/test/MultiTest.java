@@ -19,6 +19,7 @@ import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.File;
@@ -75,6 +76,18 @@ public class MultiTest extends AbstractTest {
     public void update(String data) throws IOException {
         logger.error("Update is not supported for multi test type id=" + getId());
         throw new UnsupportedOperationException("Update is not supported for multi test type id=" + getId());
+    }
+
+    @Override
+    public void validate(String data) throws IOException {
+        logger.error("Validate is not supported for multi test type id=" + getId());
+        throw new UnsupportedOperationException("Validate is not supported for multi test type id=" + getId());
+    }
+
+    @Override
+    public JSONArray validations() throws IOException {
+        logger.error("Validations is not supported for multi test type id=" + getId());
+        throw new UnsupportedOperationException("Validations is not supported for multi test type id=" + getId());
     }
 
     /**

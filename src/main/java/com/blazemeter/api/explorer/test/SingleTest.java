@@ -19,10 +19,13 @@ import com.blazemeter.api.explorer.Session;
 import com.blazemeter.api.explorer.base.BZAObject;
 import com.blazemeter.api.logging.Logger;
 import com.blazemeter.api.utils.BlazeMeterUtils;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Corresponds to '.jmeter' or '.http' or '.followme' or '.http' or '.taurus' tests on server.
@@ -150,6 +153,37 @@ public class SingleTest extends AbstractTest {
         return SingleTest.fromJSON(utils, response.getJSONObject("result"));
     }
 
+    public void validateFiles(List<String> fileNames) throws IOException {
+        logger.info(String.format("Validate file in single test id=%s filename=%s", getId(), Arrays.toString(fileNames.toArray(new String[0]))));
+        JSONArray files = new JSONArray();
+
+        for (String fileName : fileNames) {
+            JSONObject obj = new JSONObject();
+            obj.put("fileName", fileName);
+            files.add(obj);
+        }
+
+        JSONObject data = new JSONObject();
+        data.put("files", files);
+
+        validate(data.toString());
+    }
+
+    @Override
+    public void validate(String data) throws IOException {
+        logger.info(String.format("Validate single test id=%s data=%s", getId(), data));
+        String uri = utils.getAddress() + String.format(TESTS + "/%s/validate", encode(getId()));
+        JSONObject object = utils.execute(utils.createPost(uri, data));
+        logger.info("Request for validate single test got response: " + object);
+    }
+
+    @Override
+    public JSONArray validations() throws IOException {
+        logger.info("Get validations for single test id=" + getId());
+        String uri = utils.getAddress() + String.format(TESTS + "/%s/validations", encode(getId()));
+        JSONObject object = utils.execute(utils.createGet(uri));
+        return object.getJSONArray("result");
+    }
 
     @Override
     public void fillFields(JSONObject result) {
