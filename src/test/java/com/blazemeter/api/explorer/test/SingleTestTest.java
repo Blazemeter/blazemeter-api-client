@@ -340,6 +340,20 @@ public class SingleTestTest {
         assertTrue(logs, logs.contains("Get Single Test id=testId"));
     }
 
+    @Test
+    public void testUpdateWarning() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(generateResponseGetSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        test.updateTaurusTestFilename("aa.aaa");
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Unknown script type. Please, select 'Test type' in BlazeMeter web application"));
+    }
+
     public static String generateResponseGetSingleTest() {
         return generateResponseGetSingleTest("http");
     }
