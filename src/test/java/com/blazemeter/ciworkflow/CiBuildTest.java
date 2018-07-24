@@ -14,6 +14,7 @@
 
 package com.blazemeter.ciworkflow;
 
+import com.blazemeter.api.exception.ValidationException;
 import com.blazemeter.api.explorer.Master;
 import com.blazemeter.api.explorer.MasterTest;
 import com.blazemeter.api.explorer.test.*;
@@ -604,5 +605,101 @@ public class CiBuildTest {
         ciBuild.validateTestFileName("test.py");
         String logs = notifier.getLogs().toString();
         assertTrue(logs, logs.contains("Unknown script type. Please, select 'Test type' in BlazeMeter web application"));
+    }
+
+    @Test
+    public void testValidationRepeat() throws IOException, InterruptedException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(SingleTestTest.generateResponseValidations("test.yaml", 5, ""));
+        emul.addEmul(SingleTestTest.generateResponseValidations("test.yaml", 100, ""));
+
+        CiBuild ciBuild = new CiBuild(emul, "id", null, null, "", "", null);
+
+        SingleTest test = new SingleTest(emul, "testId", "label", "taurus");
+
+        List<String> files = new ArrayList<>();
+        files.add("test.yaml");
+
+        ciBuild.waitForValidations(test, files);
+
+        LinkedList<String> requests = emul.getRequests();
+        assertEquals(2, requests.size());
+        String logs = logger.getLogs().toString();
+
+        assertEquals(logs, emul.getRequests().get(0), "Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId/validations, tag=null}");
+        assertEquals(logs, emul.getRequests().get(1), "Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId/validations, tag=null}");
+
+        assertTrue(logs, logs.contains("Validation for file=test.yaml is not ready, will be repeat"));
+        assertTrue(logs, logs.contains("Validation for file=test.yaml is not ready. status=5"));
+        assertTrue(logs, logs.contains("File test.yaml successfully validated"));
+        assertTrue(logs, logs.contains("Validation for files [test.yaml] finished successfully"));
+
+        String notifications = notifier.getLogs().toString();
+        assertTrue(notifications, notifications.contains("Validation for files [test.yaml] finished successfully"));
+    }
+
+    @Test
+    public void testValidationWithSkip() throws IOException, InterruptedException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(SingleTestTest.generateResponseValidations(
+                new String[]{"old.yaml", "test.yaml"},
+                new int[] {100, 100},
+                new String[] {"", ""}));
+
+        CiBuild ciBuild = new CiBuild(emul, "id", null, null, "", "", null);
+
+        SingleTest test = new SingleTest(emul, "testId", "label", "taurus");
+
+        List<String> files = new ArrayList<>();
+        files.add("test.yaml");
+
+        ciBuild.waitForValidations(test, files);
+
+        LinkedList<String> requests = emul.getRequests();
+        assertEquals(1, requests.size());
+        String logs = logger.getLogs().toString();
+
+        assertEquals(logs, emul.getRequests().get(0), "Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId/validations, tag=null}");
+
+        assertTrue(logs, logs.contains("Skipping {\"status\":100,\"fileName\":\"old.yaml\",\"errors\":[]}, because this file was not update"));
+        assertTrue(logs, logs.contains("File test.yaml successfully validated"));
+    }
+
+    @Test
+    public void testValidationFailed() throws IOException, InterruptedException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        final BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(SingleTestTest.generateResponseValidations("test.yaml", 100, "Internal error"));
+
+        CiBuild ciBuild = new CiBuild(emul, "id", null, null, "", "", null);
+
+        SingleTest test = new SingleTest(emul, "testId", "label", "taurus");
+
+        List<String> files = new ArrayList<>();
+        files.add("test.yaml");
+
+        try {
+            ciBuild.waitForValidations(test, files);
+            fail("Should be failed");
+        } catch (ValidationException e) {
+            assertEquals("Validation error: file=test.yaml; errors=[\"Internal error\"]", e.getMessage());
+        }
+        LinkedList<String> requests = emul.getRequests();
+        assertEquals(1, requests.size());
+        String logs = logger.getLogs().toString();
+
+        assertEquals(logs, emul.getRequests().get(0), "Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId/validations, tag=null}");
+        assertTrue(logs, logs.contains("Validation error: file=test.yaml; errors=[\"Internal error\"]"));
+
+        String notifications = notifier.getLogs().toString();
+        assertTrue(notifications, notifications.contains("Validation error: file=test.yaml; errors=[\"Internal error\"]"));
     }
 }
