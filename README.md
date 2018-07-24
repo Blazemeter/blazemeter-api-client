@@ -46,7 +46,11 @@ Supported calls:
 |Get Workspaces |GET|/api/v4/workspaces?accountId={accountId}&enabled={enabled}&limit={limit}|
 |**Single Test**||||
 |Get Test|GET|/api/v4/tests/{testId}|
-|Start |POST|/api/v4/tests{testId}/start|
+|Start |POST|/api/v4/tests/{testId}/start|
+|Update Test |PATCH|/api/v4/tests/{testId}|
+|Upload files |POST|/api/v4/tests/{testId}/files|
+|Validate Test |POST|/api/v4/tests/{testId}/validate|
+|Get Test Validations |GET|/api/v4/tests/{testId}/validations|
 |**Multi Test**||||
 |Get Multi Test|GET|/api/v4/multi-tests/{testId}|
 |Start|POST|/api/v4/multi-tests/{testId}/start|

@@ -20,11 +20,14 @@ import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.logging.UserNotifier;
 import com.blazemeter.api.logging.UserNotifierTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -219,6 +222,67 @@ public class SingleTestTest {
         assertTrue(logs, logs.contains("Update single test id=testId data={\"configuration\":{\"testMode\":\"script\",\"filename\":\"test.yaml\",\"scriptType\":\"taurus\"}}"));
     }
 
+    @Test
+    public void testValidateFiles() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        List<String> files = new ArrayList<>();
+        files.add("test.yaml");
+        files.add("test.yaml");
+        test.validateFiles(files);
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/validate, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 468, logs.length());
+        assertTrue(logs, logs.contains("Validate files in single test id=testId files=[test.yaml, test.yaml]"));
+        assertTrue(logs, logs.contains("Validate single test id=testId data={\"files\":[{\"fileName\":\"test.yaml\"},{\"fileName\":\"test.yaml\"}]}"));
+    }
+
+    @Test
+    public void testValidate() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        test.validate("{data}");
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/validate, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 343, logs.length());
+        assertTrue(logs, logs.contains("Validate single test id=testId data={data}"));
+    }
+
+    @Test
+    public void testValidations() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseValidations("test.yaml", 100, ""));
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        JSONArray validations = test.validations();
+
+        assertEquals(100, validations.getJSONObject(0).getInt("status"));
+        assertEquals("test.yaml", validations.getJSONObject(0).getString("fileName"));
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId/validations, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 229, logs.length());
+        assertTrue(logs, logs.contains("Get validations for single test id=testId"));
+    }
+
     public static String generateResponseStartSingleTest() {
         JSONObject masterResponse = new JSONObject();
         masterResponse.put("id", "responseMasterId");
@@ -276,6 +340,20 @@ public class SingleTestTest {
         assertTrue(logs, logs.contains("Get Single Test id=testId"));
     }
 
+    @Test
+    public void testUpdateWarning() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+        emul.addEmul(generateResponseGetSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        test.updateTaurusTestFilename("aa.aaa");
+
+        String logs = logger.getLogs().toString();
+        assertTrue(logs, logs.contains("Unknown script type. Please, select 'Test type' in BlazeMeter web application"));
+    }
+
     public static String generateResponseGetSingleTest() {
         return generateResponseGetSingleTest("http");
     }
@@ -288,6 +366,46 @@ public class SingleTestTest {
         result.put("id", "testId");
         result.put("name", "Single_testName");
         result.put("configuration", configuration);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
+    public static String generateResponseValidations(String[] files, int[] statuses, String[] errors) {
+        JSONArray result = new JSONArray();
+
+        for (int i = 0; i < files.length; i++) {
+            JSONObject validation = new JSONObject();
+            validation.put("status", statuses[i]);
+            validation.put("fileName", files[i]);
+            JSONArray errorsArray = new JSONArray();
+            if (!errors[i].isEmpty()) {
+                errorsArray.add(errors[i]);
+            }
+            validation.put("errors", errorsArray);
+
+            result.add(validation);
+        }
+
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
+    public static String generateResponseValidations(String fileName, int status, String errors) {
+        JSONObject validation = new JSONObject();
+        validation.put("status", status);
+        validation.put("fileName", fileName);
+        JSONArray errorsArray = new JSONArray();
+        if (!errors.isEmpty()) {
+            errorsArray.add(errors);
+        }
+        validation.put("errors", errorsArray);
+
+        JSONArray result = new JSONArray();
+        result.add(validation);
 
         JSONObject response = new JSONObject();
         response.put("result", result);
