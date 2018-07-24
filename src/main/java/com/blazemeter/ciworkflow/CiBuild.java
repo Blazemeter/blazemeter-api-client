@@ -166,12 +166,15 @@ public class CiBuild {
         }
     }
 
-    private void waitForValidations(SingleTest test, List<String> fileNames) throws IOException, InterruptedException {
+    protected void waitForValidations(SingleTest test, List<String> fileNames) throws IOException, InterruptedException {
         boolean isValidationFinished = false;
         while (!isValidationFinished) {
             JSONArray validations = test.validations();
             isValidationFinished = checkFilesValidation(fileNames, validations);
-            Thread.sleep(1000);
+
+            if (!isValidationFinished) {
+                Thread.sleep(1000);
+            }
         }
         logger.info(String.format("Validation for files %s finished successfully", Arrays.toString(fileNames.toArray(new String[0]))));
         notifier.notifyInfo(String.format("Validation for files %s finished successfully", Arrays.toString(fileNames.toArray(new String[0]))));
@@ -192,7 +195,7 @@ public class CiBuild {
                     isFinished = false;
                 }
             } else {
-                logger.debug("Skip " + object + ", because this fileName did not update");
+                logger.debug("Skipping " + object + ", because this file was not update");
             }
         }
 
@@ -205,6 +208,7 @@ public class CiBuild {
             JSONArray errors = object.getJSONArray("errors");
             if (!errors.isEmpty()) {
                 notifier.notifyError(String.format("Validation error: file=%s; errors=%s", fileName, errors));
+                logger.error(String.format("Validation error: file=%s; errors=%s", fileName, errors));
                 throw new ValidationException(String.format("Validation error: file=%s; errors=%s", fileName, errors));
             }
 
