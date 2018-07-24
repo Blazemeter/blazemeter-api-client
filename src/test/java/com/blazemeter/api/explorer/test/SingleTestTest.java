@@ -26,6 +26,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
@@ -218,6 +220,67 @@ public class SingleTestTest {
         assertEquals(logs, 452, logs.length());
         assertTrue(logs, logs.contains("Update single test id=testId filename=test.yaml"));
         assertTrue(logs, logs.contains("Update single test id=testId data={\"configuration\":{\"testMode\":\"script\",\"filename\":\"test.yaml\",\"scriptType\":\"taurus\"}}"));
+    }
+
+    @Test
+    public void testValidateFiles() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        List<String> files = new ArrayList<>();
+        files.add("test.yaml");
+        files.add("test.yaml");
+        test.validateFiles(files);
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/validate, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 468, logs.length());
+        assertTrue(logs, logs.contains("Validate files in single test id=testId files=[test.yaml, test.yaml]"));
+        assertTrue(logs, logs.contains("Validate single test id=testId data={\"files\":[{\"fileName\":\"test.yaml\"},{\"fileName\":\"test.yaml\"}]}"));
+    }
+
+    @Test
+    public void testValidate() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseStartSingleTest());
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        test.validate("{data}");
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/validate, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 343, logs.length());
+        assertTrue(logs, logs.contains("Validate single test id=testId data={data}"));
+    }
+
+    @Test
+    public void testValidations() throws IOException {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseValidations("test.yaml", 100, ""));
+
+        SingleTest test = new SingleTest(emul, "testId", "testName", "functionalApi");
+        JSONArray validations = test.validations();
+
+        assertEquals(100, validations.getJSONObject(0).getInt("status"));
+        assertEquals("test.yaml", validations.getJSONObject(0).getString("fileName"));
+
+        assertEquals(1, emul.getRequests().size());
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId/validations, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 229, logs.length());
+        assertTrue(logs, logs.contains("Get validations for single test id=testId"));
     }
 
     public static String generateResponseStartSingleTest() {

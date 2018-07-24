@@ -154,7 +154,7 @@ public class SingleTest extends AbstractTest {
     }
 
     public void validateFiles(List<String> fileNames) throws IOException {
-        logger.info(String.format("Validate file in single test id=%s filename=%s", getId(), Arrays.toString(fileNames.toArray(new String[0]))));
+        logger.info(String.format("Validate files in single test id=%s files=%s", getId(), Arrays.toString(fileNames.toArray(new String[0]))));
         JSONArray files = new JSONArray();
 
         for (String fileName : fileNames) {
