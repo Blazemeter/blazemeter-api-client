@@ -21,6 +21,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 /**
  * If request was not successful, retry will be taken two times more.
@@ -36,23 +37,39 @@ public class RetryInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Response response = chain.proceed(request);
+        String method = request.method();
         int retry = 1;
-        int maxRetries = 3;
-        while (!respSuccess(response) && retry < maxRetries + 1) {
+        int maxRetries = retry + 3;
+        Response response = null;
+        do {
             try {
-                Thread.sleep(1000 * retry);
-            } catch (InterruptedException e) {
-                throw new InterruptRuntimeException("Retry was interrupted on sleep at retry # " + retry);
+                response = chain.proceed(request);
+                logger.info("Response code = " + response.code() + " -> done " + retry + " attempt");
+                if (respSuccess(response) ||!shouldRetry(method, retry, maxRetries - 1)) {
+                    break;
+                }
+
+                try {
+                    Thread.sleep(1000 * retry);
+                } catch (InterruptedException e) {
+                    throw new InterruptRuntimeException("Retry was interrupted on sleep at retry # " + retry);
+                }
+            } catch (SocketTimeoutException ex) {
+                logger.info("Server does not send response -> done " + retry + " attempt");
+                logger.warn("Server does not send response", ex);
             }
-            response = chain.proceed(request);
-            logger.info("Child request: code = " + response.code() + " -> " + retry + " retry");
             retry++;
-        }
+
+        } while (!respSuccess(response) && shouldRetry(method, retry, maxRetries));
+
         return response;
     }
 
+    private boolean shouldRetry(String method, int currentRetry, int maxRetries) {
+        return "GET".equals(method) && currentRetry < maxRetries;
+    }
+
     private boolean respSuccess(Response response) {
-        return response.isSuccessful() || response.code() <= 406;
+        return response != null && response.isSuccessful();
     }
 }
