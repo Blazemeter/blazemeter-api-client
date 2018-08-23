@@ -48,15 +48,19 @@ public class RetryInterceptor implements Interceptor {
                 if (respSuccess(response) ||!shouldRetry(method, retry, maxRetries - 1)) {
                     break;
                 }
-
-                try {
-                    Thread.sleep(1000 * retry);
-                } catch (InterruptedException e) {
-                    throw new InterruptRuntimeException("Retry was interrupted on sleep at retry # " + retry);
-                }
             } catch (SocketTimeoutException ex) {
                 logger.info("Server does not send response -> done " + retry + " attempt");
                 logger.warn("Server does not send response", ex);
+                if (!shouldRetry(method, retry, maxRetries - 1)) {
+                    throw ex;
+                }
+            }
+
+
+            try {
+                Thread.sleep(1000 * retry);
+            } catch (InterruptedException e) {
+                throw new InterruptRuntimeException("Retry was interrupted on sleep at retry # " + retry);
             }
             retry++;
 
