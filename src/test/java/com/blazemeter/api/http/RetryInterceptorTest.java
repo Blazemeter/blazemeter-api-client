@@ -139,7 +139,7 @@ public class RetryInterceptorTest {
             retryInterceptor.intercept(chain);
             fail();
         } catch (SocketTimeoutException ex) {
-            assertEquals("oooops", ex.getMessage());
+            assertEquals("ooops", ex.getMessage());
             String logs = logger.getLogs().toString();
             assertTrue(logs, logs.contains("Server does not send response -> done 1 attempt"));
             assertTrue(logs, logs.contains("Server does not send response -> done 2 attempt"));
