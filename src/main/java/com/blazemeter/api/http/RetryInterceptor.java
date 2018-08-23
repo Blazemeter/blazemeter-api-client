@@ -39,7 +39,7 @@ public class RetryInterceptor implements Interceptor {
         Request request = chain.request();
         String method = request.method();
         int retry = 1;
-        int maxRetries = retry + 3;
+        int maxRetries = retry + getRetriesCount();
         Response response = null;
         do {
             try {
@@ -75,5 +75,13 @@ public class RetryInterceptor implements Interceptor {
 
     private boolean respSuccess(Response response) {
         return response != null && response.isSuccessful();
+    }
+
+    public static int getRetriesCount() {
+        try {
+            return Integer.parseInt(System.getProperty("bzm.request.retries.count", "3"));
+        } catch (NumberFormatException ex) {
+            return 3;
+        }
     }
 }
