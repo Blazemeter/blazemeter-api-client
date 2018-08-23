@@ -176,4 +176,38 @@ public class RetryInterceptorTest {
         assertEquals(408, response.code());
         assertEquals("Response code = 408 -> done 1 attempt\r\n", logger.getLogs().toString());
     }
+
+    @Test
+    public void testRetriesCount() {
+        try {
+            int retriesCount = RetryInterceptor.getRetriesCount();
+            assertEquals(3, retriesCount);
+            System.setProperty("bzm.request.retries.count", "5");
+            retriesCount = RetryInterceptor.getRetriesCount();
+            assertEquals(5, retriesCount);
+            System.setProperty("bzm.request.retries.count", "aaa");
+            retriesCount = RetryInterceptor.getRetriesCount();
+            assertEquals(3, retriesCount);
+        } finally {
+            System.clearProperty("bzm.request.retries.count");
+        }
+    }
+
+    @Test
+    public void testRetriesCount2() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        RetryInterceptor retryInterceptor = new RetryInterceptor(logger);
+        ChainImpl chain = new ChainImpl();
+        System.setProperty("bzm.request.retries.count", "2");
+        chain.code = 777;
+        try {
+        Response response = retryInterceptor.intercept(chain);
+        assertEquals(777, response.code());
+        assertEquals("Response code = 777 -> done 1 attempt\r\n" +
+                "Response code = 777 -> done 2 attempt\r\n", logger.getLogs().toString());
+
+        } finally {
+            System.clearProperty("bzm.request.retries.count");
+        }
+    }
 }
