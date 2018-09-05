@@ -58,18 +58,19 @@ public abstract class AbstractTest extends BZAObject implements ITest {
     public String prepareSessionProperties(String sesssionProperties) {
         JSONArray props = Session.convertProperties(sesssionProperties);
 
-        JSONObject remoteControl = new JSONObject();
-        remoteControl.put("remoteControl", props);
-
         JSONObject plugins = new JSONObject();
-        plugins.put("plugins",remoteControl);
+        plugins.put("remoteControl", props);
 
         JSONObject configuration = new JSONObject();
-        configuration.put("configuration", plugins);
+        configuration.put("plugins", plugins);
+        configuration.put("enableJMeterProperties", true);
 
         JSONObject data = new JSONObject();
-        data.put("data",configuration);
-        return data.toString();
+        data.put("configuration", configuration);
+
+        JSONObject request = new JSONObject();
+        request.put("data", data);
+        return request.toString();
     }
 
     public abstract void fillFields(JSONObject result);
