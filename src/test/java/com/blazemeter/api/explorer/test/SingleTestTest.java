@@ -68,7 +68,7 @@ public class SingleTestTest {
         SingleTest test = new SingleTest(emul, "testId", "testName", "http"){
             @Override
             protected JSONObject sendStartTestWithBody(String uri, String body) throws IOException {
-                assertEquals(body, "{\"data\":{\"configuration\":{\"plugins\":{\"remoteControl\":[{\"key\":\"command_property\",\"value\":\"fsdfsd\"},{\"key\":\"command_property2\",\"value\":\"fsdfsd22\"}]}}}}");
+                assertEquals(body, "{\"data\":{\"configuration\":{\"plugins\":{\"remoteControl\":[{\"key\":\"command_property\",\"value\":\"fsdfsd\"},{\"key\":\"command_property2\",\"value\":\"fsdfsd22\"}]},\"enableJMeterProperties\":true}}}");
                 return super.sendStartTestWithBody(uri, body);
             }
         };
@@ -82,7 +82,7 @@ public class SingleTestTest {
         assertTrue(logs, logs.contains("Start single test id=testId"));
         assertEquals("responseMasterId", master.getId());
         assertEquals("http", test.getTestType());
-        assertTrue(emul.getRequestsBody().get(0).contains("size=149"));
+        assertTrue(emul.getRequestsBody().get(0).contains("size=179"));
     }
 
     @Test

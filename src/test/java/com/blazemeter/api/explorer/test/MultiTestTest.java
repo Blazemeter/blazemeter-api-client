@@ -72,7 +72,7 @@ public class MultiTestTest {
         MultiTest test = new MultiTest(emul, "testId", "testName", "multi") {
             @Override
             protected JSONObject sendStartTestWithBody(String uri, String body) throws IOException {
-                assertEquals(body, "{\"data\":{\"configuration\":{\"plugins\":{\"remoteControl\":[{\"key\":\"command_property\",\"value\":\"fsdfsd\"},{\"key\":\"command_property2\",\"value\":\"fsdfsd22\"}]}}}}");
+                assertEquals(body, "{\"data\":{\"configuration\":{\"plugins\":{\"remoteControl\":[{\"key\":\"command_property\",\"value\":\"fsdfsd\"},{\"key\":\"command_property2\",\"value\":\"fsdfsd22\"}]},\"enableJMeterProperties\":true}}}");
                 return super.sendStartTestWithBody(uri, body);
             }
         };
@@ -86,7 +86,7 @@ public class MultiTestTest {
         assertTrue(logs, logs.contains("Start multi test id=testId"));
         assertEquals("responseMasterId", master.getId());
         assertEquals("multi", test.getTestType());
-        assertTrue(emul.getRequestsBody().get(0).contains("size=149"));
+        assertTrue(emul.getRequestsBody().get(0).contains("size=179"));
     }
 
     @Test
