@@ -15,12 +15,12 @@
 package com.blazemeter.api.logging.impl;
 
 import com.blazemeter.api.logging.Logger;
+import com.blazemeter.api.logging.LoggerFormatter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
-import java.util.logging.SimpleFormatter;
 
 public class FileLogger implements Logger {
     private java.util.logging.Logger logger;
@@ -34,7 +34,7 @@ public class FileLogger implements Logger {
         } catch (IOException ex) {
             throw new RuntimeException("Cannot create file handler for log file", ex);
         }
-        fileHandler.setFormatter(new SimpleFormatter());
+        fileHandler.setFormatter(new LoggerFormatter());
         logger.addHandler(fileHandler);
         logger.setUseParentHandlers(false);
         logger.setLevel(Level.FINE);
