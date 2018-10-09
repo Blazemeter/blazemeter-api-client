@@ -23,10 +23,14 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 
 public class FileLogger implements Logger {
-    private java.util.logging.Logger logger;
-    private FileHandler fileHandler;
+    protected java.util.logging.Logger logger;
+    protected FileHandler fileHandler;
 
     public FileLogger(String logFile) {
+        this(logFile, Level.FINE);
+    }
+
+    public FileLogger(String logFile, Level logLevel) {
         File f = new File(logFile);
         logger = new LoggerImpl(f.getName(), null);
         try {
@@ -37,13 +41,12 @@ public class FileLogger implements Logger {
         fileHandler.setFormatter(new LoggerFormatter());
         logger.addHandler(fileHandler);
         logger.setUseParentHandlers(false);
-        logger.setLevel(Level.FINE);
+        logger.setLevel(logLevel);
     }
 
     public void close() {
         fileHandler.close();
     }
-
 
     @Override
     public void debug(String s) {
