@@ -1,7 +1,7 @@
 language: java
 
 jdk:
-- oraclejdk8
+- openjdk8
 
 before_install:
   - curl -O -L https://github.com/inventit/mqtt-websocket-java/releases/download/1.0.1/mqtt-websocket-java-1.0.1.jar
