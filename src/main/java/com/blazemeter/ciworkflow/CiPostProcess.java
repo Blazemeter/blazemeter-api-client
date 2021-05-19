@@ -58,6 +58,8 @@ public class CiPostProcess {
 
     protected final Logger logger;
 
+    protected String testId;
+
     public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
                          String junitPath, String workspaceDir, BlazeMeterUtils utils) {
         this.isDownloadJtl = isDownloadJtl;
@@ -83,6 +85,10 @@ public class CiPostProcess {
         this.logger = logger;
     }
 
+    public void setTestId(String testId) {
+        this.testId = testId;
+    }
+
     /**
      * Executes post-process after test was finished on server
      *
@@ -90,9 +96,21 @@ public class CiPostProcess {
      */
     public BuildResult execute(Master master) {
         try {
-            JSONObject ciStatus = master.getCIStatus();
-            BuildResult result = validateCiStatus(ciStatus);
+            JSONObject testInfo = master.getTestInfo(testId);
+            boolean runAsFunctional = testInfo.getBoolean("runAsFunctional");
+
+            JSONObject ciStatus;
+            BuildResult result;
+            if (runAsFunctional) {
+                ciStatus = master.getFunctionalCIStatus();
+                result = checkFailsAndErrorForFunctional(ciStatus);
+            } else {
+                ciStatus = master.getPerformanceCIStatus();
+                result =  checkFailsAndErrorForPerformance(ciStatus);
+            }
+
             boolean hasReports = checkErrorCode(ciStatus);
+
             if (hasReports) {
                 if (isDownloadJunit) {
                     saveJunit(master);
@@ -127,7 +145,7 @@ public class CiPostProcess {
 
 
     public BuildResult validateCiStatus(JSONObject ciStatus) {
-        BuildResult result = checkFailsAndError(ciStatus);
+        BuildResult result = checkFailsAndErrorForPerformance(ciStatus);
 
         if (result.equals(BuildResult.SUCCESS)) {
             notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
@@ -136,7 +154,19 @@ public class CiPostProcess {
         return result;
     }
 
-    protected BuildResult checkFailsAndError(JSONObject ciStatus) {
+    protected BuildResult checkFailsAndErrorForFunctional(JSONObject ciStatus) {
+        JSONObject summary = ciStatus.getJSONObject("gridSummary");
+
+        if(summary.getString("definedStatus").equals("passed")) {
+            notifier.notifyInfo("Setting ci-status = " + BuildResult.SUCCESS.name());
+            return BuildResult.SUCCESS;
+        }
+
+        notifier.notifyInfo("Setting ci-status = " + BuildResult.FAILED.name());
+        return BuildResult.FAILED;
+    }
+
+    protected BuildResult checkFailsAndErrorForPerformance(JSONObject ciStatus) {
         if (ciStatus.has("failures")) {
             JSONArray failures = ciStatus.getJSONArray("failures");
             if (!failures.isEmpty()) {
