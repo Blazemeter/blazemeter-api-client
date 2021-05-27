@@ -35,12 +35,7 @@ import java.util.List;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class CiBuildTest {
     @Before
@@ -90,9 +85,11 @@ public class CiBuildTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
         setEmulator(emul);
         CiPostProcess postProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        postProcess.setTest("testId", "testType");
         CiBuild ciBuild = new CiBuild(emul, "testId", "1=2", "i", postProcess);
         ciBuild.execute();
         assertEquals(11, emul.getRequests().size());
+
         int i = 0;
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/tests/testId, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/testId/start, tag=null}", emul.getRequests().get(i++));
@@ -107,6 +104,7 @@ public class CiBuildTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(i));
+
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Get Single Test id=testId"));
         assertTrue(logs, logs.contains("Start single test id=testId"));
@@ -114,7 +112,9 @@ public class CiBuildTest {
         assertTrue(logs, logs.contains("Post notes to master id=responseMasterId"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
-        assertEquals(logs, 2536, logger.getLogs().length());
+
+        Integer logLength = logs.length();
+        assertTrue(logLength.equals(2651) || logLength.equals(2572));
     }
 
 
@@ -130,7 +130,9 @@ public class CiBuildTest {
 
         emul.addEmul(MasterTest.generateResponseGetStatus(70));
         emul.addEmul(MasterTest.generateResponseGetStatus(140));
-        emul.addEmul(MasterTest.generateResponseGetCIStatus());
+        emul.addEmul(MasterTest.generateResponseGetPerformanceCIStatus());
+        emul.addEmul(MasterTest.generateResponseGetFunctionalCIStatus());
+
     }
 
     @Test

@@ -60,6 +60,10 @@ public class CiPostProcess {
 
     protected String testId;
 
+    protected String testType;
+
+    private final String FUNCTIONAL_GUI_TEST = "functionalGui";
+
     public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
                          String junitPath, String workspaceDir, BlazeMeterUtils utils) {
         this.isDownloadJtl = isDownloadJtl;
@@ -85,8 +89,9 @@ public class CiPostProcess {
         this.logger = logger;
     }
 
-    public void setTestId(String testId) {
+    public void setTest(String testId, String testType) {
         this.testId = testId;
+        this.testType = testType;
     }
 
     /**
@@ -96,17 +101,16 @@ public class CiPostProcess {
      */
     public BuildResult execute(Master master) {
         try {
-            JSONObject testInfo = master.getTestInfo(testId);
-            boolean runAsFunctional = testInfo.getBoolean("runAsFunctional");
-
             JSONObject ciStatus;
             BuildResult result;
-            if (runAsFunctional) {
+
+            if (testType.equals(FUNCTIONAL_GUI_TEST)) {
+                Thread.sleep(15000);
                 ciStatus = master.getFunctionalCIStatus();
-                result = checkFailsAndErrorForFunctional(ciStatus);
+                result = validateFunctionalCiStatus(ciStatus);
             } else {
                 ciStatus = master.getPerformanceCIStatus();
-                result =  checkFailsAndErrorForPerformance(ciStatus);
+                result = validateCiStatus(ciStatus);
             }
 
             boolean hasReports = checkErrorCode(ciStatus);
@@ -154,10 +158,19 @@ public class CiPostProcess {
         return result;
     }
 
+    public BuildResult validateFunctionalCiStatus(JSONObject ciStatus) {
+        BuildResult result = checkFailsAndErrorForFunctional(ciStatus);
+
+        if (result.equals(BuildResult.SUCCESS)) {
+            notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
+            logger.info("No errors/failures while validating CIStatus: setting " + result.name());
+        }
+        return result;
+    }
+
     protected BuildResult checkFailsAndErrorForFunctional(JSONObject ciStatus) {
         JSONObject summary = ciStatus.getJSONObject("gridSummary");
-
-        if(summary.getString("definedStatus").equals("passed")) {
+        if (!summary.isEmpty() && summary.getString("definedStatus").equals("passed")) {
             notifier.notifyInfo("Setting ci-status = " + BuildResult.SUCCESS.name());
             return BuildResult.SUCCESS;
         }

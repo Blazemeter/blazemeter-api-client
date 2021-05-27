@@ -248,9 +248,4 @@ public class Master extends BZAObject {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/ci-status", encode(getId()));
         return utils.execute(utils.createGet(uri)).getJSONObject("result");
     }
-
-    public JSONObject getTestInfo(String testId) throws IOException {
-        String uri = utils.getAddress() + String.format("/api/v4/tests/%s/info?force=true", encode(testId));
-        return utils.execute(utils.createGet(uri)).getJSONObject("result");
-    }
 }

@@ -24,12 +24,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.zip.ZipEntry;
@@ -37,11 +32,7 @@ import java.util.zip.ZipOutputStream;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class CiPostProcessTest {
 
@@ -163,7 +154,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testValidateCIStatusSuccess() {
+    public void testValidatePerformanceCIStatusSuccess() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
@@ -189,7 +180,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testValidateCIStatusFailure() {
+    public void testValidatePerformanceCIStatusFailure() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
 
@@ -215,7 +206,56 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testValidateCIStatus70404Failure() {
+    public void testValidateFunctionalCIStatusSuccess() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseFunctionalCIStatusSuccess());
+
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        BuildResult buildResult = ciPostProcess.validateFunctionalCiStatus(JSONObject.fromObject(generateResponseFunctionalCIStatusSuccess()).getJSONObject("result"));
+        assertEquals(BuildResult.SUCCESS, buildResult);
+    }
+
+    public static String generateResponseFunctionalCIStatusSuccess() {
+        JSONObject gridSummary = new JSONObject();
+        gridSummary.put("definedStatus", "passed");
+
+        JSONObject result = new JSONObject();
+        result.put("gridSummary", gridSummary);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
+
+    @Test
+    public void testValidateFunctionalCIStatusFailure() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        BuildResult buildResult = ciPostProcess.validateFunctionalCiStatus(JSONObject.fromObject(generateFunctionalResponseCIStatus_Failure()).getJSONObject("result"));
+        assertEquals(BuildResult.FAILED, buildResult);
+    }
+
+    public static String generateFunctionalResponseCIStatus_Failure() {
+        JSONObject gridSummary = new JSONObject();
+        gridSummary.put("definedStatus", "failed");
+
+        JSONObject result = new JSONObject();
+        result.put("gridSummary", gridSummary);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
+
+    @Test
+    public void testValidatePerformanceCIStatus70404Failure() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
@@ -242,7 +282,7 @@ public class CiPostProcessTest {
     }
 
     @Test
-    public void testValidateCIStatusError() {
+    public void testValidatePerformanceCIStatusError() {
         LoggerTest logger = new LoggerTest();
         UserNotifierTest notifier = new UserNotifierTest();
         CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
@@ -295,6 +335,7 @@ public class CiPostProcessTest {
         emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
 
         CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "pwd", notifier, logger);
+        ciPostProcess.setTest("testId", "testType");
         Master master = new Master(emul, "id", "name");
 
         BuildResult result = ciPostProcess.execute(master);
@@ -428,7 +469,7 @@ public class CiPostProcessTest {
         assertFalse(logs, logs.contains("Get JTL report for session"));
         assertFalse(logs, logs.contains("Got functional report from server"));
         assertFalse(logs, logs.contains("Got aggregated report from server"));
-        assertEquals(logs, 236, logs.length());
+        assertEquals(logs, 50, logs.length());
     }
 
     @Test
@@ -453,6 +494,7 @@ public class CiPostProcessTest {
 
         setStandardFlow(emul);
         CiPostProcess postProcess = new CiPostProcess(true, true, null, null, null, notifier, logger);
+        postProcess.setTest("testId", "testType");
         postProcess.execute(master);
         String notifiers = notifier.getLogs().toString();
 
@@ -479,6 +521,7 @@ public class CiPostProcessTest {
         setStandardFlow(emul);
         String userWorkspace = System.getProperty("user.dir") + File.separator + "job/logs/100";
         CiPostProcess postProcess = new CiPostProcess(true, true, null, null, userWorkspace, notifier, logger);
+        postProcess.setTest("testId", "testType");
         postProcess.execute(master);
         String notifiers = notifier.getLogs().toString();
 
@@ -504,6 +547,7 @@ public class CiPostProcessTest {
         setStandardFlow(emul);
         String userWorkspace = System.getProperty("user.dir") + File.separator + "job/logs/100";
         CiPostProcess postProcess = new CiPostProcess(true, true, "relative1/jtl/rep", "relative2/junit/rep", userWorkspace, notifier, logger);
+        postProcess.setTest("testId", "testType");
         postProcess.execute(master);
         String notifiers = notifier.getLogs().toString();
 
@@ -525,6 +569,7 @@ public class CiPostProcessTest {
 
         setStandardFlow(emul);
         CiPostProcess postProcess = new CiPostProcess(true, true, "relative1/jtl/rep", "relative2/junit/rep", null, notifier, logger);
+        postProcess.setTest("testId", "testType");
         postProcess.execute(master);
         String notifiers = notifier.getLogs().toString();
 
@@ -554,6 +599,7 @@ public class CiPostProcessTest {
         File junitDir = CiPostProcess.createTmpDir();
 
         CiPostProcess postProcess = new CiPostProcess(true, true, jtlDir.getAbsolutePath(), junitDir.getAbsolutePath(), userWorkspace, notifier, logger);
+        postProcess.setTest("testId", "testType");
         postProcess.execute(master);
         String notifiers = notifier.getLogs().toString();
 
@@ -578,6 +624,7 @@ public class CiPostProcessTest {
         File junitDir = CiPostProcess.createTmpDir();
 
         CiPostProcess postProcess = new CiPostProcess(true, true, jtlDir.getAbsolutePath(), junitDir.getAbsolutePath(), null, notifier, logger);
+        postProcess.setTest("testId", "testType");
         postProcess.execute(master);
         String notifiers = notifier.getLogs().toString();
 
@@ -591,7 +638,7 @@ public class CiPostProcessTest {
     }
 
     private void setStandardFlow(BlazeMeterUtilsEmul emul) {
-        emul.addEmul(MasterTest.generateResponseGetCIStatus());
+        emul.addEmul(MasterTest.generateResponseGetPerformanceCIStatus());
         emul.addEmul("junit report");
         emul.addEmul(MasterTest.generateResponseGetSessions());
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
