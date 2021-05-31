@@ -29,9 +29,7 @@ import java.util.List;
 
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_ADDRESS;
 import static com.blazemeter.api.utils.BlazeMeterUtilsEmul.BZM_DATA_ADDRESS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MasterTest {
 
@@ -55,27 +53,65 @@ public class MasterTest {
     }
 
     @Test
-    public void testGetCIStatus() throws Exception {
+    public void testGetPerformanceCIStatus() throws Exception {
         LoggerTest logger = new LoggerTest();
         UserNotifier notifier = new UserNotifierTest();
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
-        emul.addEmul(generateResponseGetCIStatus());
+        emul.addEmul(generateResponseGetPerformanceCIStatus());
 
         Master master = new Master(emul, "id", "name");
 
-        JSONObject ciStatus = master.getCIStatus();
+        JSONObject ciStatus = master.getPerformanceCIStatus();
         assertTrue(ciStatus.has("masterId"));
         assertEquals("id", ciStatus.getString("masterId"));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id/ci-status, tag=null}", emul.getRequests().get(0));
         String logs = logger.getLogs().toString();
-        assertEquals(logs, 180, logs.length());
+        assertEquals(logs, 206, logs.length());
         assertTrue(logs, logs.contains("Get CI status for master id=id"));
     }
 
-    public static String generateResponseGetCIStatus() {
+    public static String generateResponseGetPerformanceCIStatus() {
         JSONObject status = new JSONObject();
         status.put("masterId", "id");
+
+        JSONArray errors = new JSONArray();
+        JSONArray fails = new JSONArray();
+        status.put("errors", errors);
+        status.put("failures", fails);
+
+        JSONObject result = new JSONObject();
+        result.put("result", status);
+        return result.toString();
+    }
+
+
+    @Test
+    public void testGetFunctionalCIStatus() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetFunctionalCIStatus());
+
+        Master master = new Master(emul, "id", "name");
+
+        JSONObject ciStatus = master.getFunctionalCIStatus();
+        assertTrue(ciStatus.has("masterId"));
+        assertEquals("id", ciStatus.getString("masterId"));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 211, logs.length());
+        assertTrue(logs, logs.contains("Get CI status for master id=id"));
+    }
+
+    public static String generateResponseGetFunctionalCIStatus() {
+        JSONObject status = new JSONObject();
+        status.put("masterId", "id");
+
+        JSONObject gridSummary = new JSONObject();
+        gridSummary.put("definedStatus", "passed");
+        status.put("gridSummary", gridSummary);
 
         JSONObject result = new JSONObject();
         result.put("result", status);

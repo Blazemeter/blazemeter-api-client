@@ -236,4 +236,16 @@ public class Master extends BZAObject {
     public static Master fromJSON(BlazeMeterUtils utils, JSONObject obj) {
         return new Master(utils, obj.getString("id"), obj.getString("name"));
     }
+
+    public JSONObject getFunctionalCIStatus() throws IOException {
+        logger.info("Get CI status for master id=" + getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s", encode(getId()));
+        return utils.execute(utils.createGet(uri)).getJSONObject("result");
+    }
+
+    public JSONObject getPerformanceCIStatus() throws IOException {
+        logger.info("Get CI status for master id=" + getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s/ci-status", encode(getId()));
+        return utils.execute(utils.createGet(uri)).getJSONObject("result");
+    }
 }

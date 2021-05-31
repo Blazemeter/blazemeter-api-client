@@ -58,6 +58,12 @@ public class CiPostProcess {
 
     protected final Logger logger;
 
+    protected String testId;
+
+    protected String testType;
+
+    private final String FUNCTIONAL_GUI_TEST = "functionalGui";
+
     public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
                          String junitPath, String workspaceDir, BlazeMeterUtils utils) {
         this.isDownloadJtl = isDownloadJtl;
@@ -83,6 +89,11 @@ public class CiPostProcess {
         this.logger = logger;
     }
 
+    public void setTest(String testId, String testType) {
+        this.testId = testId;
+        this.testType = testType;
+    }
+
     /**
      * Executes post-process after test was finished on server
      *
@@ -90,9 +101,28 @@ public class CiPostProcess {
      */
     public BuildResult execute(Master master) {
         try {
-            JSONObject ciStatus = master.getCIStatus();
-            BuildResult result = validateCiStatus(ciStatus);
+            JSONObject ciStatus;
+            BuildResult result;
+
+            if (testType.equals(FUNCTIONAL_GUI_TEST)) {
+                ciStatus = master.getFunctionalCIStatus();
+
+                long startTime = System.currentTimeMillis();
+                long waitTime = 0;
+                while (ciStatus.getJSONObject("gridSummary").isNullObject() && waitTime < 60000) {
+                    waitTime = System.currentTimeMillis() - startTime;
+                    Thread.sleep(5000);
+                    ciStatus = master.getFunctionalCIStatus();
+                }
+
+                result = validateFunctionalCiStatus(ciStatus);
+            } else {
+                ciStatus = master.getPerformanceCIStatus();
+                result = validateCiStatus(ciStatus);
+            }
+
             boolean hasReports = checkErrorCode(ciStatus);
+
             if (hasReports) {
                 if (isDownloadJunit) {
                     saveJunit(master);
@@ -127,7 +157,7 @@ public class CiPostProcess {
 
 
     public BuildResult validateCiStatus(JSONObject ciStatus) {
-        BuildResult result = checkFailsAndError(ciStatus);
+        BuildResult result = checkFailsAndErrorForPerformance(ciStatus);
 
         if (result.equals(BuildResult.SUCCESS)) {
             notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
@@ -136,7 +166,24 @@ public class CiPostProcess {
         return result;
     }
 
-    protected BuildResult checkFailsAndError(JSONObject ciStatus) {
+    public BuildResult validateFunctionalCiStatus(JSONObject ciStatus) {
+        BuildResult result = checkFailsAndErrorForFunctional(ciStatus);
+
+        if (result.equals(BuildResult.SUCCESS)) {
+            notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
+            logger.info("No errors/failures while validating CIStatus: setting " + result.name());
+        }
+        return result;
+    }
+
+    protected BuildResult checkFailsAndErrorForFunctional(JSONObject ciStatus) {
+        JSONObject summary = ciStatus.getJSONObject("gridSummary");
+        BuildResult status = (!summary.isEmpty() && summary.getString("definedStatus").equals("passed")) ? BuildResult.SUCCESS : BuildResult.FAILED;
+        notifier.notifyInfo("Setting ci-status = " + status.name());
+        return status;
+    }
+
+    protected BuildResult checkFailsAndErrorForPerformance(JSONObject ciStatus) {
         if (ciStatus.has("failures")) {
             JSONArray failures = ciStatus.getJSONArray("failures");
             if (!failures.isEmpty()) {
