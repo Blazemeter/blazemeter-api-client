@@ -123,8 +123,9 @@ public class CiBuild {
     public Master start() throws IOException, InterruptedException {
         notifier.notifyInfo("CiBuild is started.");
         currentTest = TestDetector.detectTest(utils, testId);
-        if (ciPostProcess != null)
+        if (ciPostProcess != null) {
             ciPostProcess.setTest(currentTest.getId(), currentTest.getTestType());
+        }
         if (currentTest == null) {
             logger.error("Failed to detect test type. Test with id=" + testId + " not found.");
             notifier.notifyError("Failed to detect test type. Test with id = " + testId + " not found.");

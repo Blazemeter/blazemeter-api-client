@@ -105,8 +105,16 @@ public class CiPostProcess {
             BuildResult result;
 
             if (testType.equals(FUNCTIONAL_GUI_TEST)) {
-                Thread.sleep(15000);
                 ciStatus = master.getFunctionalCIStatus();
+
+                long startTime = System.currentTimeMillis();
+                long waitTime = 0;
+                while (ciStatus.getJSONObject("gridSummary").isNullObject() && waitTime < 60000) {
+                    waitTime = System.currentTimeMillis() - startTime;
+                    Thread.sleep(5000);
+                    ciStatus = master.getFunctionalCIStatus();
+                }
+
                 result = validateFunctionalCiStatus(ciStatus);
             } else {
                 ciStatus = master.getPerformanceCIStatus();
@@ -170,13 +178,9 @@ public class CiPostProcess {
 
     protected BuildResult checkFailsAndErrorForFunctional(JSONObject ciStatus) {
         JSONObject summary = ciStatus.getJSONObject("gridSummary");
-        if (!summary.isEmpty() && summary.getString("definedStatus").equals("passed")) {
-            notifier.notifyInfo("Setting ci-status = " + BuildResult.SUCCESS.name());
-            return BuildResult.SUCCESS;
-        }
-
-        notifier.notifyInfo("Setting ci-status = " + BuildResult.FAILED.name());
-        return BuildResult.FAILED;
+        BuildResult status = (!summary.isEmpty() && summary.getString("definedStatus").equals("passed")) ? BuildResult.SUCCESS : BuildResult.FAILED;
+        notifier.notifyInfo("Setting ci-status = " + status.name());
+        return status;
     }
 
     protected BuildResult checkFailsAndErrorForPerformance(JSONObject ciStatus) {
