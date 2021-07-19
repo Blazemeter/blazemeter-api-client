@@ -11,11 +11,19 @@
 
     <groupId>com.blazemeter</groupId>
     <artifactId>blazemeter-api-client</artifactId>
-    <version>1.16</version>
+    <version>1.15</version>
 
     <name>BlazeMeter API Client</name>
     <description>BlazeMeter API Client</description>
 
+    <developers>
+        <developer>
+            <id>sat_blazemeter</id>
+            <name>Dnyaneshwar Nagre (BlazeMeter) </name>
+            <email>sat@blazemeter.com</email>
+        </developer>
+    </developers>
+    
     <licenses>
         <license>
             <name>Apache 2.0</name>
