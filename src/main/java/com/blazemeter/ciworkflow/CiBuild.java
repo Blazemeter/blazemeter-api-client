@@ -55,6 +55,10 @@ public class CiBuild {
 
     protected AbstractTest currentTest;
 
+    protected String workspaceId;
+
+    private final String FUNCTIONAL_GUI_TEST = "functionalGui";
+
     public CiBuild(BlazeMeterUtils utils, String testId, File mainTestFile, List<File> additionalTestFiles,
                    String properties, String notes, CiPostProcess ciPostProcess) {
         this(utils, testId, properties, notes, ciPostProcess);
@@ -70,6 +74,10 @@ public class CiBuild {
         this.ciPostProcess = ciPostProcess;
         this.notifier = utils.getNotifier();
         this.logger = utils.getLogger();
+    }
+
+    public void setWorkspaceId(String workspaceId) {
+        this.workspaceId = workspaceId;
     }
 
     /**
@@ -273,6 +281,13 @@ public class CiBuild {
         notifier.notifyInfo("Test has been started successfully at " + startTime.getTime().toString() + ". Master id=" + master.getId());
 
         try {
+        	
+            if (test.getTestType().equals(FUNCTIONAL_GUI_TEST)) {
+                String serverReport = master.getServerReport(workspaceId, test.getId());
+                notifier.notifyInfo("Test report will be available at " + serverReport);
+                waitForFinish(master);
+            }
+            master.setTestType(test.getTestType());
             generatePublicReport(master);
 
             skipInitState(master);
@@ -298,7 +313,7 @@ public class CiBuild {
     protected void generatePublicReport(Master master) throws InterruptedException {
         try {
             publicReport = master.getPublicReport();
-            notifier.notifyInfo("Test report will be available at " + publicReport);
+            notifier.notifyInfo("Public test report will be available at " + publicReport);
         } catch (InterruptedException | InterruptRuntimeException ex) {
             logger.warn("Interrupt while get public report", ex);
             throw ex;
