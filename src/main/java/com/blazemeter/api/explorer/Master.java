@@ -36,10 +36,6 @@ import java.util.List;
  */
 public class Master extends BZAObject {
 
-    private String testType;
-
-    private final String FUNCTIONAL_GUI_TEST = "functionalGui";
-
     public Master(BlazeMeterUtils utils, String id, String name) {
         super(utils, id, name);
     }
@@ -60,14 +56,12 @@ public class Master extends BZAObject {
         request.put("publicToken", "None");
         JSONObject response = utils.execute(utils.createPost(uri, request.toString()));
 
-        String reportUrl = String.format("/app/?public-token=%s#/masters/%s/summary", extractPublicToken(response.getJSONObject("result")), getId());
-
-        // generated public url for functional test GUI
+        // generated public url for functionalGui test
         if (testType != null && testType.equals(FUNCTIONAL_GUI_TEST)) {
-            reportUrl = String.format("/app/?public-token=%s#/accounts/-1/workspaces/-1/projects/-1/masters/%s/cross-browser-summary",
-                    extractPublicToken(response.getJSONObject("result")), getId());
+            return String.format("%s/app/?public-token=%s#/accounts/-1/workspaces/-1/projects/-1/masters/%s/cross-browser-summary",
+                    utils.getAddress(), extractPublicToken(response.getJSONObject("result")), getId());
         }
-        return utils.getAddress() + reportUrl;
+        return String.format("%s/app/?public-token=%s#/masters/%s/summary", utils.getAddress(), extractPublicToken(response.getJSONObject("result")), getId());
     }
 
     public String getServerReport(String workspaceId, String testId) throws IOException {
