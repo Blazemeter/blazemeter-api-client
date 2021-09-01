@@ -137,6 +137,27 @@ public class MasterTest {
         assertTrue(logs, logs.contains("Get link to public report for master id=id"));
     }
 
+    public static String generateResponseGetAccountId() {
+        JSONObject accId = new JSONObject();
+        accId.put("accountId", "12345");
+
+        JSONObject defaultProject = new JSONObject();
+        defaultProject.put("defaultProject", accId);
+
+        JSONObject result = new JSONObject();
+        result.put("result", defaultProject);
+        return result.toString();
+    }
+
+    public static String generateResponseGetProjectId() {
+        JSONObject projectId = new JSONObject();
+        projectId.put("projectId", "12345");
+
+        JSONObject result = new JSONObject();
+        result.put("result", projectId);
+        return result.toString();
+    }
+
     public static String generateResponseGetPublicToken(String token) {
         JSONObject publicToken = new JSONObject();
         publicToken.put("publicToken", token);

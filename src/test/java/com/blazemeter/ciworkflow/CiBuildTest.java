@@ -113,8 +113,7 @@ public class CiBuildTest {
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
 
-        Integer logLength = logs.length();
-        assertTrue(logLength.equals(2651) || logLength.equals(2572));
+        assertEquals(logs.length(), 2572);
     }
 
 
@@ -265,6 +264,36 @@ public class CiBuildTest {
 
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Failed to skip INIT state"));
+    }
+
+    @Test
+    public void testStartTestFunctionalGui() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        JSONObject masterResponse = new JSONObject();
+        masterResponse.put("id", "responseMasterId");
+        masterResponse.put("name", "responseMasterName");
+        JSONObject response = new JSONObject();
+        response.put("result", masterResponse.toString());
+        emul.addEmul(response.toString());
+        emul.addEmul(MasterTest.generateResponseGetAccountId());
+        emul.addEmul(MasterTest.generateResponseGetProjectId());
+        emul.addEmul(MasterTest.generateResponseGetStatus(140));
+        emul.addEmul(MasterTest.generateResponseStopMaster());
+        emul.addEmul(MasterTest.generateResponseGetPublicToken("test-public-token"));
+        emul.addEmul(MasterTest.generateResponseGetStatus(30));
+
+        CiBuild ciBuild = new CiBuild(emul, "id", "props", "", null);
+        SingleTest singleTest = new SingleTest(emul, "123", "functional-test-name", "functionalGui");
+
+        ciBuild.startTest(singleTest);
+
+        String log = logger.getLogs().toString();
+        assertEquals(log, emul.getRequests().get(0), "Request{method=POST, url=http://a.blazemeter.com/api/v4/tests/123/start, tag=null}");
+        assertEquals(log, emul.getRequests().get(3), "Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}");
+        assertEquals(log, 1318, log.length());
     }
 
     @Test

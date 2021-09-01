@@ -29,6 +29,8 @@ import java.net.URLEncoder;
 public class BZAObject {
 
     public static final String UTF_8 = "UTF-8";
+    public static final String FUNCTIONAL_GUI_TEST = "functionalGui";
+    protected String testType;
     protected String id;
     protected String name;
     protected BlazeMeterUtils utils;
