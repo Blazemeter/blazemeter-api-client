@@ -226,6 +226,24 @@ public class Master extends BZAObject {
     }
 
     /**
+     * PATCH request to 'https://a.blazemeter.com/api/v4/masters/{masterId}'
+     *
+     * @return name which was applied to master if request was successful
+     */
+    public String setReportName(String reportName) throws IOException, InterruptedException {
+        if (StringUtils.isBlank(reportName)) {
+            logger.warn("Report name is null or empty");
+            return StringUtils.EMPTY;
+        }
+        logger.info("Setting Report Name for master id=" + getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s", encode(getId()));
+        JSONObject request = new JSONObject();
+        request.put("name", reportName);
+        JSONObject result = utils.execute(utils.createPatch(uri, request.toString())).getJSONObject("result");
+        return result.getString("name");
+    }
+
+    /**
      * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/ci-status'
      *
      * @return ci-status as JSONObject

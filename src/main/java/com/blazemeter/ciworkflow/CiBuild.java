@@ -57,6 +57,8 @@ public class CiBuild {
 
     protected String workspaceId;
 
+    protected String reportName;
+
     private final String FUNCTIONAL_GUI_TEST = "functionalGui";
 
     public CiBuild(BlazeMeterUtils utils, String testId, File mainTestFile, List<File> additionalTestFiles,
@@ -78,6 +80,10 @@ public class CiBuild {
 
     public void setWorkspaceId(String workspaceId) {
         this.workspaceId = workspaceId;
+    }
+
+    public void setReportName(String reportName) {
+        this.reportName = reportName;
     }
 
     /**
@@ -281,7 +287,8 @@ public class CiBuild {
         notifier.notifyInfo("Test has been started successfully at " + startTime.getTime().toString() + ". Master id=" + master.getId());
 
         try {
-        	
+            setReportName(master);
+
             if (test.getTestType().equals(FUNCTIONAL_GUI_TEST)) {
                 String serverReport = master.getServerReport(workspaceId, test.getId());
                 notifier.notifyInfo("Test report will be available at " + serverReport);
@@ -335,6 +342,21 @@ public class CiBuild {
         } catch (Exception ex) {
             logger.warn("Cannot post notes", ex);
             notifier.notifyWarning("Cannot post notes");
+        }
+    }
+
+    protected void setReportName(Master master) throws InterruptedException {
+        try {
+            if (!StringUtils.isBlank(reportName)) {
+                notifier.notifyInfo("Setting report name : " + reportName);
+                master.setReportName(reportName);
+            }
+        } catch (InterruptedException | InterruptRuntimeException ex) {
+            logger.warn("Interrupt while setting report name", ex);
+            throw ex;
+        } catch (Exception ex) {
+            logger.warn("Cannot set report name", ex);
+            notifier.notifyWarning("Cannot set report name");
         }
     }
 
