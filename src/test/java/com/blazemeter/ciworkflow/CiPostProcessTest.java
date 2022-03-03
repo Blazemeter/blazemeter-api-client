@@ -739,4 +739,62 @@ public class CiPostProcessTest {
             tmpDir.delete();
         }
     }
+
+    @Test
+    public void testValidateTestSuiteCiStatusSuccess() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseTestSuiteCiStatusSuccess());
+
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        BuildResult buildResult = ciPostProcess.validateTestSuiteCiStatus(JSONObject.fromObject(generateResponseTestSuiteCiStatusSuccess()).getJSONObject("result"));
+        assertEquals(BuildResult.SUCCESS, buildResult);
+    }
+
+    public static String generateResponseTestSuiteCiStatusSuccess() {
+
+        JSONObject suiteSummary = new JSONObject();
+        suiteSummary.put("definedStatus", "passed");
+
+        JSONObject testSuiteSummary = new JSONObject();
+        testSuiteSummary.put("suiteSummary",suiteSummary);
+
+        JSONObject result = new JSONObject();
+        result.put("testSuiteSummary", testSuiteSummary);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+
+        return response.toString();
+    }
+
+
+    @Test
+    public void testValidateTestSuiteCiStatusFailure() {
+        LoggerTest logger = new LoggerTest();
+        UserNotifierTest notifier = new UserNotifierTest();
+
+        CiPostProcess ciPostProcess = new CiPostProcess(false, false, "", "", "", notifier, logger);
+        BuildResult buildResult = ciPostProcess.validateTestSuiteCiStatus(JSONObject.fromObject(generateResponseTestSuiteCiStatusFailure()).getJSONObject("result"));
+        assertEquals(BuildResult.FAILED, buildResult);
+    }
+
+    public static String generateResponseTestSuiteCiStatusFailure() {
+
+        JSONObject suiteSummary = new JSONObject();
+        suiteSummary.put("definedStatus", "failed");
+
+        JSONObject testSuiteSummary = new JSONObject();
+        testSuiteSummary.put("suiteSummary",suiteSummary);
+
+        JSONObject result = new JSONObject();
+        result.put("testSuiteSummary", testSuiteSummary);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+
+        return response.toString();
+    }
 }

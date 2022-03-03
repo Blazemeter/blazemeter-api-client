@@ -30,6 +30,7 @@ public class BZAObject {
 
     public static final String UTF_8 = "UTF-8";
     public static final String FUNCTIONAL_GUI_TEST = "functionalGui";
+    public static final String TEST_SUITE = "functionalTestSuite";
     protected String testType;
     protected String id;
     protected String name;

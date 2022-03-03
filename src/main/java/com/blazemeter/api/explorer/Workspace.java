@@ -122,6 +122,15 @@ public class Workspace extends BZAObject {
     }
 
     /**
+     * Get Test Suite for Workspace
+     * limit = 10000, sorted by name
+     */
+    public List<MultiTest> getTestSuite() throws IOException {
+        return getTestSuite("10000", "name");
+    }
+
+
+    /**
      * Get Multi test for Workspace
      * GET request to 'https://a.blazemeter.com/api/v4/multi-tests?workspaceId={workspaceId}'
      * @param limit of tests count in returned list
@@ -132,6 +141,23 @@ public class Workspace extends BZAObject {
         logger.info("Get list of multi tests for workspace id=" + getId());
         String uri = utils.getAddress() + "/api/v4/multi-tests?workspaceId=" + encode(getId());
         uri = addParamToUrl(uri, "sort%5B%5D", sort); // 'sort%5B%5D' == 'sort[]'
+        uri = addParamToUrl(uri, "limit", limit);
+        JSONObject response = utils.execute(utils.createGet(uri));
+        return extractMultiTests(response.getJSONArray("result"));
+    }
+
+    /**
+     * Get Test suite for Workspace
+     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests?workspaceId={workspaceId}&platform=functional'
+     * @param limit of tests count in returned list
+     * @param sort sort type: 'name', 'updated' or other
+     * @return list of Test-suite in current Workspace
+     */
+    public List<MultiTest> getTestSuite(String limit, String sort) throws IOException
+    {
+        logger.info("Get list of test suite for workspace id=" + getId());
+        String uri = utils.getAddress() + "/api/v4/multi-tests?workspaceId="+encode(getId())+"&platform=functional";
+        uri = addParamToUrl(uri, "sort%5B%5D", sort);
         uri = addParamToUrl(uri, "limit", limit);
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractMultiTests(response.getJSONArray("result"));

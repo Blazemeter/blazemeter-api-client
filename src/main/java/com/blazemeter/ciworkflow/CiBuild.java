@@ -17,6 +17,7 @@ package com.blazemeter.ciworkflow;
 import com.blazemeter.api.exception.InterruptRuntimeException;
 import com.blazemeter.api.exception.ValidationException;
 import com.blazemeter.api.explorer.Master;
+import com.blazemeter.api.explorer.Workspace;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.explorer.test.MultiTest;
 import com.blazemeter.api.explorer.test.SingleTest;
@@ -294,6 +295,7 @@ public class CiBuild {
                 notifier.notifyInfo("Test report will be available at " + serverReport);
                 waitForFinish(master);
             }
+
             master.setTestType(test.getTestType());
             generatePublicReport(master);
 

@@ -61,6 +61,12 @@ public class Master extends BZAObject {
             return String.format("%s/app/?public-token=%s#/accounts/-1/workspaces/-1/projects/-1/masters/%s/cross-browser-summary",
                     utils.getAddress(), extractPublicToken(response.getJSONObject("result")), getId());
         }
+        // generated public url for test suite
+        if(testType != null && testType.equals(TEST_SUITE))
+        {
+            return String.format("%s/app/?public-token=%s#/accounts/-1/workspaces/-1/projects/-1/masters/%s/suite-report",
+                    utils.getAddress(), extractPublicToken(response.getJSONObject("result")), getId());
+        }
         return String.format("%s/app/?public-token=%s#/masters/%s/summary", utils.getAddress(), extractPublicToken(response.getJSONObject("result")), getId());
     }
 
