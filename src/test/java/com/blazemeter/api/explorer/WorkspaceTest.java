@@ -213,4 +213,42 @@ public class WorkspaceTest {
         response.put("result", workspace);
         return response.toString();
     }
+
+    @Test
+    public void testGetTestSuites() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetTestSuites());
+
+        Workspace workspace = new Workspace(emul, "888", "workspace_name");
+        List<MultiTest> multiTests = workspace.getTestSuite();
+        assertEquals(2, multiTests.size());
+        for (MultiTest t :multiTests) {
+            assertEquals("456", t.getId());
+            assertEquals("TEST_SUITE", t.getName());
+            assertEquals("functionalTestSuite", t.getTestType());
+        }
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/multi-tests?workspaceId=888&platform=functional&sort%5B%5D=name&limit=10000, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 376, logs.length());
+        assertTrue(logs, logs.contains("Get list of test suite for workspace id=888"));
+    }
+
+    public static String generateResponseGetTestSuites() {
+        JSONObject test = new JSONObject();
+        test.put("id", "456");
+        test.put("name", "TEST_SUITE");
+        test.put("collectionType", "functionalTestSuite");
+
+        JSONArray result = new JSONArray();
+        result.add(test);
+        result.add(test);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
+
 }

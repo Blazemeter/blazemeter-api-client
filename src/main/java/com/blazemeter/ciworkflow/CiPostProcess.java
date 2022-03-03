@@ -64,6 +64,10 @@ public class CiPostProcess {
 
     private final String FUNCTIONAL_GUI_TEST = "functionalGui";
 
+    private final String TEST_SUITE = "functionalTestSuite";
+
+    private final Integer WAITING_TIME_FOR_TEST_RESULT = 65000;
+
     public CiPostProcess(boolean isDownloadJtl, boolean isDownloadJunit, String jtlPath,
                          String junitPath, String workspaceDir, BlazeMeterUtils utils) {
         this.isDownloadJtl = isDownloadJtl;
@@ -109,14 +113,25 @@ public class CiPostProcess {
 
                 long startTime = System.currentTimeMillis();
                 long waitTime = 0;
-                while (ciStatus.getJSONObject("gridSummary").isNullObject() && waitTime < 60000) {
+                while (ciStatus.getJSONObject("gridSummary").isNullObject() && waitTime < WAITING_TIME_FOR_TEST_RESULT) {
                     waitTime = System.currentTimeMillis() - startTime;
-                    Thread.sleep(5000);
                     ciStatus = master.getFunctionalCIStatus();
                 }
 
                 result = validateFunctionalCiStatus(ciStatus);
-            } else {
+            }else if(testType.equals(TEST_SUITE))
+            {
+                ciStatus = master.getFunctionalCIStatus();
+                long startTime = System.currentTimeMillis();
+                long waitTime = 0;
+                while (ciStatus.getJSONObject("testSuiteSummary").getJSONObject("suiteSummary").isNullObject() && waitTime < WAITING_TIME_FOR_TEST_RESULT )
+                {
+                    waitTime = System.currentTimeMillis() - startTime;
+                    ciStatus = master.getFunctionalCIStatus();
+                }
+                result = validateTestSuiteCiStatus(ciStatus);
+            }
+            else {
                 ciStatus = master.getPerformanceCIStatus();
                 result = validateCiStatus(ciStatus);
             }
@@ -158,7 +173,6 @@ public class CiPostProcess {
 
     public BuildResult validateCiStatus(JSONObject ciStatus) {
         BuildResult result = checkFailsAndErrorForPerformance(ciStatus);
-
         if (result.equals(BuildResult.SUCCESS)) {
             notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
             logger.info("No errors/failures while validating CIStatus: setting " + result.name());
@@ -168,7 +182,6 @@ public class CiPostProcess {
 
     public BuildResult validateFunctionalCiStatus(JSONObject ciStatus) {
         BuildResult result = checkFailsAndErrorForFunctional(ciStatus);
-
         if (result.equals(BuildResult.SUCCESS)) {
             notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
             logger.info("No errors/failures while validating CIStatus: setting " + result.name());
@@ -451,6 +464,23 @@ public class CiPostProcess {
 
         return (temp);
     }
+
+    public BuildResult validateTestSuiteCiStatus(JSONObject ciStatus) {
+        BuildResult result = checkFailsAndErrorForTestSuit(ciStatus);
+        if (result.equals(BuildResult.SUCCESS)) {
+            notifier.notifyInfo("No errors/failures while validating CIStatus: setting " + result.name());
+            logger.info("No errors/failures while validating CIStatus: setting " + result.name());
+        }
+        return result;
+    }
+
+    protected BuildResult checkFailsAndErrorForTestSuit(JSONObject ciStatus) {
+        JSONObject summary = ciStatus.getJSONObject("testSuiteSummary").getJSONObject("suiteSummary");
+        BuildResult status = (!summary.isEmpty() && summary.getString("definedStatus").equals("passed")) ? BuildResult.SUCCESS : BuildResult.FAILED;
+        notifier.notifyInfo("Setting ci-status = " + status.name());
+        return status;
+    }
+
 
     public boolean isDownloadJtl() {
         return isDownloadJtl;
