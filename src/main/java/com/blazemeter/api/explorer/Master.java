@@ -83,6 +83,19 @@ public class Master extends BZAObject {
         return utils.getAddress() + reportUrl;
     }
 
+    public String getServerReportForTestSuite(String workspaceId, String testId) throws IOException
+    {
+        String uri = utils.getAddress() + "/api/v4/user";
+        JSONObject response = utils.execute(utils.createGet(uri));
+        String accountId = response.getJSONObject("result").getJSONObject("defaultProject").getString("accountId");
+
+        uri = utils.getAddress() + String.format("/api/v4/multi-tests/%s", testId);
+        response = utils.execute(utils.createGet(uri));
+        String projectsId = response.getJSONObject("result").getString("projectId");
+
+        String reportUrl = String.format("/app/#/accounts/%s/workspaces/%s/projects/%s/masters/%s/suite-report", accountId, workspaceId, projectsId, getId());
+        return utils.getAddress() + reportUrl;
+    }
 
     /**
      * GET request to 'https://a.blazemeter.com/api/v4/masters/{masterId}/reports/thresholds?format=junit'
