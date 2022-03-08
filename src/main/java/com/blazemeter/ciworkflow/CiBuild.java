@@ -17,7 +17,6 @@ package com.blazemeter.ciworkflow;
 import com.blazemeter.api.exception.InterruptRuntimeException;
 import com.blazemeter.api.exception.ValidationException;
 import com.blazemeter.api.explorer.Master;
-import com.blazemeter.api.explorer.Workspace;
 import com.blazemeter.api.explorer.test.AbstractTest;
 import com.blazemeter.api.explorer.test.MultiTest;
 import com.blazemeter.api.explorer.test.SingleTest;
@@ -61,6 +60,8 @@ public class CiBuild {
     protected String reportName;
 
     private final String FUNCTIONAL_GUI_TEST = "functionalGui";
+
+    private final String TEST_SUITE = "functionalTestSuite";
 
     public CiBuild(BlazeMeterUtils utils, String testId, File mainTestFile, List<File> additionalTestFiles,
                    String properties, String notes, CiPostProcess ciPostProcess) {
@@ -289,9 +290,15 @@ public class CiBuild {
 
         try {
             setReportName(master);
-
             if (test.getTestType().equals(FUNCTIONAL_GUI_TEST)) {
                 String serverReport = master.getServerReport(workspaceId, test.getId());
+                notifier.notifyInfo("Test report will be available at " + serverReport);
+                waitForFinish(master);
+            }
+
+            if(test.getTestType().equals(TEST_SUITE))
+            {
+                String serverReport = master.getServerReportForTestSuite(workspaceId, test.getId());
                 notifier.notifyInfo("Test report will be available at " + serverReport);
                 waitForFinish(master);
             }
