@@ -30,7 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
@@ -307,9 +307,20 @@ public class CiPostProcess {
      */
     public boolean downloadAndUnzipJTL(URL url, File reportDir) {
         try {
-            URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(10000);
-            connection.setReadTimeout(30000);
+            HttpURLConnection connection;
+            if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
+                notifier.notifyInfo("connecting via proxy configuration");
+                SocketAddress addr = new InetSocketAddress(System.getProperty("http.proxyHost"), Integer.valueOf(System.getProperty("http.proxyPort")));
+                Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
+                connection = (HttpURLConnection) url.openConnection(proxy);
+            }
+            else {
+                connection = (HttpURLConnection) url.openConnection();
+            }
+
+            connection.setConnectTimeout(30000); // 30 sec connection time out
+            connection.setReadTimeout(30000); // 30 sec read time out
+            connection.connect();
             InputStream inputStream = connection.getInputStream();
             unzipJTL(inputStream, reportDir);
             return true;
