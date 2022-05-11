@@ -118,7 +118,7 @@ public class CiPostProcess {
                     ciStatus = master.getFunctionalCIStatus();
                 }
 
-                result = validateFunctionalCiStatus(ciStatus);
+                result = master.getHasDataStatus().getBoolean("hasData") ? validateFunctionalCiStatus(ciStatus) : BuildResult.FAILED;
             }else if(testType.equals(TEST_SUITE))
             {
                 ciStatus = master.getFunctionalCIStatus();
@@ -129,11 +129,11 @@ public class CiPostProcess {
                     waitTime = System.currentTimeMillis() - startTime;
                     ciStatus = master.getFunctionalCIStatus();
                 }
-                result = validateTestSuiteCiStatus(ciStatus);
+                result = master.getHasDataStatus().getBoolean("hasData") ? validateTestSuiteCiStatus(ciStatus) : BuildResult.FAILED;
             }
             else {
                 ciStatus = master.getPerformanceCIStatus();
-                result = validateCiStatus(ciStatus);
+                result = master.getHasDataStatus().getBoolean("hasData") ? validateCiStatus(ciStatus) : BuildResult.FAILED;
             }
 
             boolean hasReports = checkErrorCode(ciStatus);
@@ -145,8 +145,10 @@ public class CiPostProcess {
                 if (isDownloadJtl) {
                     saveJTL(master);
                 }
-                JSONObject summary = downloadSummary(master);
-                notifier.notifyInfo(summary.toString());
+                if(master.getHasDataStatus().getBoolean("hasData")) {
+                    JSONObject summary = downloadSummary(master);
+                    notifier.notifyInfo(summary.toString());
+                }
             }
             return result;
         } catch (Exception e) {

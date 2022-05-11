@@ -329,15 +329,16 @@ public class CiPostProcessTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         emul.addEmul(generateResponseCIStatusSuccess());
+        emul.addEmul(MasterTest.generateResponseGetHasDataStatus());
         emul.addEmul(MasterTest.generateResponseGetStatus(140));
         emul.addEmul("junit");
+        emul.addEmul(MasterTest.generateResponseGetHasDataStatus());
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
         emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
 
         CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "pwd", notifier, logger);
         ciPostProcess.setTest("testId", "testType");
         Master master = new Master(emul, "id", "name");
-
         BuildResult result = ciPostProcess.execute(master);
         assertEquals(BuildResult.SUCCESS, result);
         File junit = new File("./junit", "id.xml");
@@ -524,7 +525,6 @@ public class CiPostProcessTest {
         postProcess.setTest("testId", "testType");
         postProcess.execute(master);
         String notifiers = notifier.getLogs().toString();
-
         String jtlPath = notifiers.substring(notifiers.indexOf("Saving jtl report"), notifiers.indexOf("Trying to get functional summar"));
         System.out.println(jtlPath);
         assertTrue(notifiers, jtlPath.contains("job/logs/100/r-v3-1234567890qwerty"));
@@ -639,9 +639,11 @@ public class CiPostProcessTest {
 
     private void setStandardFlow(BlazeMeterUtilsEmul emul) {
         emul.addEmul(MasterTest.generateResponseGetPerformanceCIStatus());
+        emul.addEmul(MasterTest.generateResponseGetHasDataStatus());
         emul.addEmul("junit report");
         emul.addEmul(MasterTest.generateResponseGetSessions());
         emul.addEmul(SessionTest.generateResponseGetJTLReport());
+        emul.addEmul(MasterTest.generateResponseGetHasDataStatus());
         emul.addEmul(MasterTest.generateResponseGetFunctionalReport());
     }
 
