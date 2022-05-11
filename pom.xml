@@ -11,7 +11,7 @@
 
     <groupId>com.blazemeter</groupId>
     <artifactId>blazemeter-api-client</artifactId>
-    <version>1.21-SNAPSHOT</version>
+    <version>1.21</version>
 
     <name>BlazeMeter API Client</name>
     <description>BlazeMeter API Client</description>
