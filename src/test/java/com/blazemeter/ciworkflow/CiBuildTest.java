@@ -103,7 +103,8 @@ public class CiBuildTest {
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/status?events=false, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/ci-status, tag=null}", emul.getRequests().get(i++));
         assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(i++));
-        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(i));
+        //assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId/reports/main/summary, tag=null}", emul.getRequests().get(i));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/responseMasterId, tag=null}", emul.getRequests().get(i));
 
         String logs = logger.getLogs().toString();
         assertTrue(logs, logs.contains("Get Single Test id=testId"));
@@ -113,9 +114,8 @@ public class CiBuildTest {
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":70}}"));
         assertTrue(logs, logs.contains("Response: {\"result\":{\"progress\":140}}"));
 
-        assertEquals(logs.length(), 2572);
+        assertEquals(logs.length(), 2599);
     }
-
 
     private void setEmulator(BlazeMeterUtilsEmul emul) {
         emul.addEmul(SingleTestTest.generateResponseGetSingleTest());
@@ -130,6 +130,7 @@ public class CiBuildTest {
         emul.addEmul(MasterTest.generateResponseGetStatus(70));
         emul.addEmul(MasterTest.generateResponseGetStatus(140));
         emul.addEmul(MasterTest.generateResponseGetPerformanceCIStatus());
+        emul.addEmul(MasterTest.generateResponseGetHasDataStatus());
         emul.addEmul(MasterTest.generateResponseGetFunctionalCIStatus());
 
     }

@@ -308,4 +308,12 @@ public class Master extends BZAObject {
         String uri = utils.getAddress() + String.format("/api/v4/masters/%s/ci-status", encode(getId()));
         return utils.execute(utils.createGet(uri)).getJSONObject("result");
     }
+    //  Calling API to get the No Data/Not Set result in hasData variable
+    // hasData=true summary data is present, hasData=false summary data is NA
+    public JSONObject getHasDataStatus() throws IOException
+    {
+        logger.info("Get CI status for master id=" + getId());
+        String uri = utils.getAddress() + String.format("/api/v4/masters/%s", encode(getId()));
+        return utils.execute(utils.createGet(uri)).getJSONObject("result");
+    }
 }

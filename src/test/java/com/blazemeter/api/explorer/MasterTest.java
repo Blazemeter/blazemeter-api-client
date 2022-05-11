@@ -648,4 +648,30 @@ public class MasterTest {
         assertNotNull(ex[0]);
         assertEquals("Interrupt while post properties to session", ex[0].getMessage());
     }
+    @Test
+    public void testGetHasDataStatus() throws Exception {
+        LoggerTest logger = new LoggerTest();
+        UserNotifier notifier = new UserNotifierTest();
+        BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
+
+        emul.addEmul(generateResponseGetHasDataStatus());
+
+        Master master = new Master(emul, "id", "name");
+
+        JSONObject hasData = master.getHasDataStatus();
+        assertEquals(true, hasData.getBoolean("hasData"));
+        assertEquals("Request{method=GET, url=http://a.blazemeter.com/api/v4/masters/id, tag=null}", emul.getRequests().get(0));
+        String logs = logger.getLogs().toString();
+        assertEquals(logs, 169, logs.length());
+        assertTrue(logs, logs.contains("Get CI status for master id=id"));
+    }
+
+    public static String generateResponseGetHasDataStatus() {
+        JSONObject result = new JSONObject();
+        result.put("hasData", true);
+
+        JSONObject response = new JSONObject();
+        response.put("result", result);
+        return response.toString();
+    }
 }
