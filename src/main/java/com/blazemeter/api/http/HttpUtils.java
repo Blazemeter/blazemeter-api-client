@@ -185,7 +185,7 @@ public class HttpUtils {
             return new OkHttpClient.Builder()
                     .addInterceptor(new RetryInterceptor(logger))
                     .addInterceptor(httpLog)
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(180, TimeUnit.SECONDS)
                     .readTimeout(60, TimeUnit.SECONDS)
                     .proxy(proxy)
                     .proxyAuthenticator(auth).build();
