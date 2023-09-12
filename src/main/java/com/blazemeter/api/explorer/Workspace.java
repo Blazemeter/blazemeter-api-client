@@ -112,7 +112,7 @@ public class Workspace extends BZAObject {
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractSingleTests(response.getJSONArray("result"));
     }
-    public List<SingleTest> getSingleTests(String limit, String sort,String skip) throws IOException {
+    public List<SingleTest> getAllTests(String limit, String sort,String skip) throws IOException {
         Logger logger = utils.getLogger();
         logger.info("Get list of single tests for workspace id=====>" + getId());
         String uri = utils.getAddress() + "/api/v4/tests?workspaceId=" + encode(getId());
