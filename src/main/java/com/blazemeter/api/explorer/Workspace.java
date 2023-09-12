@@ -112,6 +112,16 @@ public class Workspace extends BZAObject {
         JSONObject response = utils.execute(utils.createGet(uri));
         return extractSingleTests(response.getJSONArray("result"));
     }
+    public List<SingleTest> getSingleTests(String limit, String sort,String skip) throws IOException {
+        Logger logger = utils.getLogger();
+        logger.info("Get list of single tests for workspace id=====>" + getId());
+        String uri = utils.getAddress() + "/api/v4/tests?workspaceId=" + encode(getId());
+        uri = addParamToUrl(uri, "sort%5B%5D", sort); // 'sort%5B%5D' == 'sort[]'
+        uri = addParamToUrl(uri, "limit", limit);
+        uri = addParamToUrl(uri,"skip",skip);
+        JSONObject response = utils.execute(utils.createGet(uri));
+        return extractSingleTests(response.getJSONArray("result"));
+    }
 
     /**
      * Get Multi tests for Workspace
@@ -195,5 +205,11 @@ public class Workspace extends BZAObject {
 
     public static Workspace fromJSON(BlazeMeterUtils utils, JSONObject obj) {
         return new Workspace(utils, obj.getString("id"), obj.getString("name"));
+    }
+
+    public int getTotalTestListCount() throws IOException{
+        String uri = utils.getAddress() + "/api/v4/tests?workspaceId=" + encode(getId());
+        JSONObject response = utils.execute(utils.createGet(uri));
+        return (int)response.get("total");
     }
 }
