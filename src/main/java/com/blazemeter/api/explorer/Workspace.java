@@ -212,4 +212,13 @@ public class Workspace extends BZAObject {
         JSONObject response = utils.execute(utils.createGet(uri));
         return (int)response.get("total");
     }
+
+    public MultiTest getTestDetails(String testId) throws IOException{
+        String uri = utils.getAddress() + "/api/v4/tests/" + encode(testId);
+        JSONObject response = utils.execute(utils.createGet(uri));
+        JSONObject obj = response.getJSONObject("result");
+        MultiTest result = MultiTest.fromJSON(utils, obj);
+
+        return result;
+    }
 }
