@@ -1,0 +1,27 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                     http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<servers>
+ <server>
+   <id>sonatype-nexus-staging</id>
+   <username>NEXUS-STAGING-USERNAME</username>
+   <password>NEXUS-STAGING-USERNAME</password>
+ </server>
+   <server>
+     <id>repo.jenkins-ci.org</id> <!-- For parent 1.397 or newer; this ID is used for historical reasons and independent of the actual host name -->
+     <username>API-CLIENT-USERNAME</username>
+     <password>API-CLIENT-PASSWORD</password>
+   </server>
+
+</servers>
+    <mirrors>
+        <mirror>
+            <id>maven-default-http-blocker</id>
+            <mirrorOf>external:dummy:*</mirrorOf>
+            <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
+            <url>http://0.0.0.0/</url>
+        </mirror>
+    </mirrors>
+
+</settings>
