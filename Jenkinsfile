@@ -34,31 +34,31 @@ pipeline {
                 }
             }
         }
-        /*stage('Generating GPG Key') {
+        stage('Generating GPG Key') {
             steps {
                 script {
                     sh'''
-                    export GNUPGHOME="$(mktemp -d)"
-                    cat >gpg_key <<EOF
+                    cat >gpgkey <<EOF
                     %echo Generating a basic OpenPGP key
                     Key-Type: DSA
                     Key-Length: 1024
                     Subkey-Type: ELG-E
                     Subkey-Length: 1024
-                    Name-Real: Joe Tester
+                    Name-Real: Blazemeter
                     Name-Comment: with stupid passphrase
-                    Name-Email: joe@foo.bar
+                    Name-Email: sat@blazemeter.com
                     Expire-Date: 0
-                    Passphrase: ChangeM3Later
+                    Passphrase: Ch4ng3M3L4t3r
                     %commit
                     %echo done
                 EOF
-                    gpg --batch --generate-key gpg_key
-                    gpg --keyserver keyserver.ubuntu.com --send-keys <generated_key_value>
+                    gpg --batch --generate-key gpgkey
+                    KEY=`gpg --list-keys | grep Blazemeter -B 1 | head -1`
+                    gpg --keyserver keyserver.ubuntu.com --send-keys $KEY
                     '''
                 }
             }
-        }*/
+        }
         stage('Release API Client') {
             steps {
                 script {
