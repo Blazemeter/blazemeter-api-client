@@ -18,6 +18,7 @@ pipeline {
     environment {
         NEXUS_STAGING_CRED = credentials('blazerunner_nexus_staging_creds')
         API_CLIENT_CRED = credentials('blazerunner_api_client_creds')
+        GPG_PASSPHRASE = credentials('blazerunner_api_client_gpg_passphrase')
     }
 
     stages {
@@ -48,7 +49,7 @@ pipeline {
                     Name-Comment: with stupid passphrase
                     Name-Email: sat@blazemeter.com
                     Expire-Date: 0
-                    Passphrase: Ch4ng3M3L4t3r
+                    Passphrase: ${GPG_PASSPHRASE}
                     %commit
                     %echo done
                 EOF
