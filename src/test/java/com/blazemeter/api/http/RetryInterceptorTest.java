@@ -14,10 +14,15 @@
 
 package com.blazemeter.api.http;
 
+import com.blazemeter.api.http.RetryInterceptorTest.ChainImpl;
+import com.blazemeter.api.http.RetryInterceptorTest.ChainWithErrorImpl;
 import com.blazemeter.api.logging.LoggerTest;
 import com.blazemeter.api.utils.BlazeMeterUtilsEmul;
+
+import okhttp3.Call;
 import okhttp3.Connection;
 import okhttp3.Interceptor;
+import okhttp3.Interceptor.Chain;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -26,6 +31,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.TimeUnit;
 
 import static com.blazemeter.api.http.HttpUtils.JSON_CONTENT;
 import static org.junit.Assert.assertEquals;
@@ -72,8 +78,43 @@ public class RetryInterceptorTest {
         }
 
         @Override
+        public Call call() {
+            return null;
+        }
+        
+        @Override
         public Connection connection() {
             return null;
+        }
+
+        @Override
+        public int connectTimeoutMillis() {
+            return 0;
+        }
+
+        @Override
+        public Chain withConnectTimeout(int timeout, TimeUnit unit) {
+            return this;
+        }
+
+        @Override
+        public int readTimeoutMillis() {
+            return 0;
+        }
+
+        @Override
+        public Chain withReadTimeout(int timeout, TimeUnit unit) {
+            return this;
+        }
+
+        @Override
+        public int writeTimeoutMillis() {
+            return 0;
+        }
+
+        @Override
+        public Chain withWriteTimeout(int timeout, TimeUnit unit) {
+            return this;
         }
     }
 
@@ -124,8 +165,43 @@ public class RetryInterceptorTest {
         }
 
         @Override
+        public Call call() {
+            return null;
+        }
+
+        @Override
         public Connection connection() {
             return null;
+        }
+
+        @Override
+        public int connectTimeoutMillis() {
+            return 0;
+        }
+
+        @Override
+        public Chain withConnectTimeout(int timeout, TimeUnit unit) {
+            return this;
+        }
+
+        @Override
+        public int readTimeoutMillis() {
+            return 0;
+        }
+
+        @Override
+        public Chain withReadTimeout(int timeout, TimeUnit unit) {
+            return this;
+        }
+
+        @Override
+        public int writeTimeoutMillis() {
+            return 0;
+        }
+
+        @Override
+        public Chain withWriteTimeout(int timeout, TimeUnit unit) {
+            return this;
         }
     }
 
