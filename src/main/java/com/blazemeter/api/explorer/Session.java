@@ -47,7 +47,7 @@ public class Session extends BZAObject {
 
     /**
      * Send test json data for the report
-     * POST request to 'https://a.blazemeter.com/submit.php?session_id={sessionId}&signature={signature}&test_id={testId}&user_id={userId}'
+     * POST request to 'https://a.blazemeter.com/submit.php?session_id={sessionId}&amp;signature={signature}&amp;test_id={testId}&amp;user_id={userId}'
      *
      * @return session in JSONObject
      */

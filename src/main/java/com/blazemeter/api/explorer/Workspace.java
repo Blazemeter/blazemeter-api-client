@@ -75,7 +75,7 @@ public class Workspace extends BZAObject {
 
     /**
      * Get Project for Workspace
-     * GET request to 'https://a.blazemeter.com/api/v4/projects?workspaceId={workspaceId}&limit=99999'
+     * GET request to 'https://a.blazemeter.com/api/v4/projects?workspaceId={workspaceId}&amp;limit=99999'
      * @param limit of tests count in returned list
      * @param sort sort type: 'name', 'updated' or other
      * @return list of Projects in current Workspace
@@ -148,7 +148,7 @@ public class Workspace extends BZAObject {
 
     /**
      * Get Test suite for Workspace
-     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests?workspaceId={workspaceId}&platform=functional'
+     * GET request to 'https://a.blazemeter.com/api/v4/multi-tests?workspaceId={workspaceId}&amp;platform=functional'
      * @param limit of tests count in returned list
      * @param sort sort type: 'name', 'updated' or other
      * @return list of Test-suite in current Workspace
