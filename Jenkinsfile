@@ -46,7 +46,7 @@ pipeline {
                     Subkey-Type: ELG-E
                     Subkey-Length: 1024
                     Name-Real: Blazemeter
-                    Name-Comment: with stupid passphrase
+                    Name-Comment: Blazemeter PGP Key with Passphrase
                     Name-Email: sat@blazemeter.com
                     Expire-Date: 0
                     Passphrase: ${GPG_PASSPHRASE}
