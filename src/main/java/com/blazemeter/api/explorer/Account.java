@@ -59,7 +59,7 @@ public class Account extends BZAObject {
 
     /**
      * Get Workspaces for current Account
-     * GET request to 'https://a.blazemeter.com/api/v4/workspaces?accountId={accountId}&enabled=true&limit=100'
+     * GET request to 'https://a.blazemeter.com/api/v4/workspaces?accountId={accountId}&amp;enabled=true&amp;limit=100'
      *
      * @param enabled - if 'true' that will be return only enabled workspaces,
      *                if 'false' - only disabled workspaces,
