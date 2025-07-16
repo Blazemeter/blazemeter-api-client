@@ -20,7 +20,7 @@ pipeline {
     }
 
     stages {
-        stage('Release API Client') {
+        stage('Build and test API Client') {
             steps {
                 script {
                     sh 'mvn clean install'
