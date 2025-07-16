@@ -1,5 +1,5 @@
 pipeline {
-    agent {
+/**    agent {
         docker {
             registryUrl 'https://us-docker.pkg.dev'
             image 'verdant-bulwark-278/bzm-plugin-base-image/bzm-plugin-base-image:latest'
@@ -7,7 +7,14 @@ pipeline {
             args '-u root -v /var/run/docker.sock:/var/run/docker.sock -v $WORKSPACE:/build'
         }
     }
-
+*//
+    agent{
+        docker{
+            label 'generalNodes'
+            image 'us.gcr.io/verdant-bulwark-278/jenkins-docker-agent:master.latest'
+            args "-u root -v /home/jenkins/tools/:/home/jenkins/tools/ -v /var/run/docker.sock:/var/run/docker.sock"
+        }
+    }    
     options {
         buildDiscarder(logRotator(numToKeepStr: "10"))
         ansiColor('xterm')
