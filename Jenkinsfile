@@ -13,12 +13,6 @@ pipeline {
         disableConcurrentBuilds()
     }
 
-    environment {
-        NEXUS_STAGING_CRED = credentials('blazerunner_nexus_staging_creds')
-        API_CLIENT_CRED = credentials('blazerunner_api_client_creds')
-        GPG_PASSPHRASE = credentials('blazerunner_api_client_gpg_passphrase')
-    }
-
     stages {
         stage('Build and test API Client') {
             steps {
@@ -29,22 +23,30 @@ pipeline {
         }
         stage('Prepare Maven settings.xml for publishing artifacts') {
             steps {
-                script {
-                    sh'''
-                      sed "s/NEXUS-STAGING-USERNAME/${NEXUS_STAGING_CRED_USR}/" settings.xml
-                      sed "s/NEXUS-STAGING-PASSWORD/${NEXUS_STAGING_CRED_PSW}/" settings.xml
-                      sed "s/API-CLIENT-USERNAME/${API_CLIENT_CRED_USR}/" settings.xml
-                      sed "s/API-CLIENT-PASSWORD/${API_CLIENT_CRED_PSW}/" settings.xml
-                      mkdir ~/.m2
-                      cp settings.xml ~/.m2/settings.xml
-                      '''
+                withCredentials([
+                    usernamePassword(credentialsId: 'blazerunner_nexus_staging_creds', usernameVariable: 'NEXUS_STAGING_CRED_USR', passwordVariable: 'NEXUS_STAGING_CRED_PSW'),
+                    usernamePassword(credentialsId: 'blazerunner_api_client_creds', usernameVariable: 'API_CLIENT_CRED_USR', passwordVariable: 'API_CLIENT_CRED_PSW')
+                ]) {
+                    script {
+                    sh '''
+                    sed -i "s/NEXUS-STAGING-USERNAME/${NEXUS_STAGING_CRED_USR}/" settings.xml
+                    sed -i "s/NEXUS-STAGING-PASSWORD/${NEXUS_STAGING_CRED_PSW}/" settings.xml
+                    sed -i "s/API-CLIENT-USERNAME/${API_CLIENT_CRED_USR}/" settings.xml
+                    sed -i "s/API-CLIENT-PASSWORD/${API_CLIENT_CRED_PSW}/" settings.xml
+                    mkdir -p ~/.m2
+                    cp settings.xml ~/.m2/settings.xml
+                    '''
+                    }
                 }
             }
         }
         stage('Generating GPG Key') {
             steps {
-                script {
-                    sh'''
+                withCredentials([
+                    string(credentialsId: 'blazerunner_api_client_gpg_passphrase', variable: 'GPG_PASSPHRASE')
+                ]) {
+                    script {
+                    sh '''
                     cat >gpgkey <<EOF
                     %echo Generating a basic OpenPGP key
                     Key-Type: DSA
@@ -58,11 +60,12 @@ pipeline {
                     Passphrase: ${GPG_PASSPHRASE}
                     %commit
                     %echo done
-                EOF
+                    EOF
                     gpg --batch --generate-key gpgkey
-                    KEY=`gpg --list-keys | grep Blazemeter -B 1 | head -1`
+                    KEY=$(gpg --list-keys | grep Blazemeter -B 1 | head -1)
                     gpg --keyserver keyserver.ubuntu.com --send-keys $KEY
                     '''
+                    }
                 }
             }
         }
