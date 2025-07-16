@@ -65,6 +65,7 @@ public class RetryInterceptorTest {
         public int code = 200;
         public String method = "GET";
         public RequestBody body = null;
+        public String message = "OK";
 
         @Override
         public Request request() {
@@ -74,7 +75,7 @@ public class RetryInterceptorTest {
         @Override
         public Response proceed(Request request) throws IOException {
             Response.Builder responseBuilder = new Response.Builder();
-            return responseBuilder.code(code).request(request).protocol(Protocol.get("http/1.1")).build();
+            return responseBuilder.code(code).request(request).protocol(Protocol.get("http/1.1")).message(message).build();
         }
 
         @Override
@@ -147,6 +148,7 @@ public class RetryInterceptorTest {
     public static class ChainWithErrorImpl implements Interceptor.Chain {
         public int successAttemptNumber = 5;
         public int code = 200;
+        public String message = "OK";
         private int currentAttempt = 0;
 
         @Override
@@ -159,7 +161,7 @@ public class RetryInterceptorTest {
             currentAttempt++;
             if (currentAttempt == successAttemptNumber) {
                 Response.Builder responseBuilder = new Response.Builder();
-                return responseBuilder.code(code).request(request).protocol(Protocol.get("http/1.1")).build();
+                return responseBuilder.code(code).request(request).protocol(Protocol.get("http/1.1")).message(message).build();
             }
             throw new SocketTimeoutException("ooops");
         }
@@ -229,6 +231,7 @@ public class RetryInterceptorTest {
         LoggerTest logger = new LoggerTest();
         RetryInterceptor retryInterceptor = new RetryInterceptor(logger);
         ChainWithErrorImpl chain = new ChainWithErrorImpl();
+        chain.message = "Server does not send response";
         chain.successAttemptNumber = 3;
 
         Response response = retryInterceptor.intercept(chain);
@@ -247,6 +250,7 @@ public class RetryInterceptorTest {
         chain.method = "POST";
         chain.body = RequestBody.create(JSON_CONTENT, "{}");
         chain.code = 408;
+        chain.message = "Request Timeout";
 
         Response response = retryInterceptor.intercept(chain);
         assertEquals(408, response.code());

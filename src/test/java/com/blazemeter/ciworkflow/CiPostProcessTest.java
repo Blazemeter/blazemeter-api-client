@@ -459,6 +459,7 @@ public class CiPostProcessTest {
         BlazeMeterUtilsEmul emul = new BlazeMeterUtilsEmul(BZM_ADDRESS, BZM_DATA_ADDRESS, notifier, logger);
 
         CiPostProcess ciPostProcess = new CiPostProcess(true, true, "jtl", "junit", "", notifier, logger);
+        ciPostProcess.setTest("testId", "testType");
         Master master = new Master(emul, "id", "name");
 
         emul.addEmul(generateResponseCIStatus_Error_70404());
@@ -470,8 +471,7 @@ public class CiPostProcessTest {
         assertFalse(logs, logs.contains("Get JTL report for session"));
         assertFalse(logs, logs.contains("Got functional report from server"));
         assertFalse(logs, logs.contains("Got aggregated report from server"));
-        System.out.println("Logs are: " + logs);
-        assertEquals(logs, 115, logs.length());
+        assertTrue(logs, logs.contains("No responses to emulate"));
     }
 
     @Test

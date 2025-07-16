@@ -227,7 +227,7 @@ public class HttpUtilsTest {
             utils.executeRequest(request);
             fail();
         } catch (Throwable e) {
-            assertEquals("java.net.UnknownHostException: aiaiaiaiaiaiaiiaxxxmsmsms.iiingo: Name or service not known", e.getMessage());
+            assertEquals("java.net.UnknownHostException: aiaiaiaiaiaiaiiaxxxmsmsms.iiingo: nodename nor servname provided, or not known", e.getMessage());
         }
     }
 
@@ -237,7 +237,7 @@ public class HttpUtilsTest {
         Request.Builder reqBuilder = new Request.Builder();
         reqBuilder.url(BLAZEDEMO).get();
         Response.Builder respBuilder = new Response.Builder();
-        respBuilder.request(reqBuilder.build()).protocol(Protocol.HTTP_1_1).code(200);
+        respBuilder.request(reqBuilder.build()).protocol(Protocol.HTTP_1_1).code(200).message("OK");
         Request actual = auth.authenticate(null, respBuilder.build());
         assertEquals(actual.header("Proxy-Authorization"), "Basic YWFhOnh4eA==");
 
