@@ -1,13 +1,4 @@
 pipeline {
-/**    agent {
-        docker {
-            registryUrl 'https://us-docker.pkg.dev'
-            image 'verdant-bulwark-278/bzm-plugin-base-image/bzm-plugin-base-image:latest'
-            registryCredentialsId 'push-to-gar-enc'
-            args '-u root -v /var/run/docker.sock:/var/run/docker.sock -v $WORKSPACE:/build'
-        }
-    }
-**/
     agent{
         docker{
             label 'generalNodes'
@@ -32,13 +23,14 @@ pipeline {
         stage('Build API Client') {
             steps {
                 script {
-                    sh'''
+                    sh"""
                       sed 's/NEXUS-STAGING-USERNAME/${NEXUS_STAGING_CRED_USR}/' settings.xml
                       sed 's/NEXUS-STAGING-PASSWORD/${NEXUS_STAGING_CRED_PSW}/' settings.xml
                       sed 's/API-CLIENT-USERNAME/${API_CLIENT_CRED_USR}/' settings.xml
                       sed 's/API-CLIENT-PASSWORD/${API_CLIENT_CRED_PSW}/' settings.xml
+                      mkdir ~/.m2
                       cp settings.xml ~/.m2/settings.xml
-                      '''
+                      """
                 }
             }
         }
