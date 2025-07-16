@@ -14,10 +14,10 @@ pipeline {
     }
 
     stages {
-        stage('Build and test API Client') {
+        stage('Build API Client (Skip Tests)') {
             steps {
                 script {
-                    sh 'mvn clean install'
+                    sh 'mvn clean install -DskipTests'
                 }
             }
         }
@@ -69,7 +69,7 @@ pipeline {
                 }
             }
         }
-        stage('Release API Client') {
+        stage('Test, Prepare and Release API Client') {
             steps {
                 script {
                     sh'''
