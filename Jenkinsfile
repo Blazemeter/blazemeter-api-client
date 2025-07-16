@@ -23,14 +23,14 @@ pipeline {
         stage('Build API Client') {
             steps {
                 script {
-                    sh"""
+                    sh'''
                       sed 's/NEXUS-STAGING-USERNAME/${NEXUS_STAGING_CRED_USR}/' settings.xml
                       sed 's/NEXUS-STAGING-PASSWORD/${NEXUS_STAGING_CRED_PSW}/' settings.xml
                       sed 's/API-CLIENT-USERNAME/${API_CLIENT_CRED_USR}/' settings.xml
                       sed 's/API-CLIENT-PASSWORD/${API_CLIENT_CRED_PSW}/' settings.xml
                       mkdir ~/.m2
                       cp settings.xml ~/.m2/settings.xml
-                      """
+                      '''
                 }
             }
         }
