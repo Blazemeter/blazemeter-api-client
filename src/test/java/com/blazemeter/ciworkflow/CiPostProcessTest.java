@@ -470,6 +470,7 @@ public class CiPostProcessTest {
         assertFalse(logs, logs.contains("Get JTL report for session"));
         assertFalse(logs, logs.contains("Got functional report from server"));
         assertFalse(logs, logs.contains("Got aggregated report from server"));
+        System.out.println("Logs are: " + logs);
         assertEquals(logs, 50, logs.length());
     }
 
