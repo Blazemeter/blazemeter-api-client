@@ -20,7 +20,14 @@ pipeline {
     }
 
     stages {
-        stage('Build API Client') {
+        stage('Release API Client') {
+            steps {
+                script {
+                    sh 'mvn clean install'
+                }
+            }
+        }
+        stage('Prepare Maven settings.xml for publishing artifacts') {
             steps {
                 script {
                     sh'''

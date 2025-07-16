@@ -59,7 +59,6 @@ public class HttpUtilsTest {
         assertEquals(BZM_ADDRESS + '/', post2.url().toString());
         assertEquals(17, post2.body().contentLength());
 
-
         Request patch1 = utils.createPatch(BZM_ADDRESS, requestBody);
         assertEquals("PATCH", patch1.method());
         assertEquals(BZM_ADDRESS + '/', patch1.url().toString());
@@ -154,7 +153,8 @@ public class HttpUtilsTest {
                 new HttpUtils(logger);
                 fail("Cannot init proxy with port '-12345'");
             } catch (RuntimeException ex) {
-                assertEquals("ERROR Instantiating HTTPClient. Exception received: port out of range:-12345", ex.getMessage());
+                assertEquals("ERROR Instantiating HTTPClient. Exception received: port out of range:-12345",
+                        ex.getMessage());
                 assertEquals("Using http.proxyHost = XXXX\r\n" +
                         "Using http.proxyPort = -12345\r\n" +
                         "ERROR Instantiating HTTPClient. Exception received: port out of range:-12345\r\n" +
@@ -227,7 +227,14 @@ public class HttpUtilsTest {
             utils.executeRequest(request);
             fail();
         } catch (Throwable e) {
-            assertEquals("java.net.UnknownHostException: aiaiaiaiaiaiaiiaxxxmsmsms.iiingo: nodename nor servname provided, or not known", e.getMessage());
+            final boolean firstSupportedFailure = e.getMessage().contains(
+                "java.net.UnknownHostException: aiaiaiaiaiaiaiiaxxxmsmsms.iiingo: nodename nor servname provided, or not known"
+            );
+            final boolean secondSupportedFailure = e.getMessage().contains(
+                "java.net.UnknownHostException: aiaiaiaiaiaiaiiaxxxmsmsms.iiingo: Name or service not known"
+            );
+
+            assertTrue(firstSupportedFailure || secondSupportedFailure);
         }
     }
 
