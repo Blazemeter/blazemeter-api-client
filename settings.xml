@@ -6,7 +6,7 @@
  <server>
    <id>sonatype-nexus-staging</id>
    <username>NEXUS-STAGING-USERNAME</username>
-   <password>NEXUS-STAGING-USERNAME</password>
+   <password>NEXUS-STAGING-PASSWORD</password>
  </server>
    <server>
      <id>repo.jenkins-ci.org</id> <!-- For parent 1.397 or newer; this ID is used for historical reasons and independent of the actual host name -->
